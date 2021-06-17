@@ -1,8 +1,6 @@
 package service
 
 import (
-	"log"
-
 	"github.com/google/uuid"
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
 	"github.com/ictsc/ictsc-rikka/pkg/repository"
@@ -29,7 +27,6 @@ func (s *AuthService) SignIn(name, password string) (*entity.User, error) {
 		return nil, err
 	}
 
-	log.Println(user.UserGroup)
 	return user, nil
 }
 
