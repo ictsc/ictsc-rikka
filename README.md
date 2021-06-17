@@ -56,4 +56,7 @@ make mariadb
 # redis-cliを起動
 make redis-cli
 
+# 自己署名証明書の作成
+make self-signed-cert-and-key
+
 ```
