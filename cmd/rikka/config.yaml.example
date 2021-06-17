@@ -5,3 +5,14 @@ listen:
 #  tls:
 #    certFilePath: cmd/rikka/server.crt
 #    keyFilePath: cmd/rikka/server.key
+mariadb:
+  address: mariadb
+  port: 3306
+  username: rikka
+  password: rikka-password
+  database: rikka
+redis:
+  idleConnectionSize: 10
+  address: redis
+  port: 6379
+  keyPair: secret
