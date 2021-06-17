@@ -1,0 +1,7 @@
+listen:
+  address: 0.0.0.0
+  port: 8080
+# use TLS.
+#  tls:
+#    certFilePath: cmd/rikka/server.crt
+#    keyFilePath: cmd/rikka/server.key
