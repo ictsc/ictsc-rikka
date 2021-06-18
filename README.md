@@ -53,6 +53,9 @@ make down
 # mariadbにmysqlコマンドでログイン
 make mariadb
 
+# データベースのリセット(drop -> create)
+make mariadb-reset-db
+
 # redis-cliを起動
 make redis-cli
 
