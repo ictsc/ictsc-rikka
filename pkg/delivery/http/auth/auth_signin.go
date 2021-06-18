@@ -40,8 +40,6 @@ func (h *AuthHandler) SignIn(ctx *gin.Context) {
 
 	session := sessions.Default(ctx)
 	session.Set("id", user.ID.String())
-	session.Set("isFullAccess", user.UserGroup.IsFullAccess)
-	session.Set("isReadOnly", user.IsReadOnly)
 	session.Save()
 
 	ctx.JSON(http.StatusOK, SignInResponse{

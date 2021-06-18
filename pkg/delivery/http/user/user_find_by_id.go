@@ -29,13 +29,13 @@ func (h *UserHandler) FindByID(ctx *gin.Context) {
 
 	u, err := h.userService.FindByID(id)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, CreateResponse{
+		ctx.JSON(http.StatusInternalServerError, FindByIDResponse{
 			Code: http.StatusInternalServerError,
 		})
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, CreateResponse{
+	ctx.JSON(http.StatusCreated, FindByIDResponse{
 		Code: http.StatusCreated,
 		User: u,
 	})

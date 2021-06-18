@@ -3,6 +3,7 @@ package user
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/ictsc/ictsc-rikka/pkg/delivery/http/middleware"
+	"github.com/ictsc/ictsc-rikka/pkg/repository"
 	"github.com/ictsc/ictsc-rikka/pkg/service"
 )
 
@@ -10,7 +11,7 @@ type UserHandler struct {
 	userService service.UserService
 }
 
-func NewUserHandler(r *gin.RouterGroup, userService service.UserService) {
+func NewUserHandler(r *gin.RouterGroup, userRepo repository.UserRepository, userService service.UserService) {
 	handler := UserHandler{
 		userService: userService,
 	}
@@ -19,7 +20,7 @@ func NewUserHandler(r *gin.RouterGroup, userService service.UserService) {
 		user.POST("", handler.Create)
 
 		authed := user.Group("")
-		authed.Use(middleware.Auth())
+		authed.Use(middleware.Auth(userRepo))
 		{
 			authed.GET("/:id", handler.FindByID)
 		}

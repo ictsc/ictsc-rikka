@@ -13,6 +13,7 @@ import (
 	"github.com/ictsc/ictsc-rikka/pkg/delivery/http/usergroup"
 	"github.com/ictsc/ictsc-rikka/pkg/migration"
 	"github.com/ictsc/ictsc-rikka/pkg/repository/mariadb"
+	"github.com/ictsc/ictsc-rikka/pkg/seed"
 	"github.com/ictsc/ictsc-rikka/pkg/service"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
@@ -87,12 +88,14 @@ func main() {
 	userService := service.NewUserService(userRepo, userGroupRepo)
 	userGroupService := service.NewUserGroupService(userGroupRepo)
 
+	seed.Seed(&config.Seed, userRepo, userGroupRepo, *userService, *userGroupService)
+
 	api := r.Group("/api")
 	{
-		auth.NewAuthHandler(api, *authService)
+		auth.NewAuthHandler(api, userRepo, *authService)
 
-		user.NewUserHandler(api, *userService)
-		usergroup.NewUserGroupHandler(api, *userGroupService)
+		user.NewUserHandler(api, userRepo, *userService)
+		usergroup.NewUserGroupHandler(api, userRepo, *userGroupService)
 	}
 
 	addr := fmt.Sprintf("%s:%d", config.Listen.Address, config.Listen.Port)

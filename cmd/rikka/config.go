@@ -1,9 +1,12 @@
 package main
 
+import "github.com/ictsc/ictsc-rikka/pkg/seed"
+
 type Config struct {
-	Listen  ListenConfig  `yaml:"listen"`
-	MariaDB MariaDBConfig `yaml:"mariadb"`
-	Redis   RedisConfig   `yaml:"redis"`
+	Listen  ListenConfig    `yaml:"listen"`
+	MariaDB MariaDBConfig   `yaml:"mariadb"`
+	Redis   RedisConfig     `yaml:"redis"`
+	Seed    seed.SeedConfig `yaml:"seed"`
 }
 
 type ListenTLSConfig struct {
