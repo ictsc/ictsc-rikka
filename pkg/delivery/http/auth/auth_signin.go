@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/ictsc/ictsc-rikka/pkg/delivery/http/response"
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
 )
 
@@ -14,27 +15,19 @@ type SignInRequest struct {
 }
 
 type SignInResponse struct {
-	Code    int          `json:"code"`
-	Message string       `json:"message"`
-	User    *entity.User `json:"user,omitempty"`
+	User *entity.User `json:"user,omitempty"`
 }
 
 func (h *AuthHandler) SignIn(ctx *gin.Context) {
 	req := SignInRequest{}
 	if err := ctx.Bind(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, SignInResponse{
-			Code:    http.StatusBadRequest,
-			Message: err.Error(),
-		})
+		response.JSON(ctx, http.StatusBadRequest, err.Error(), nil, nil)
 		return
 
 	}
 	user, err := h.authService.SignIn(req.Name, req.Password)
 	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, SignInResponse{
-			Code:    http.StatusUnauthorized,
-			Message: err.Error(),
-		})
+		response.JSON(ctx, http.StatusUnauthorized, err.Error(), nil, nil)
 		return
 	}
 
@@ -42,8 +35,7 @@ func (h *AuthHandler) SignIn(ctx *gin.Context) {
 	session.Set("id", user.ID.String())
 	session.Save()
 
-	ctx.JSON(http.StatusOK, SignInResponse{
-		Code: http.StatusOK,
+	response.JSON(ctx, http.StatusOK, "", SignInResponse{
 		User: user,
-	})
+	}, nil)
 }

@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/ictsc/ictsc-rikka/pkg/delivery/http/response"
 )
 
 func (h *AuthHandler) SignOut(ctx *gin.Context) {
@@ -15,5 +16,5 @@ func (h *AuthHandler) SignOut(ctx *gin.Context) {
 		MaxAge: -1,
 	})
 	session.Save()
-	ctx.JSON(http.StatusOK, gin.H{})
+	response.JSON(ctx, http.StatusOK, "", nil, nil)
 }
