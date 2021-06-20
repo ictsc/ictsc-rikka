@@ -13,12 +13,12 @@ import (
 )
 
 type AuthHandler struct {
-	authController controller.AuthController
+	authController *controller.AuthController
 }
 
-func NewAuthHandler(r *gin.RouterGroup, userRepo repository.UserRepository, authService service.AuthService, userService service.UserService) {
+func NewAuthHandler(r *gin.RouterGroup, userRepo repository.UserRepository, authService *service.AuthService, userService *service.UserService) {
 	handler := AuthHandler{
-		authController: *controller.NewAuthController(&authService, &userService),
+		authController: controller.NewAuthController(authService, userService),
 	}
 
 	auth := r.Group("auth")

@@ -90,9 +90,9 @@ func main() {
 
 	api := r.Group("/api")
 	{
-		handler.NewAuthHandler(api, userRepo, *authService, *userService)
-		handler.NewUserHandler(api, userRepo, *userService)
-		handler.NewUserGroupHandler(api, userRepo, *userGroupService)
+		handler.NewAuthHandler(api, userRepo, authService, userService)
+		handler.NewUserHandler(api, userRepo, userService)
+		handler.NewUserGroupHandler(api, userRepo, userGroupService)
 	}
 
 	addr := fmt.Sprintf("%s:%d", config.Listen.Address, config.Listen.Port)
