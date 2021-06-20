@@ -28,8 +28,10 @@ func (s *AuthService) SignIn(name, password string, session sessions.Session) (*
 		return nil, err
 	}
 
-	session.Set("id", user.ID)
-	session.Save()
+	session.Set("id", user.ID.String())
+	if err := session.Save(); err != nil {
+		return nil, err
+	}
 
 	return user, nil
 }
