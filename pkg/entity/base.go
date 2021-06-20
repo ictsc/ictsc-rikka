@@ -8,10 +8,10 @@ import (
 )
 
 type Base struct {
-	ID uuid.UUID `gorm:"size:191"`
+	ID uuid.UUID `gorm:"size:191" json:"id"`
 
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 func (b *Base) BeforeCreate(tx *gorm.DB) error {
