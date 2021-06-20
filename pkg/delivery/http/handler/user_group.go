@@ -20,7 +20,7 @@ func NewUserGroupHandler(r *gin.RouterGroup, userRepo repository.UserRepository,
 		userGroupController: controller.NewUserGroupController(userGroupService),
 	}
 
-	userGroup := r.Group("/user-groups")
+	userGroup := r.Group("/usergroups")
 	{
 		authed := userGroup.Group("")
 		authed.Use(middleware.AuthIsFullAccess(userRepo))
