@@ -13,7 +13,6 @@ import (
 )
 
 type AuthHandler struct {
-	authService    service.AuthService
 	authController controller.AuthController
 }
 
