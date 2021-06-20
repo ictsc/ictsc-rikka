@@ -8,9 +8,7 @@ import (
 
 	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
-	"github.com/ictsc/ictsc-rikka/pkg/delivery/http/auth"
-	"github.com/ictsc/ictsc-rikka/pkg/delivery/http/user"
-	"github.com/ictsc/ictsc-rikka/pkg/delivery/http/usergroup"
+	"github.com/ictsc/ictsc-rikka/pkg/delivery/http/handler"
 	"github.com/ictsc/ictsc-rikka/pkg/migration"
 	"github.com/ictsc/ictsc-rikka/pkg/repository/mariadb"
 	"github.com/ictsc/ictsc-rikka/pkg/seed"
@@ -92,10 +90,9 @@ func main() {
 
 	api := r.Group("/api")
 	{
-		auth.NewAuthHandler(api, userRepo, *authService)
-
-		user.NewUserHandler(api, userRepo, *userService)
-		usergroup.NewUserGroupHandler(api, userRepo, *userGroupService)
+		handler.NewAuthHandler(api, userRepo, *authService, *userService)
+		handler.NewUserHandler(api, userRepo, *userService)
+		handler.NewUserGroupHandler(api, userRepo, *userGroupService)
 	}
 
 	addr := fmt.Sprintf("%s:%d", config.Listen.Address, config.Listen.Port)

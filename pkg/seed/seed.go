@@ -4,11 +4,9 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/ictsc/ictsc-rikka/pkg/entity"
 	"github.com/ictsc/ictsc-rikka/pkg/repository"
 	"github.com/ictsc/ictsc-rikka/pkg/service"
 	"github.com/pkg/errors"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type SeedConfig struct {
@@ -76,31 +74,22 @@ func (s *seeder) adminUserGroupAndUserSeeder(config AdminUserGroupAndUserSeederC
 		return fmt.Errorf("Skip")
 	}
 
-	invitationCodeDigest, err := bcrypt.GenerateFromPassword([]byte(config.InvitationCode), bcrypt.DefaultCost)
+	userGroup, err := s.userGroupService.Create(
+		config.UserGroupName,
+		config.Organization,
+		config.InvitationCode,
+		true,
+	)
 	if err != nil {
 		return err
 	}
 
-	passwordDigest, err := bcrypt.GenerateFromPassword([]byte(config.UserPassword), bcrypt.DefaultCost)
-	if err != nil {
-		return err
-	}
-
-	userGroup, err := s.userGroupRepo.Create(&entity.UserGroup{
-		Name:                 config.UserGroupName,
-		Organization:         config.Organization,
-		InvitationCodeDigest: string(invitationCodeDigest),
-		IsFullAccess:         true,
-	})
-	if err != nil {
-		return err
-	}
-
-	if _, err := s.userService.Create(&entity.User{
-		Name:           config.UserName,
-		PasswordDigest: string(passwordDigest),
-		UserGroupID:    userGroup.ID,
-	}, config.InvitationCode); err != nil {
+	if _, err := s.userService.Create(
+		config.UserName,
+		config.UserPassword,
+		userGroup.ID,
+		config.InvitationCode,
+	); err != nil {
 		return err
 	}
 	return nil

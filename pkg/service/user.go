@@ -19,17 +19,27 @@ func NewUserService(userRepo repository.UserRepository, userGroupRepo repository
 	}
 }
 
-func (s *UserService) Create(user *entity.User, invitationCode string) (*entity.User, error) {
-	group, err := s.userGroupRepo.FindByID(user.UserGroupID)
+func (s *UserService) Create(name, password string, userGroupID uuid.UUID, invitationCode string) (*entity.User, error) {
+	userGroup, err := s.userGroupRepo.FindByID(userGroupID)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := bcrypt.CompareHashAndPassword([]byte(group.InvitationCodeDigest), []byte(invitationCode)); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(userGroup.InvitationCodeDigest), []byte(invitationCode)); err != nil {
 		return nil, err
 	}
 
-	return s.userRepo.Create(user)
+	digest, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.userRepo.Create(&entity.User{
+		Name:           name,
+		DisplayName:    name,
+		PasswordDigest: string(digest),
+		UserGroupID:    userGroupID,
+	})
 }
 
 func (s *UserService) FindByID(id uuid.UUID) (*entity.User, error) {
