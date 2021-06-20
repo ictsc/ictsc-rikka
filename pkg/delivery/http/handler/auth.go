@@ -36,7 +36,12 @@ func NewAuthHandler(r *gin.RouterGroup, userRepo repository.UserRepository, auth
 
 func (h *AuthHandler) Self(ctx *gin.Context) {
 	session := sessions.Default(ctx)
-	res, err := h.authController.Self(session)
+	id, ok := session.Get("id").(string)
+	if !ok {
+		response.JSON(ctx, http.StatusUnauthorized, "", nil, nil)
+		return
+	}
+	res, err := h.authController.Self(id)
 	if err != nil {
 		response.JSON(ctx, http.StatusInternalServerError, "", nil, nil)
 		return
@@ -55,9 +60,15 @@ func (h *AuthHandler) SignIn(ctx *gin.Context) {
 
 	session := sessions.Default(ctx)
 
-	res, err := h.authController.SignIn(req, session)
+	res, err := h.authController.SignIn(req)
 	if err != nil {
 		response.JSON(ctx, http.StatusUnauthorized, err.Error(), nil, nil)
+		return
+	}
+
+	session.Set("id", res.User.ID.String())
+	if err := session.Save(); err != nil {
+		response.JSON(ctx, http.StatusInternalServerError, err.Error(), nil, nil)
 		return
 	}
 
@@ -66,8 +77,13 @@ func (h *AuthHandler) SignIn(ctx *gin.Context) {
 
 func (h *AuthHandler) SignOut(ctx *gin.Context) {
 	session := sessions.Default(ctx)
-	if err := h.authController.SignOut(session); err != nil {
-		response.JSON(ctx, http.StatusInternalServerError, "", nil, nil)
+	session.Clear()
+	session.Options(sessions.Options{
+		Path:   "/",
+		MaxAge: -1,
+	})
+	if err := session.Save(); err != nil {
+		response.JSON(ctx, http.StatusInternalServerError, err.Error(), nil, nil)
 		return
 	}
 	response.JSON(ctx, http.StatusOK, "", nil, nil)
