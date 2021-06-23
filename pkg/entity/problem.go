@@ -5,7 +5,7 @@ import "github.com/google/uuid"
 type Problem struct {
 	Base
 
-	Code              string    `json:"code",gorm:"uniqueIndex"`
+	Code              string    `json:"code" gorm:"unique;index"`
 	AuthorID          uuid.UUID `json:"author_id"`
 	Author            *User     `json:"-"`
 	Title             string    `json:"title"`
