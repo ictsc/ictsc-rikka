@@ -31,7 +31,7 @@ type CreateProblemResponse struct {
 }
 
 func (c *ProblemController) Create(req *CreateProblemRequest) (*CreateProblemResponse, error) {
-	prob, err := c.problemService.Create(service.CreateProblemRequest{
+	prob, err := c.problemService.Create(&service.CreateProblemRequest{
 		Code: req.Code,
 		AuthorID: req.AuthorID,
 		Title: req.Title,
@@ -114,7 +114,6 @@ func (c *ProblemController) GetAll(metadataOnly bool) (*GetAllProblemsResponse, 
 }
 
 type UpdateProblemRequest struct {
-	Code string `json:"code"`
 	AuthorID uuid.UUID `json:"author_id"`
 	Title string `json:"title"`
 	Body string `json:"body"`
@@ -133,9 +132,7 @@ func (c *ProblemController) Update(id string, req *UpdateProblemRequest) (*Updat
 		return nil, err
 	}
 
-	prob, err := c.problemService.Update(service.UpdateProblemRequest{
-		ID: uuid,
-		Code: req.Code,
+	prob, err := c.problemService.Update(uuid, &service.UpdateProblemRequest{
 		AuthorID: req.AuthorID,
 		Title: req.Title,
 		Body: req.Body,
