@@ -41,14 +41,6 @@ func NewProblemService(userRepo repository.UserRepository, problemRepo repositor
 }
 
 func (s *ProblemService) Create(req CreateProblemRequest) (*entity.Problem, error) {
-	author, err := s.userRepo.FindByID(req.AuthorID, true)
-	if err != nil {
-		return nil, err
-	}
-	if author == nil {
-		return nil, errors.New("author not found")
-	}
-
 	if req.PreviousProblemID != nil {
 		prob, err := s.problemRepo.FindByID(*req.PreviousProblemID)
 		if err != nil {
@@ -58,7 +50,6 @@ func (s *ProblemService) Create(req CreateProblemRequest) (*entity.Problem, erro
 			return nil, errors.New("previous_problem not found")
 		}
 	}
-
 
 	// TODO: validate problem code
 
@@ -90,14 +81,6 @@ func (s *ProblemService) FindByCode(code string) (*entity.Problem, error) {
 }
 
 func (s *ProblemService) Update(req UpdateProblemRequest) (*entity.Problem, error) {
-	author, err := s.userRepo.FindByID(req.AuthorID, true)
-	if err != nil {
-		return nil, err
-	}
-	if author == nil {
-		return nil, errors.New("author not found")
-	}
-
 	if req.PreviousProblemID != nil {
 		prob, err := s.problemRepo.FindByID(*req.PreviousProblemID)
 		if err != nil {
