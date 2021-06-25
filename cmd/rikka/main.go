@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/ictsc/ictsc-rikka/pkg/controller"
 	"log"
 	"os"
 
@@ -81,10 +82,14 @@ func main() {
 
 	userRepo := mariadb.NewUserRepository(db)
 	userGroupRepo := mariadb.NewUserGroupRepository(db)
+	problemRepo := mariadb.NewProblemRepository(db)
 
 	authService := service.NewAuthService(userRepo)
 	userService := service.NewUserService(userRepo, userGroupRepo)
 	userGroupService := service.NewUserGroupService(userGroupRepo)
+	problemService := service.NewProblemService(userRepo, problemRepo)
+
+	problemController := controller.NewProblemController(problemService)
 
 	seed.Seed(&config.Seed, userRepo, userGroupRepo, *userService, *userGroupService)
 
@@ -93,6 +98,7 @@ func main() {
 		handler.NewAuthHandler(api, userRepo, authService, userService)
 		handler.NewUserHandler(api, userRepo, userService)
 		handler.NewUserGroupHandler(api, userRepo, userGroupService)
+		handler.NewProblemHandler(api, userRepo, problemController)
 	}
 
 	addr := fmt.Sprintf("%s:%d", config.Listen.Address, config.Listen.Port)
