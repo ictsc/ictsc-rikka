@@ -80,9 +80,9 @@ func init() {
 
 func main() {
 	r := gin.Default()
-	// とりあえずすべて許可
 	corsConfig := cors.DefaultConfig()
-	corsConfig.AllowOrigins = []string{"*"}
+	corsConfig.AllowOrigins = config.CORS.Origins
+	corsConfig.AllowCredentials = true
 	r.Use(cors.New(corsConfig))
 
 	r.Use(sessions.Sessions("session", store))
