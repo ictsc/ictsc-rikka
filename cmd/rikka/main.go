@@ -3,9 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/ictsc/ictsc-rikka/pkg/controller"
 	"log"
 	"os"
+
+	"github.com/ictsc/ictsc-rikka/pkg/controller"
 
 	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
@@ -18,6 +19,7 @@ import (
 	"gopkg.in/yaml.v3"
 	"gorm.io/driver/mysql"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
 	"gorm.io/gorm"
 )
@@ -78,6 +80,11 @@ func init() {
 
 func main() {
 	r := gin.Default()
+	// とりあえずすべて許可
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowOrigins = []string{"*"}
+	r.Use(cors.New(corsConfig))
+
 	r.Use(sessions.Sessions("session", store))
 
 	userRepo := mariadb.NewUserRepository(db)
