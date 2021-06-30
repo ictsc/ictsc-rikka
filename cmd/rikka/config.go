@@ -6,6 +6,7 @@ type Config struct {
 	Listen  ListenConfig    `yaml:"listen"`
 	MariaDB MariaDBConfig   `yaml:"mariadb"`
 	Redis   RedisConfig     `yaml:"redis"`
+	Minio   MinioConfig     `yaml:"minioconfig"`
 	Seed    seed.SeedConfig `yaml:"seed"`
 }
 
@@ -34,4 +35,11 @@ type RedisConfig struct {
 	Port               int    `yaml:"port"`
 	Password           string `yaml:"password"`
 	KeyPair            string `yaml:"keyPair"`
+}
+
+type MinioConfig struct {
+	Endpoint        string `yaml:"endopoint"`
+	AccessKeyID     string `yaml:"accessKeyID"`
+	SecretAccessKey string `yaml:"secretaccessKey"`
+	UseSSL          bool   `yaml:"useSSL"`
 }
