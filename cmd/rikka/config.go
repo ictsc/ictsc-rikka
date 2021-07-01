@@ -6,7 +6,7 @@ type Config struct {
 	Listen  ListenConfig    `yaml:"listen"`
 	MariaDB MariaDBConfig   `yaml:"mariadb"`
 	Redis   RedisConfig     `yaml:"redis"`
-	Minio   MinioConfig     `yaml:"minioconfig"`
+	Minio   MinioConfig     `yaml:"minio"`
 	Seed    seed.SeedConfig `yaml:"seed"`
 }
 

@@ -1,8 +1,6 @@
 package service
 
 import (
-	"io"
-
 	"github.com/google/uuid"
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
 	"github.com/ictsc/ictsc-rikka/pkg/repository"
@@ -11,11 +9,9 @@ import (
 
 type AttachmentService struct {
 	attachmentRepo repository.AttachmentRepository
+	s3Repo         repository.S3Repository
 }
-type UploadAttachmentRequest struct {
-	Name   string
-	Reader io.Reader
-}
+
 type DeleteAttachmentRequest struct {
 	Name string
 }
@@ -23,26 +19,39 @@ type GetAttachmentRequest struct {
 	Name string
 }
 
-func NewAttachmentService(attachmentRepo repository.AttachmentRepository) *AttachmentService {
+func NewAttachmentService(attachmentRepo repository.AttachmentRepository, s3Repo repository.S3Repository) *AttachmentService {
 	return &AttachmentService{
 		attachmentRepo: attachmentRepo,
+		s3Repo:         s3Repo,
 	}
 }
 
-func (s *AttachmentService) Upload(req *UploadAttachmentRequest) (*entity.Attachment, error) {
-	attachment := &entity.Attachment{
-		Name:   req.Name,
-		Reader: req.Reader,
+func (s *AttachmentService) Upload(attachment *entity.Attachment) error {
+	id, _ := uuid.NewRandom()
+	attachment.ID = id
+	if err := s.s3Repo.Create(attachment); err != nil {
+		return err
 	}
-	return s.attachmentRepo.Upload(attachment)
-
+	if err := s.attachmentRepo.Upload(attachment); err != nil {
+		return err
+	}
+	return nil
 }
 func (s *AttachmentService) Delete(id uuid.UUID) error {
-
-	return s.attachmentRepo.Delete(id)
+	if err := s.s3Repo.Delete(id); err != nil {
+		return err
+	}
+	if err := s.attachmentRepo.Delete(id); err != nil {
+		return err
+	}
+	return nil
 }
 func (s *AttachmentService) Get(id uuid.UUID) (*minio.Object, error) {
-	return s.attachmentRepo.Get(id)
+	obj, err := s.attachmentRepo.Get(id)
+	if err != nil {
+		return nil, err
+	}
+	return obj, nil
 }
 func (s *AttachmentService) GetAll() ([]*minio.ObjectInfo, error) {
 	return s.attachmentRepo.GetAll()

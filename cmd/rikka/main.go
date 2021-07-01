@@ -29,7 +29,7 @@ var (
 	config      Config
 	db          *gorm.DB
 	store       redis.Store
-	minioclient *minio.Client
+	minioClient *minio.Client
 )
 
 func init() {
@@ -76,7 +76,7 @@ func init() {
 		f.Close()
 		log.Fatalf(errors.Wrapf(err, "Failed to open redis connection.").Error())
 	}
-	minioclient, err = minio.New(config.Minio.Endpoint, &minio.Options{
+	minioClient, err = minio.New(config.Minio.Endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(config.Minio.AccessKeyID, config.Minio.SecretAccessKey, ""),
 		Secure: config.Minio.UseSSL,
 	})

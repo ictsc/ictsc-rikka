@@ -5,35 +5,31 @@ import (
 	"gorm.io/gorm"
 )
 
-type DBAttachmentRepository struct {
+type S3Repository struct {
 	db *gorm.DB
 }
 
-func NewDBAttachmentRepository(db *gorm.DB) *DBAttachmentRepository {
-	return &DBAttachmentRepository{
+func NewS3Repository(db *gorm.DB) *S3Repository {
+	return &S3Repository{
 		db: db,
 	}
 }
 
-func (r *DBAttachmentRepository) Create(attachment *entity.Attachment) (*entity.Attachment, error) {
-	err := r.db.Create(attachment).Error
-	if err != nil {
-		return nil, err
-	}
-	return attachment, nil
+func (r *S3Repository) Create(attachment *entity.Attachment) error {
+	return r.db.Create(attachment).Error
 }
-func (r *DBAttachmentRepository) Delete(Attachment *entity.Attachment) error {
+func (r *S3Repository) Delete(Attachment *entity.Attachment) error {
 	return r.db.Delete(Attachment, Attachment.ID).Error
 }
-func (r *DBAttachmentRepository) Get(req *entity.Attachment) (*entity.Attachment, error) {
+func (r *S3Repository) Get(req *entity.Attachment) (*entity.Attachment, error) {
 	attachment := &entity.Attachment{}
-	err := r.db.Where("id", req.ID).Find(attachment).Error
+	err := r.db.Where(req, req.ID).Find(attachment).Error
 	if err != nil {
 		return nil, err
 	}
 	return attachment, nil
 }
-func (r *DBAttachmentRepository) GetAll() ([]*entity.Attachment, error) {
+func (r *S3Repository) GetAll() ([]*entity.Attachment, error) {
 	attachments := make([]*entity.Attachment, 0)
 	err := r.db.Find(attachments).Error
 	return attachments, err

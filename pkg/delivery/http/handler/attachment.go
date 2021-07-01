@@ -2,11 +2,13 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/ictsc/ictsc-rikka/pkg/controller"
 	"github.com/ictsc/ictsc-rikka/pkg/delivery/http/response"
+	"github.com/ictsc/ictsc-rikka/pkg/entity"
 )
 
 type AttachmentHandler struct {
@@ -27,22 +29,37 @@ func NewAttachmentHandler(r *gin.RouterGroup, attachmentController *controller.A
 }
 
 func (h *AttachmentHandler) Upload(ctx *gin.Context) {
-	reader := ctx.Request.Body
-	id, _ := uuid.NewRandom()
-	req := &controller.UploadAttachmentRequest{
-		ID:     id,
-		Reader: reader,
+	user := ctx.Query("user")
+	displayname := ctx.Query("displayname")
+	password := ctx.Query("password")
+	group := ctx.Query("group")
+	readonlystring := ctx.Query("readonly")
+	readonly, err := strconv.ParseBool(readonlystring)
+	if err != nil {
+		response.JSON(ctx, http.StatusInternalServerError, err.Error(), nil, nil)
 	}
-	if err := ctx.Bind(req); err != nil {
-		response.JSON(ctx, http.StatusBadRequest, err.Error(), nil, nil)
-		return
+	file, err := ctx.FormFile("file")
+	if err != nil {
+		response.JSON(ctx, http.StatusInternalServerError, err.Error(), nil, nil)
 	}
-	res, err := h.attachmentController.Upload(req)
+	reader, err := file.Open()
+	if err != nil {
+		response.JSON(ctx, http.StatusInternalServerError, err.Error(), nil, nil)
+	}
+	attachment := &entity.Attachment{
+		Reader:      reader,
+		User:        user,
+		DisplayName: displayname,
+		Password:    password,
+		Group:       group,
+		ReadOnly:    bool(readonly),
+	}
+	err = h.attachmentController.Upload(attachment)
 	if err != nil {
 		response.JSON(ctx, http.StatusInternalServerError, err.Error(), nil, nil)
 	}
 
-	response.JSON(ctx, http.StatusCreated, "", res, nil)
+	response.JSON(ctx, http.StatusCreated, "", "", nil)
 }
 
 func (h *AttachmentHandler) Get(ctx *gin.Context) {

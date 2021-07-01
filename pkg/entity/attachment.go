@@ -7,7 +7,11 @@ import (
 )
 
 type Attachment struct {
-	ID     uuid.UUID
-	Name   string
-	Reader io.Reader
+	ID          uuid.UUID
+	Reader      io.Reader
+	User        string
+	DisplayName string
+	Password    string
+	Group       string
+	ReadOnly    bool
 }

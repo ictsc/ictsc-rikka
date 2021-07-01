@@ -23,17 +23,20 @@ func NewAttachmentRepository(minioclient *minio.Client) *AttachmentRepository {
 }
 
 func (r *AttachmentRepository) Upload(attachment *entity.Attachment) (*entity.Attachment, error) {
-	err := r.minioclient.MakeBucket(context.Background(), bucketname, minio.MakeBucketOptions{ObjectLocking: true})
+	id, _ := uuid.NewRandom()
+	attachment = &entity.Attachment{
+		ID: id,
+	}
+	p := make([]byte, 128*1024*1024)
+	size, err := attachment.Reader.Read(p)
+	if err != nil {
+		return nil, err
+	}
+	err = r.minioclient.MakeBucket(context.Background(), bucketname, minio.MakeBucketOptions{ObjectLocking: true})
 	if err != nil {
 		exists, errBucketExists := r.minioclient.BucketExists(context.Background(), bucketname)
 		if errBucketExists == nil && exists {
-			p := make([]byte, 128*1000*1000)
-			size, err := attachment.Reader.Read(p)
-			if err != nil {
-				return nil, err
-			}
-			//_, errPut := r.minioclient.PutObject(context.Background(), bucketname, attachment.Name)
-			_, errPut := r.minioclient.PutObject(context.Background(), bucketname, attachment.Name, attachment.Reader, int64(size), minio.PutObjectOptions{})
+			_, errPut := r.minioclient.PutObject(context.Background(), bucketname, attachment.ID.String(), attachment.Reader, int64(size), minio.PutObjectOptions{})
 			if errPut != nil {
 				return nil, err
 			}
@@ -41,7 +44,7 @@ func (r *AttachmentRepository) Upload(attachment *entity.Attachment) (*entity.At
 		}
 		return nil, err
 	}
-	_, errPut := r.minioclient.FPutObject(context.Background(), bucketname, attachment.Name, "", minio.PutObjectOptions{})
+	_, errPut := r.minioclient.PutObject(context.Background(), bucketname, attachment.ID.String(), attachment.Reader, int64(size), minio.PutObjectOptions{})
 	if errPut != nil {
 		return nil, err
 	}
@@ -49,7 +52,7 @@ func (r *AttachmentRepository) Upload(attachment *entity.Attachment) (*entity.At
 
 }
 func (r *AttachmentRepository) Delete(attachment *entity.Attachment) error {
-	err := r.minioclient.RemoveObject(context.Background(), bucketname, attachment.Name, minio.RemoveObjectOptions{})
+	err := r.minioclient.RemoveObject(context.Background(), bucketname, attachment.ID.String(), minio.RemoveObjectOptions{})
 	if err != nil {
 		return err
 	}
