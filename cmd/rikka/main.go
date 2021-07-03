@@ -81,11 +81,12 @@ func main() {
 	r.Use(sessions.Sessions("session", store))
 
 	userRepo := mariadb.NewUserRepository(db)
+	userProfileRepo := mariadb.NewUserProfileRepository(db)
 	userGroupRepo := mariadb.NewUserGroupRepository(db)
 	problemRepo := mariadb.NewProblemRepository(db)
 
 	authService := service.NewAuthService(userRepo)
-	userService := service.NewUserService(userRepo, userGroupRepo)
+	userService := service.NewUserService(userRepo, userProfileRepo, userGroupRepo)
 	userGroupService := service.NewUserGroupService(userGroupRepo)
 	problemService := service.NewProblemService(userRepo, problemRepo)
 
