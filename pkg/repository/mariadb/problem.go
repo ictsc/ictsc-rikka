@@ -26,7 +26,7 @@ func (r *ProblemRepository) Create(problem *entity.Problem) (*entity.Problem, er
 
 func (r *ProblemRepository) GetAll() ([]*entity.Problem, error) {
 	problems := make([]*entity.Problem, 0)
-	err := r.db.Find(problems).Error
+	err := r.db.Find(&problems).Error
 	return problems, err
 }
 
