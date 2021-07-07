@@ -1,7 +1,8 @@
 package controller
 
 import (
-	"github.com/google/uuid"
+	"io"
+
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
 	"github.com/ictsc/ictsc-rikka/pkg/service"
 	"github.com/minio/minio-go/v7"
@@ -17,13 +18,13 @@ func NewAttachmentController(attachmentService *service.AttachmentService) *Atta
 	}
 }
 
-func (c *AttachmentController) Upload(attachment *entity.Attachment) error {
-	return c.attachmentService.Upload(attachment)
+func (c *AttachmentController) Upload(attachment *entity.Attachment, reader io.Reader) error {
+	return c.attachmentService.Create(attachment, reader)
 }
-func (c *AttachmentController) Delete(id uuid.UUID) error {
+func (c *AttachmentController) Delete(id string) error {
 	return c.attachmentService.Delete(id)
 }
-func (c *AttachmentController) Get(id uuid.UUID) (*minio.Object, error) {
+func (c *AttachmentController) Get(id string) (io.Reader, error) {
 	return c.attachmentService.Get(id)
 }
 func (c *AttachmentController) GetAll() ([]*minio.ObjectInfo, error) {

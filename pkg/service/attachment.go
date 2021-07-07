@@ -1,7 +1,8 @@
 package service
 
 import (
-	"github.com/google/uuid"
+	"io"
+
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
 	"github.com/ictsc/ictsc-rikka/pkg/repository"
 	"github.com/minio/minio-go/v7"
@@ -26,18 +27,18 @@ func NewAttachmentService(attachmentRepo repository.AttachmentRepository, s3Repo
 	}
 }
 
-func (s *AttachmentService) Upload(attachment *entity.Attachment) error {
-	id, _ := uuid.NewRandom()
-	attachment.ID = id
-	if err := s.s3Repo.Create(attachment); err != nil {
+func (s *AttachmentService) Create(attachment *entity.Attachment, reader io.Reader) error {
+	id, err := s.attachmentRepo.Create(attachment)
+	if err != nil {
 		return err
 	}
-	if err := s.attachmentRepo.Upload(attachment); err != nil {
+	err = s.s3Repo.Create(id, reader)
+	if err != nil {
 		return err
 	}
 	return nil
 }
-func (s *AttachmentService) Delete(id uuid.UUID) error {
+func (s *AttachmentService) Delete(id string) error {
 	if err := s.s3Repo.Delete(id); err != nil {
 		return err
 	}
@@ -46,7 +47,7 @@ func (s *AttachmentService) Delete(id uuid.UUID) error {
 	}
 	return nil
 }
-func (s *AttachmentService) Get(id uuid.UUID) (*minio.Object, error) {
+func (s *AttachmentService) Get(id string) (io.Reader, error) {
 	obj, err := s.attachmentRepo.Get(id)
 	if err != nil {
 		return nil, err

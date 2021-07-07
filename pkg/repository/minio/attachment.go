@@ -2,9 +2,8 @@ package miniorepo
 
 import (
 	"context"
+	"io"
 
-	"github.com/google/uuid"
-	"github.com/ictsc/ictsc-rikka/pkg/entity"
 	"github.com/minio/minio-go/v7"
 )
 
@@ -12,62 +11,58 @@ var (
 	bucketname = "ictsc"
 )
 
-type AttachmentRepository struct {
+type S3Repository struct {
 	minioclient *minio.Client
 }
 
-func NewAttachmentRepository(minioclient *minio.Client) *AttachmentRepository {
-	return &AttachmentRepository{
+func NewS3Repository(minioclient *minio.Client) *S3Repository {
+	return &S3Repository{
 		minioclient: minioclient,
 	}
 }
 
-func (r *AttachmentRepository) Upload(attachment *entity.Attachment) (*entity.Attachment, error) {
-	id, _ := uuid.NewRandom()
-	attachment = &entity.Attachment{
-		ID: id,
-	}
+func (r *S3Repository) Create(id string, reader io.Reader) error {
 	p := make([]byte, 128*1024*1024)
-	size, err := attachment.Reader.Read(p)
+	size, err := reader.Read(p)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	err = r.minioclient.MakeBucket(context.Background(), bucketname, minio.MakeBucketOptions{ObjectLocking: true})
 	if err != nil {
 		exists, errBucketExists := r.minioclient.BucketExists(context.Background(), bucketname)
 		if errBucketExists == nil && exists {
-			_, errPut := r.minioclient.PutObject(context.Background(), bucketname, attachment.ID.String(), attachment.Reader, int64(size), minio.PutObjectOptions{})
+			_, errPut := r.minioclient.PutObject(context.Background(), bucketname, id, reader, int64(size), minio.PutObjectOptions{})
 			if errPut != nil {
-				return nil, err
+				return err
 			}
-			return attachment, nil
+			return nil
 		}
-		return nil, err
+		return err
 	}
-	_, errPut := r.minioclient.PutObject(context.Background(), bucketname, attachment.ID.String(), attachment.Reader, int64(size), minio.PutObjectOptions{})
+	_, errPut := r.minioclient.PutObject(context.Background(), bucketname, id, reader, int64(size), minio.PutObjectOptions{})
 	if errPut != nil {
-		return nil, err
+		return err
 	}
-	return attachment, nil
+	return nil
 
 }
-func (r *AttachmentRepository) Delete(attachment *entity.Attachment) error {
-	err := r.minioclient.RemoveObject(context.Background(), bucketname, attachment.ID.String(), minio.RemoveObjectOptions{})
+func (r *S3Repository) Delete(id string) error {
+	err := r.minioclient.RemoveObject(context.Background(), bucketname, id, minio.RemoveObjectOptions{})
 	if err != nil {
 		return err
 	}
 	return nil
 
 }
-func (r *AttachmentRepository) Get(id uuid.UUID) (*minio.Object, error) {
-	obj, err := r.minioclient.GetObject(context.Background(), bucketname, id.String(), minio.GetObjectOptions{})
+func (r *S3Repository) Get(id string) (io.Reader, error) {
+	obj, err := r.minioclient.GetObject(context.Background(), bucketname, id, minio.GetObjectOptions{})
 	if err != nil {
 		return nil, err
 	}
 	return obj, nil
 
 }
-func (r *AttachmentRepository) GetAll() ([]*minio.ObjectInfo, error) {
+func (r *S3Repository) GetAll() ([]*minio.ObjectInfo, error) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	objCh := r.minioclient.ListObjects(ctx, bucketname, minio.ListObjectsOptions{Recursive: true})

@@ -2,10 +2,8 @@ package handler
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"github.com/ictsc/ictsc-rikka/pkg/controller"
 	"github.com/ictsc/ictsc-rikka/pkg/delivery/http/response"
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
@@ -29,15 +27,7 @@ func NewAttachmentHandler(r *gin.RouterGroup, attachmentController *controller.A
 }
 
 func (h *AttachmentHandler) Upload(ctx *gin.Context) {
-	user := ctx.Query("user")
-	displayname := ctx.Query("displayname")
-	password := ctx.Query("password")
-	group := ctx.Query("group")
-	readonlystring := ctx.Query("readonly")
-	readonly, err := strconv.ParseBool(readonlystring)
-	if err != nil {
-		response.JSON(ctx, http.StatusInternalServerError, err.Error(), nil, nil)
-	}
+	user := ctx.MustGet("user").(*entity.User)
 	file, err := ctx.FormFile("file")
 	if err != nil {
 		response.JSON(ctx, http.StatusInternalServerError, err.Error(), nil, nil)
@@ -47,14 +37,9 @@ func (h *AttachmentHandler) Upload(ctx *gin.Context) {
 		response.JSON(ctx, http.StatusInternalServerError, err.Error(), nil, nil)
 	}
 	attachment := &entity.Attachment{
-		Reader:      reader,
-		User:        user,
-		DisplayName: displayname,
-		Password:    password,
-		Group:       group,
-		ReadOnly:    bool(readonly),
+		User: user.ID,
 	}
-	err = h.attachmentController.Upload(attachment)
+	err = h.attachmentController.Upload(attachment, reader)
 	if err != nil {
 		response.JSON(ctx, http.StatusInternalServerError, err.Error(), nil, nil)
 	}
@@ -64,12 +49,7 @@ func (h *AttachmentHandler) Upload(ctx *gin.Context) {
 
 func (h *AttachmentHandler) Get(ctx *gin.Context) {
 	id := ctx.Param("id")
-	uid, err := uuid.Parse(id)
-	if err != nil {
-		response.JSON(ctx, http.StatusBadRequest, err.Error(), nil, nil)
-		return
-	}
-	res, err := h.attachmentController.Get(uid)
+	res, err := h.attachmentController.Get(id)
 	if err != nil {
 		response.JSON(ctx, http.StatusBadRequest, err.Error(), nil, nil)
 		return
@@ -86,12 +66,11 @@ func (h *AttachmentHandler) GetAll(ctx *gin.Context) {
 }
 func (h *AttachmentHandler) Delete(ctx *gin.Context) {
 	id := ctx.Param("id")
-	uid, err := uuid.Parse(id)
+
+	err := h.attachmentController.Delete(id)
 	if err != nil {
 		response.JSON(ctx, http.StatusBadRequest, err.Error(), nil, nil)
 		return
 	}
-
-	err = h.attachmentController.Delete(uid)
 	response.JSON(ctx, http.StatusNoContent, "", nil, nil)
 }

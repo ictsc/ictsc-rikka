@@ -1,20 +1,21 @@
 package repository
 
 import (
-	"github.com/google/uuid"
+	"io"
+
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
 	"github.com/minio/minio-go/v7"
 )
 
-type AttachmentRepository interface {
-	Upload(attachment *entity.Attachment) error
-	Delete(id uuid.UUID) error
-	Get(id uuid.UUID) (*minio.Object, error)
+type S3Repository interface {
+	Create(id string, reader io.Reader) error
+	Delete(id string) error
+	Get(id string) (io.Reader, error)
 	GetAll() ([]*minio.ObjectInfo, error)
 }
-type S3Repository interface {
-	Create(attachment *entity.Attachment) error
-	Delete(id uuid.UUID) error
-	Get(id uuid.UUID) (*minio.Object, error)
+type AttachmentRepository interface {
+	Create(attachment *entity.Attachment) (string, error)
+	Delete(id string) error
+	Get(id string) (io.Reader, error)
 	GetAll() ([]*minio.ObjectInfo, error)
 }
