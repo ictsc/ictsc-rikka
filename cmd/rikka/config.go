@@ -7,6 +7,7 @@ type Config struct {
 	CORS    CORSConfig      `yaml:"cors"`
 	MariaDB MariaDBConfig   `yaml:"mariadb"`
 	Redis   RedisConfig     `yaml:"redis"`
+	Minio   MinioConfig     `yaml:"minio"`
 	Seed    seed.SeedConfig `yaml:"seed"`
 }
 
@@ -38,4 +39,11 @@ type RedisConfig struct {
 	Port               int    `yaml:"port"`
 	Password           string `yaml:"password"`
 	KeyPair            string `yaml:"keyPair"`
+}
+
+type MinioConfig struct {
+	Endpoint        string `yaml:"endopoint"`
+	AccessKeyID     string `yaml:"accessKeyID"`
+	SecretAccessKey string `yaml:"secretaccessKey"`
+	UseSSL          bool   `yaml:"useSSL"`
 }

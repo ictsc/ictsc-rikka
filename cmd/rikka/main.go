@@ -6,7 +6,12 @@ import (
 	"log"
 	"os"
 
+
+	"github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
+
 	"github.com/ictsc/ictsc-rikka/pkg/controller"
+
 
 	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
@@ -25,10 +30,11 @@ import (
 )
 
 var (
-	configPath string
-	config     Config
-	db         *gorm.DB
-	store      redis.Store
+	configPath  string
+	config      Config
+	db          *gorm.DB
+	store       redis.Store
+	minioClient *minio.Client
 )
 
 func init() {
@@ -74,6 +80,13 @@ func init() {
 	if err != nil {
 		f.Close()
 		log.Fatalf(errors.Wrapf(err, "Failed to open redis connection.").Error())
+	}
+	minioClient, err = minio.New(config.Minio.Endpoint, &minio.Options{
+		Creds:  credentials.NewStaticV4(config.Minio.AccessKeyID, config.Minio.SecretAccessKey, ""),
+		Secure: config.Minio.UseSSL,
+	})
+	if err != nil {
+		log.Fatal(err)
 	}
 
 }
