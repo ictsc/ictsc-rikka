@@ -43,5 +43,5 @@ func (s *UserService) Create(name, password string, userGroupID uuid.UUID, invit
 }
 
 func (s *UserService) FindByID(id uuid.UUID) (*entity.User, error) {
-	return s.userRepo.FindByID(id, false)
+	return s.userRepo.FindByID(id, true)
 }

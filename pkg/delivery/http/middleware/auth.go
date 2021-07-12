@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/gin-contrib/sessions"
@@ -34,7 +33,6 @@ func Auth(userRepo repository.UserRepository) gin.HandlerFunc {
 				"message": "internal server error",
 			})
 		}
-		log.Println(user)
 
 		ctx.Set("user", user)
 
