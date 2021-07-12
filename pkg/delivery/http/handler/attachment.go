@@ -37,7 +37,7 @@ func (h *AttachmentHandler) Upload(ctx *gin.Context) {
 		response.JSON(ctx, http.StatusInternalServerError, err.Error(), nil, nil)
 	}
 	attachment := &entity.Attachment{
-		User: user.ID,
+		UserID: user.ID,
 	}
 	err = h.attachmentController.Upload(attachment, reader)
 	if err != nil {
