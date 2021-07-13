@@ -38,8 +38,8 @@ type RedisConfig struct {
 }
 
 type MinioConfig struct {
-	Endpoint        string `yaml:"endpoint"`
+	Endpoint        string `yaml:"endPoint"`
 	AccessKeyID     string `yaml:"accessKeyID"`
-	SecretAccessKey string `yaml:"secretaccessKey"`
+	SecretAccessKey string `yaml:"secretAccessKey"`
 	UseSSL          bool   `yaml:"useSSL"`
 }
