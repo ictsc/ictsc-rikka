@@ -3,9 +3,15 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/ictsc/ictsc-rikka/pkg/controller"
 	"log"
 	"os"
+
+
+	"github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
+
+	"github.com/ictsc/ictsc-rikka/pkg/controller"
+
 
 	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
@@ -18,15 +24,17 @@ import (
 	"gopkg.in/yaml.v3"
 	"gorm.io/driver/mysql"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
 	"gorm.io/gorm"
 )
 
 var (
-	configPath string
-	config     Config
-	db         *gorm.DB
-	store      redis.Store
+	configPath  string
+	config      Config
+	db          *gorm.DB
+	store       redis.Store
+	minioClient *minio.Client
 )
 
 func init() {
@@ -73,11 +81,23 @@ func init() {
 		f.Close()
 		log.Fatalf(errors.Wrapf(err, "Failed to open redis connection.").Error())
 	}
+	minioClient, err = minio.New(config.Minio.Endpoint, &minio.Options{
+		Creds:  credentials.NewStaticV4(config.Minio.AccessKeyID, config.Minio.SecretAccessKey, ""),
+		Secure: config.Minio.UseSSL,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
 
 }
 
 func main() {
 	r := gin.Default()
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowOrigins = config.CORS.Origins
+	corsConfig.AllowCredentials = true
+	r.Use(cors.New(corsConfig))
+
 	r.Use(sessions.Sessions("session", store))
 
 	userRepo := mariadb.NewUserRepository(db)
