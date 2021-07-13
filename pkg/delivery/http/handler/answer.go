@@ -2,6 +2,7 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/ictsc/ictsc-rikka/pkg/entity"
 	"github.com/ictsc/ictsc-rikka/pkg/controller"
 	"github.com/ictsc/ictsc-rikka/pkg/delivery/http/middleware"
 	"github.com/ictsc/ictsc-rikka/pkg/delivery/http/response"
@@ -22,13 +23,14 @@ func NewAnswerHandler(r *gin.RouterGroup, userRepo repository.UserRepository, an
 	{
 
 		authed := answers.Group("")
+		authed.Use(middleware.Auth(userRepo))
 		authed.GET("", handler.FindByProblemAndTeam)
 		authed.POST("", handler.Create)
-		authed.GET("/:id", handler.FindByID)
+		authed.GET("/:answer_id", handler.FindByID)
 
 		privileged := answers.Group("")
 		privileged.Use(middleware.AuthIsFullAccess(userRepo))
-		privileged.PATCH("/:id", handler.Update)
+		privileged.PATCH("/:answer_id", handler.Update)
 	}
 }
 
@@ -39,7 +41,9 @@ func (h *AnswerHandler) Create(ctx *gin.Context) {
 		return
 	}
 
-	res, err := h.answerController.Create(req)
+	groupuuid := ctx.MustGet("group").(*entity.UserGroup).ID
+	problem_id := ctx.Param("id")
+	res, err := h.answerController.Create(problem_id,groupuuid,req)
 	if err != nil {
 		response.JSON(ctx, http.StatusInternalServerError, err.Error(), nil, nil)
 		return
@@ -49,7 +53,7 @@ func (h *AnswerHandler) Create(ctx *gin.Context) {
 }
 
 func (h *AnswerHandler) Update(ctx *gin.Context) {
-	id := ctx.Param("id")
+	id := ctx.Param("answer_id")
 	req := &controller.UpdateAnswerRequest{}
 	if err := ctx.Bind(req); err != nil {
 		response.JSON(ctx, http.StatusBadRequest, err.Error(), nil, nil)
@@ -66,7 +70,7 @@ func (h *AnswerHandler) Update(ctx *gin.Context) {
 }
 
 func (h *AnswerHandler) FindByID(ctx *gin.Context) {
-	id := ctx.Param("id")
+	id := ctx.Param("answer_id")
 
 	res, err := h.answerController.FindByID(id)
 	if err != nil {
@@ -77,34 +81,22 @@ func (h *AnswerHandler) FindByID(ctx *gin.Context) {
 	response.JSON(ctx, http.StatusOK, "", res, nil)
 }
 
-func (h *AnswerHandler) FindByProblem(ctx *gin.Context) {
-	id := ctx.Param("id")
-
-	res, err := h.answerController.FindByProblem(id)
-	if err != nil {
-		response.JSON(ctx, http.StatusInternalServerError, err.Error(), nil, nil)
-		return
-	}
-
-	response.JSON(ctx, http.StatusOK, "", res, nil)
-}
-
 func (h *AnswerHandler) FindByProblemAndTeam(ctx *gin.Context) {
-	probid := ctx.Param("problem_id")
-	teamid := ctx.Param("team_group_id")
+	probid := ctx.Param("id")
 
 	is_full_access := ctx.MustGet("is_full_access").(bool)
 
 	if is_full_access {
-		res, err := h.answerController.FindByProblemAndTeam(probid,teamid)
+		teamid := ctx.Param("team_group_id")
+		res, err := h.answerController.FindByProblem(probid,teamid)
 		if err != nil {
 			response.JSON(ctx, http.StatusInternalServerError, err.Error(), nil, nil)
 			return
 		}
 		response.JSON(ctx, http.StatusOK, "", res, nil)
 	}else{
-		teamid = ctx.MustGet("group").(string)
-		res, err := h.answerController.FindByProblemAndTeam(probid,teamid)
+		teamuuid := ctx.MustGet("group").(*entity.UserGroup).ID
+		res, err := h.answerController.FindByProblemAndTeam(probid,teamuuid)
 		if err != nil {
 			response.JSON(ctx, http.StatusInternalServerError, err.Error(), nil, nil)
 			return
@@ -125,7 +117,7 @@ func (h *AnswerHandler) GetAll(ctx *gin.Context) {
 }
 
 func (h *AnswerHandler) Delete(ctx *gin.Context) {
-	id := ctx.Param("id")
+	id := ctx.Param("answer_id")
 
 	err := h.answerController.Delete(id)
 	if err != nil {

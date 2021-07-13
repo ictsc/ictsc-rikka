@@ -18,19 +18,22 @@ func NewAnswerController(answerService *service.AnswerService) *AnswerController
 
 type CreateAnswerRequest struct {
 	Body string `json:"body"`
-	Point uint `json:"point"`
-	ProblemID *uuid.UUID `json:"problem_id"`
 }
 
 type CreateAnswerResponse struct {
 	Answer *entity.Answer `json:"answer"`
 }
 
-func (c *AnswerController) Create(req *CreateAnswerRequest) (*CreateAnswerResponse, error) {
+func (c *AnswerController) Create(problem_id string,groupuuid uuid.UUID,req *CreateAnswerRequest) (*CreateAnswerResponse, error) {
+	problem_uuid, err := uuid.Parse(problem_id)
+	if err != nil {
+		return nil, err
+	}
+
 	ans, err := c.answerService.Create(&service.CreateAnswerRequest{
+		Group: groupuuid,
 		Body: req.Body,
-		Point: req.Point,
-		ProblemID: req.ProblemID,
+		ProblemID: problem_uuid,
 	})
 
 	if err != nil {
@@ -62,26 +65,38 @@ func (c *AnswerController) FindByID(id string) (*FindByIDResponse, error) {
 }
 
 type FindByProblemResponse struct {
-	Answer *entity.Answer `json:"answer"`
+	Answers []*entity.Answer `json:"answers"`
 }
 
-func (c *AnswerController) FindByProblem(id string) (*FindByProblemResponse, error) {
-	uuid, err := uuid.Parse(id)
+// team id is optional
+func (c *AnswerController) FindByProblem(probid string,teamid string) (*FindByProblemResponse, error) {
+	probuuid, err := uuid.Parse(probid)
 	if err != nil {
 		return nil, err
 	}
-	ans, err := c.answerService.FindByProblem(uuid)
+
+	var teamuuid *uuid.UUID
+
+	if teamid != "" {
+		id, err := uuid.Parse(teamid)
+		if err != nil {
+			return nil, err
+		}
+		teamuuid = &id
+	}
+
+	ans, err := c.answerService.FindByProblem(probuuid,teamuuid)
 	if err != nil {
 		return nil, err
 	}
 
 	return &FindByProblemResponse{
-		Answer: ans,
+		Answers: ans,
 	}, nil
 }
 
 type FindByTeamResponse struct {
-	Answer *entity.Answer `json:"answer"`
+	Answers []*entity.Answer `json:"answers"`
 }
 
 type FindByTeamRequest struct {
@@ -99,20 +114,16 @@ func (c *AnswerController) FindByTeam(req *FindByTeamRequest) (*FindByTeamRespon
 	}
 
 	return &FindByTeamResponse{
-		Answer: ans,
+		Answers: ans,
 	}, nil
 }
 
 type FindByProblemAndTeamResponse struct {
-	Answer *entity.Answer `json:"answer"`
+	Answers []*entity.Answer `json:"answers"`
 }
 
-func (c *AnswerController) FindByProblemAndTeam(probid string, teamid string) (*FindByProblemAndTeamResponse, error) {
+func (c *AnswerController) FindByProblemAndTeam(probid string, teamuuid uuid.UUID) (*FindByProblemAndTeamResponse, error) {
 	probuuid, err := uuid.Parse(probid)
-	if err != nil {
-		return nil, err
-	}
-	teamuuid, err := uuid.Parse(teamid)
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +134,7 @@ func (c *AnswerController) FindByProblemAndTeam(probid string, teamid string) (*
 	}
 
 	return &FindByProblemAndTeamResponse{
-		Answer: ans,
+		Answers: ans,
 	}, nil
 }
 

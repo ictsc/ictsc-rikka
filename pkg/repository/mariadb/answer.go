@@ -36,21 +36,26 @@ func (r *AnswerRepository) FindByID(id uuid.UUID) (*entity.Answer, error) {
 	return res, err
 }
 
-func (r *AnswerRepository) FindByProblem(id uuid.UUID) (*entity.Answer, error) {
-	res := &entity.Answer{}
-	err := r.db.Where("problem", id).First(res).Error
+func (r *AnswerRepository) FindByProblem(probid uuid.UUID,teamid *uuid.UUID) ([]*entity.Answer, error) {
+	res  := []*entity.Answer{}
+	var err error
+	if teamid != nil {
+		err = r.db.Where("problem_id", probid).Where("group", teamid).Find(res).Error
+	}else{
+		err = r.db.Where("problem_id", probid).Find(&res).Error
+	}
 	return res, err
 }
 
-func (r *AnswerRepository) FindByTeam(id uuid.UUID) (*entity.Answer, error) {
-	res := &entity.Answer{}
-	err := r.db.Where("team", id).First(res).Error
+func (r *AnswerRepository) FindByTeam(id uuid.UUID) ([]*entity.Answer, error) {
+	res := []*entity.Answer{}
+	err := r.db.Where("team", id).Find(&res).Error
 	return res, err
 }
 
-func (r *AnswerRepository) FindByProblemAndTeam(problemid uuid.UUID,teamid uuid.UUID) (*entity.Answer, error) {
-	res := &entity.Answer{}
-	err := r.db.Where("team", problemid).Where("problem",teamid).First(res).Error
+func (r *AnswerRepository) FindByProblemAndTeam(problemid uuid.UUID,teamid uuid.UUID) ([]*entity.Answer, error) {
+	res := []*entity.Answer{}
+	err := r.db.Where("problem", problemid).Where("group",teamid).Find(&res).Error
 	return res, err
 }
 

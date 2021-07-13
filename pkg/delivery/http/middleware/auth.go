@@ -41,7 +41,7 @@ func Auth(userRepo repository.UserRepository) gin.HandlerFunc {
 		}
 
 		ctx.Set("user", user)
-		ctx.Set("group", user.UserGroup.ID)
+		ctx.Set("group", user.UserGroup)
 
 		ctx.Next()
 	}

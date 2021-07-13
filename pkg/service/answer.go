@@ -16,7 +16,8 @@ type AnswerService struct {
 type CreateAnswerRequest struct {
 	Point             uint
 	Body           string
-	ProblemID *uuid.UUID
+	Group    uuid.UUID
+	ProblemID uuid.UUID
 }
 
 type UpdateAnswerRequest struct {
@@ -35,17 +36,15 @@ func NewAnswerService(userRepo repository.UserRepository, answerRepo repository.
 
 func (s *AnswerService) Create(req *CreateAnswerRequest) (*entity.Answer, error) {
 	ans := &entity.Answer{
-		Point: req.Point,
+		Group: req.Group,
+		Point: 0,
 		Body: req.Body,
 		ProblemID: req.ProblemID,
 	}
 
-	if ans.ProblemID != nil {
-		return nil, errors.New("problem id is empty")
-	}
-	problem, err := s.problemRepo.FindByID(*req.ProblemID)
+	problem, err := s.problemRepo.FindByID(req.ProblemID)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("problem id is invalid")
 	}
 	if problem == nil {
 		return nil, errors.New("problem id is invalid")
@@ -62,15 +61,17 @@ func (s *AnswerService) FindByID(id uuid.UUID) (*entity.Answer, error) {
 	return s.answerRepo.FindByID(id)
 }
 
-func (s *AnswerService) FindByProblem(id uuid.UUID) (*entity.Answer, error) {
-	return s.answerRepo.FindByProblem(id)
+// teamid is optional
+func (s *AnswerService) FindByProblem(probid uuid.UUID,teamid *uuid.UUID) ([]*entity.Answer, error) {
+	return s.answerRepo.FindByProblem(probid,teamid)
 }
 
-func (s *AnswerService) FindByTeam(id uuid.UUID) (*entity.Answer, error) {
+func (s *AnswerService) FindByTeam(id uuid.UUID) ([]*entity.Answer, error) {
 	return s.answerRepo.FindByTeam(id)
 }
 
-func (s *AnswerService) FindByProblemAndTeam(probid uuid.UUID, teamid uuid.UUID) (*entity.Answer, error) {
+// teamid is require
+func (s *AnswerService) FindByProblemAndTeam(probid uuid.UUID, teamid uuid.UUID) ([]*entity.Answer, error) {
 	return s.answerRepo.FindByProblemAndTeam(probid,teamid)
 }
 

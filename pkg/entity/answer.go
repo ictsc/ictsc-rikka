@@ -9,5 +9,6 @@ type Answer struct {
 
 	Point             uint      `json:"point"`
 	Body           string       `json:"body"`
-	ProblemID *uuid.UUID `json:"problem_id"`
+	Group             uuid.UUID      `json:"group"`
+	ProblemID uuid.UUID `json:"problem_id"`
 }
