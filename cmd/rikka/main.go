@@ -83,13 +83,16 @@ func main() {
 	userRepo := mariadb.NewUserRepository(db)
 	userGroupRepo := mariadb.NewUserGroupRepository(db)
 	problemRepo := mariadb.NewProblemRepository(db)
+	answerRepo := mariadb.NewAnswerRepository(db)
 
 	authService := service.NewAuthService(userRepo)
 	userService := service.NewUserService(userRepo, userGroupRepo)
 	userGroupService := service.NewUserGroupService(userGroupRepo)
 	problemService := service.NewProblemService(userRepo, problemRepo)
+	answerService := service.NewAnswerService(userRepo, answerRepo, problemRepo)
 
 	problemController := controller.NewProblemController(problemService)
+	answerController := controller.NewAnswerController(answerService)
 
 	seed.Seed(&config.Seed, userRepo, userGroupRepo, *userService, *userGroupService)
 
@@ -98,7 +101,7 @@ func main() {
 		handler.NewAuthHandler(api, userRepo, authService, userService)
 		handler.NewUserHandler(api, userRepo, userService)
 		handler.NewUserGroupHandler(api, userRepo, userGroupService)
-		handler.NewProblemHandler(api, userRepo, problemController)
+		handler.NewProblemHandler(api, userRepo, problemController, answerController)
 	}
 
 	addr := fmt.Sprintf("%s:%d", config.Listen.Address, config.Listen.Port)

@@ -20,17 +20,15 @@ func NewAnswerHandler(r *gin.RouterGroup, userRepo repository.UserRepository, an
 
 	answers := r.Group("/answers")
 	{
+
 		authed := answers.Group("")
-		authed.Use(middleware.AuthIsFullAccess(userRepo))
+		authed.GET("", handler.FindByProblemAndTeam)
+		authed.POST("", handler.Create)
+		authed.GET("/:id", handler.FindByID)
+
 		privileged := answers.Group("")
 		privileged.Use(middleware.AuthIsFullAccess(userRepo))
-
-		authed.GET("", handler.GetAll)
-		authed.GET("/:id", handler.Find)
-
-		privileged.POST("", handler.Create)
-		privileged.PUT("/:id", handler.Update)
-		privileged.DELETE("/:id", handler.Delete)
+		privileged.PATCH("/:id", handler.Update)
 	}
 }
 
@@ -67,11 +65,10 @@ func (h *AnswerHandler) Update(ctx *gin.Context) {
 	response.JSON(ctx, http.StatusAccepted, "", res, nil)
 }
 
-func (h *AnswerHandler) Find(ctx *gin.Context) {
+func (h *AnswerHandler) FindByID(ctx *gin.Context) {
 	id := ctx.Param("id")
-	metadataOnly := ctx.Query("metadata_only") != ""
 
-	res, err := h.answerController.FindByID(id, metadataOnly)
+	res, err := h.answerController.FindByID(id)
 	if err != nil {
 		response.JSON(ctx, http.StatusInternalServerError, err.Error(), nil, nil)
 		return
@@ -80,10 +77,45 @@ func (h *AnswerHandler) Find(ctx *gin.Context) {
 	response.JSON(ctx, http.StatusOK, "", res, nil)
 }
 
-func (h *AnswerHandler) GetAll(ctx *gin.Context) {
-	metadataOnly := ctx.Query("metadata_only") != ""
+func (h *AnswerHandler) FindByProblem(ctx *gin.Context) {
+	id := ctx.Param("id")
 
-	res, err := h.answerController.GetAll(metadataOnly)
+	res, err := h.answerController.FindByProblem(id)
+	if err != nil {
+		response.JSON(ctx, http.StatusInternalServerError, err.Error(), nil, nil)
+		return
+	}
+
+	response.JSON(ctx, http.StatusOK, "", res, nil)
+}
+
+func (h *AnswerHandler) FindByProblemAndTeam(ctx *gin.Context) {
+	probid := ctx.Param("problem_id")
+	teamid := ctx.Param("team_group_id")
+
+	is_full_access := ctx.MustGet("is_full_access").(bool)
+
+	if is_full_access {
+		res, err := h.answerController.FindByProblemAndTeam(probid,teamid)
+		if err != nil {
+			response.JSON(ctx, http.StatusInternalServerError, err.Error(), nil, nil)
+			return
+		}
+		response.JSON(ctx, http.StatusOK, "", res, nil)
+	}else{
+		teamid = ctx.MustGet("group").(string)
+		res, err := h.answerController.FindByProblemAndTeam(probid,teamid)
+		if err != nil {
+			response.JSON(ctx, http.StatusInternalServerError, err.Error(), nil, nil)
+			return
+		}
+		response.JSON(ctx, http.StatusOK, "", res, nil)
+	}
+
+}
+
+func (h *AnswerHandler) GetAll(ctx *gin.Context) {
+	res, err := h.answerController.GetAll()
 	if err != nil {
 		response.JSON(ctx, http.StatusInternalServerError, err.Error(), nil, nil)
 		return
