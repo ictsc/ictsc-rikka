@@ -23,4 +23,8 @@ seed:
     invitationCode: test-invitation-code
     userName: admin
     userPassword: password
-
+minio:
+  endPoint:
+  accessKeyID:
+  secretAccessKey:
+  useSSL:
