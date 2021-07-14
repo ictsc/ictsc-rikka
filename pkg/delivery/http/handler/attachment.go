@@ -21,7 +21,6 @@ func NewAttachmentHandler(r *gin.RouterGroup, attachmentController *controller.A
 	attachments := r.Group("/attachments")
 	{
 		attachments.POST("/", handler.Upload)
-		attachments.GET("/", handler.GetAll)
 		attachments.GET("/:id", handler.Get)
 		attachments.DELETE("/:id", handler.Delete)
 	}
@@ -52,15 +51,6 @@ func (h *AttachmentHandler) Upload(ctx *gin.Context) {
 func (h *AttachmentHandler) Get(ctx *gin.Context) {
 	id := ctx.Param("id")
 	res, err := h.attachmentController.Get(id)
-	if err != nil {
-		response.JSON(ctx, http.StatusBadRequest, err.Error(), nil, nil)
-		return
-	}
-	response.JSON(ctx, http.StatusOK, "", res, nil)
-}
-func (h *AttachmentHandler) GetAll(ctx *gin.Context) {
-	log.Println("GetAll")
-	res, err := h.attachmentController.GetAll()
 	if err != nil {
 		response.JSON(ctx, http.StatusBadRequest, err.Error(), nil, nil)
 		return

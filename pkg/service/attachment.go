@@ -5,7 +5,6 @@ import (
 
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
 	"github.com/ictsc/ictsc-rikka/pkg/repository"
-	"github.com/minio/minio-go/v7"
 )
 
 type AttachmentService struct {
@@ -53,7 +52,4 @@ func (s *AttachmentService) Get(id string) (io.Reader, error) {
 		return nil, err
 	}
 	return obj, nil
-}
-func (s *AttachmentService) GetAll() ([]*minio.ObjectInfo, error) {
-	return s.attachmentRepo.GetAll()
 }

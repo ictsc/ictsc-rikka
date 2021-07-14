@@ -5,7 +5,6 @@ import (
 
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
 	"github.com/ictsc/ictsc-rikka/pkg/service"
-	"github.com/minio/minio-go/v7"
 )
 
 type AttachmentController struct {
@@ -26,7 +25,4 @@ func (c *AttachmentController) Delete(id string) error {
 }
 func (c *AttachmentController) Get(id string) (io.Reader, error) {
 	return c.attachmentService.Get(id)
-}
-func (c *AttachmentController) GetAll() ([]*minio.ObjectInfo, error) {
-	return c.attachmentService.GetAll()
 }
