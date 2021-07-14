@@ -48,7 +48,7 @@ func (s *AttachmentService) Delete(id string) error {
 	return nil
 }
 func (s *AttachmentService) Get(id string) (io.Reader, error) {
-	obj, err := s.attachmentRepo.Get(id)
+	obj, err := s.s3Repo.Get(id)
 	if err != nil {
 		return nil, err
 	}
