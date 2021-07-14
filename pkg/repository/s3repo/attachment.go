@@ -1,4 +1,4 @@
-package miniorepo
+package s3repo
 
 import (
 	"context"
