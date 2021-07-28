@@ -1,33 +1,39 @@
 package handler
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/ictsc/ictsc-rikka/pkg/controller"
+	"github.com/ictsc/ictsc-rikka/pkg/delivery/http/middleware"
 	"github.com/ictsc/ictsc-rikka/pkg/delivery/http/response"
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
+	"github.com/ictsc/ictsc-rikka/pkg/repository"
 )
 
 type AttachmentHandler struct {
 	attachmentController *controller.AttachmentController
 }
 
-func NewAttachmentHandler(r *gin.RouterGroup, attachmentController *controller.AttachmentController) {
+func NewAttachmentHandler(r *gin.RouterGroup, attachmentController *controller.AttachmentController, userRepo repository.UserRepository) {
 	handler := AttachmentHandler{
 		attachmentController: attachmentController,
 	}
 	attachments := r.Group("/attachments")
 	{
-		attachments.POST("/", handler.Upload)
-		attachments.GET("/:id", handler.Get)
-		attachments.DELETE("/:id", handler.Delete)
+		authed := attachments.Group("")
+		authed.Use(middleware.Auth(userRepo))
+		{
+			attachments.POST("/", handler.Upload)
+			attachments.GET("/:id", handler.Get)
+			attachments.DELETE("/:id", handler.Delete)
+
+		}
 	}
 }
 
 func (h *AttachmentHandler) Upload(ctx *gin.Context) {
-	log.Println("upload")
+
 	user := ctx.MustGet("user").(*entity.User)
 	file, err := ctx.FormFile("file")
 	if err != nil {

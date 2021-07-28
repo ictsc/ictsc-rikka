@@ -116,7 +116,7 @@ func main() {
 		handler.NewUserHandler(api, userRepo, userService)
 		handler.NewUserGroupHandler(api, userRepo, userGroupService)
 		handler.NewProblemHandler(api, userRepo, problemController)
-		handler.NewAttachmentHandler(api, attachmentController)
+		handler.NewAttachmentHandler(api, attachmentController, userRepo)
 	}
 
 	addr := fmt.Sprintf("%s:%d", config.Listen.Address, config.Listen.Port)
