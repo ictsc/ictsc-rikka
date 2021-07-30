@@ -1,6 +1,7 @@
 package mariadb
 
 import (
+	"github.com/google/uuid"
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
 	"gorm.io/gorm"
 )
@@ -15,13 +16,20 @@ func NewAttachmentRepository(db *gorm.DB) *AttachmentRepository {
 	}
 }
 
-func (r *AttachmentRepository) Create(attachment *entity.Attachment) (string, error) {
-	err := r.db.Create(attachment).Error
-	return attachment.Base.ID.String(), err
+func (r *AttachmentRepository) Create(attachment *entity.Attachment) (*entity.Attachment, error) {
+	if err := r.db.Create(attachment).Error; err != nil {
+		return nil, err
+	}
+	return r.Get(attachment.ID.String())
 }
-func (r *AttachmentRepository) Delete(id string) error {
-	attachment := &entity.Attachment{}
-	return r.db.Delete(attachment, id).Error
+
+func (r *AttachmentRepository) Delete(id uuid.UUID) error {
+	attachment := &entity.Attachment{
+		Base: entity.Base{
+			ID: id,
+		},
+	}
+	return r.db.Delete(attachment).Error
 }
 func (r *AttachmentRepository) Get(id string) (*entity.Attachment, error) {
 	attachment := &entity.Attachment{}

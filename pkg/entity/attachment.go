@@ -5,6 +5,6 @@ import (
 )
 
 type Attachment struct {
-	Base   Base
+	Base
 	UserID uuid.UUID
 }

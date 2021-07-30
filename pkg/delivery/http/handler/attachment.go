@@ -1,9 +1,11 @@
 package handler
 
 import (
+	"io"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/ictsc/ictsc-rikka/pkg/controller"
 	"github.com/ictsc/ictsc-rikka/pkg/delivery/http/middleware"
 	"github.com/ictsc/ictsc-rikka/pkg/delivery/http/response"
@@ -24,9 +26,9 @@ func NewAttachmentHandler(r *gin.RouterGroup, attachmentController *controller.A
 		authed := attachments.Group("")
 		authed.Use(middleware.Auth(userRepo))
 		{
-			attachments.POST("/", handler.Upload)
-			attachments.GET("/:id", handler.Get)
-			attachments.DELETE("/:id", handler.Delete)
+			authed.POST("/", handler.Upload)
+			authed.GET("/:id", handler.Get)
+			authed.DELETE("/:id", handler.Delete)
 
 		}
 	}
@@ -38,20 +40,23 @@ func (h *AttachmentHandler) Upload(ctx *gin.Context) {
 	file, err := ctx.FormFile("file")
 	if err != nil {
 		response.JSON(ctx, http.StatusInternalServerError, err.Error(), nil, nil)
+		return
 	}
 	reader, err := file.Open()
 	if err != nil {
 		response.JSON(ctx, http.StatusInternalServerError, err.Error(), nil, nil)
+		return
 	}
 	attachment := &entity.Attachment{
 		UserID: user.ID,
 	}
-	err = h.attachmentController.Upload(attachment, reader)
+	res, err := h.attachmentController.Upload(attachment, reader)
 	if err != nil {
 		response.JSON(ctx, http.StatusInternalServerError, err.Error(), nil, nil)
+		return
 	}
 
-	response.JSON(ctx, http.StatusCreated, "", "", nil)
+	response.JSON(ctx, http.StatusCreated, "", res, nil)
 }
 
 func (h *AttachmentHandler) Get(ctx *gin.Context) {
@@ -61,13 +66,19 @@ func (h *AttachmentHandler) Get(ctx *gin.Context) {
 		response.JSON(ctx, http.StatusBadRequest, err.Error(), nil, nil)
 		return
 	}
-	response.JSON(ctx, http.StatusOK, "", res, nil)
+	io.Copy(ctx.Writer, res)
 }
-func (h *AttachmentHandler) Delete(ctx *gin.Context) {
-	id := ctx.Param("id")
 
-	err := h.attachmentController.Delete(id)
+func (h *AttachmentHandler) Delete(ctx *gin.Context) {
+	idString := ctx.Param("id")
+
+	id, err := uuid.Parse(idString)
 	if err != nil {
+		response.JSON(ctx, http.StatusBadRequest, err.Error(), nil, err)
+		return
+	}
+
+	if err := h.attachmentController.Delete(id); err != nil {
 		response.JSON(ctx, http.StatusBadRequest, err.Error(), nil, nil)
 		return
 	}

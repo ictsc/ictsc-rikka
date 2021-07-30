@@ -22,16 +22,11 @@ func NewS3Repository(minioclient *minio.Client) *S3Repository {
 }
 
 func (r *S3Repository) Create(id string, reader io.Reader) error {
-	p := make([]byte, 128*1024*1024)
-	size, err := reader.Read(p)
-	if err != nil {
-		return err
-	}
-	err = r.minioclient.MakeBucket(context.Background(), bucketname, minio.MakeBucketOptions{ObjectLocking: true})
+	err := r.minioclient.MakeBucket(context.Background(), bucketname, minio.MakeBucketOptions{ObjectLocking: true})
 	if err != nil {
 		exists, errBucketExists := r.minioclient.BucketExists(context.Background(), bucketname)
 		if errBucketExists == nil && exists {
-			_, errPut := r.minioclient.PutObject(context.Background(), bucketname, id, reader, int64(size), minio.PutObjectOptions{})
+			_, errPut := r.minioclient.PutObject(context.Background(), bucketname, id, reader, -1, minio.PutObjectOptions{})
 			if errPut != nil {
 				return err
 			}
@@ -39,7 +34,7 @@ func (r *S3Repository) Create(id string, reader io.Reader) error {
 		}
 		return err
 	}
-	_, errPut := r.minioclient.PutObject(context.Background(), bucketname, id, reader, int64(size), minio.PutObjectOptions{})
+	_, errPut := r.minioclient.PutObject(context.Background(), bucketname, id, reader, -1, minio.PutObjectOptions{})
 	if errPut != nil {
 		return err
 	}
