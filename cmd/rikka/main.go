@@ -6,18 +6,19 @@ import (
 	"log"
 	"os"
 
+	"github.com/ictsc/ictsc-rikka/pkg/controller"
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 
 	"github.com/ictsc/ictsc-rikka/pkg/controller"
 
-
 	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
 	"github.com/ictsc/ictsc-rikka/pkg/delivery/http/handler"
 	"github.com/ictsc/ictsc-rikka/pkg/migration"
 	"github.com/ictsc/ictsc-rikka/pkg/repository/mariadb"
+	"github.com/ictsc/ictsc-rikka/pkg/repository/s3repo"
 	"github.com/ictsc/ictsc-rikka/pkg/seed"
 	"github.com/ictsc/ictsc-rikka/pkg/service"
 	"github.com/pkg/errors"
@@ -104,13 +105,17 @@ func main() {
 	userProfileRepo := mariadb.NewUserProfileRepository(db)
 	userGroupRepo := mariadb.NewUserGroupRepository(db)
 	problemRepo := mariadb.NewProblemRepository(db)
+	attachmentRepo := mariadb.NewAttachmentRepository(db)
+	s3Repo := s3repo.NewS3Repository(minioClient)
 
 	authService := service.NewAuthService(userRepo)
 	userService := service.NewUserService(userRepo, userProfileRepo, userGroupRepo)
 	userGroupService := service.NewUserGroupService(userGroupRepo)
 	problemService := service.NewProblemService(userRepo, problemRepo)
+	attachmentService := service.NewAttachmentService(attachmentRepo, s3Repo)
 
 	problemController := controller.NewProblemController(problemService)
+	attachmentController := controller.NewAttachmentController(attachmentService)
 
 	seed.Seed(&config.Seed, userRepo, userGroupRepo, *userService, *userGroupService)
 
@@ -120,6 +125,7 @@ func main() {
 		handler.NewUserHandler(api, userRepo, userService)
 		handler.NewUserGroupHandler(api, userRepo, userGroupService)
 		handler.NewProblemHandler(api, userRepo, problemController)
+		handler.NewAttachmentHandler(api, attachmentController, userRepo)
 	}
 
 	addr := fmt.Sprintf("%s:%d", config.Listen.Address, config.Listen.Port)

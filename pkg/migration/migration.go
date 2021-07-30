@@ -11,5 +11,6 @@ func Migrate(db *gorm.DB) error {
 		&entity.UserProfile{},
 		&entity.UserGroup{},
 		&entity.Problem{},
+		&entity.Attachment{},
 	)
 }
