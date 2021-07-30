@@ -4,6 +4,7 @@ import "github.com/ictsc/ictsc-rikka/pkg/seed"
 
 type Config struct {
 	Listen  ListenConfig    `yaml:"listen"`
+	CORS    CORSConfig      `yaml:"cors"`
 	MariaDB MariaDBConfig   `yaml:"mariadb"`
 	Redis   RedisConfig     `yaml:"redis"`
 	Minio   MinioConfig     `yaml:"minio"`
@@ -21,6 +22,9 @@ type ListenConfig struct {
 	TLS     *ListenTLSConfig `yaml:"tls"`
 }
 
+type CORSConfig struct {
+	Origins []string `yaml:"origins"`
+}
 type MariaDBConfig struct {
 	Username string `yaml:"username"`
 	Password string `yaml:"password"`

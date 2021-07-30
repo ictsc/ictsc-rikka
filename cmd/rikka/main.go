@@ -11,6 +11,8 @@ import (
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 
+	"github.com/ictsc/ictsc-rikka/pkg/controller"
+
 	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
 	"github.com/ictsc/ictsc-rikka/pkg/delivery/http/handler"
@@ -23,6 +25,7 @@ import (
 	"gopkg.in/yaml.v3"
 	"gorm.io/driver/mysql"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
 	"gorm.io/gorm"
 )
@@ -91,16 +94,22 @@ func init() {
 
 func main() {
 	r := gin.Default()
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowOrigins = config.CORS.Origins
+	corsConfig.AllowCredentials = true
+	r.Use(cors.New(corsConfig))
+
 	r.Use(sessions.Sessions("session", store))
 
 	userRepo := mariadb.NewUserRepository(db)
+	userProfileRepo := mariadb.NewUserProfileRepository(db)
 	userGroupRepo := mariadb.NewUserGroupRepository(db)
 	problemRepo := mariadb.NewProblemRepository(db)
 	attachmentRepo := mariadb.NewAttachmentRepository(db)
 	s3Repo := s3repo.NewS3Repository(minioClient)
 
 	authService := service.NewAuthService(userRepo)
-	userService := service.NewUserService(userRepo, userGroupRepo)
+	userService := service.NewUserService(userRepo, userProfileRepo, userGroupRepo)
 	userGroupService := service.NewUserGroupService(userGroupRepo)
 	problemService := service.NewProblemService(userRepo, problemRepo)
 	attachmentService := service.NewAttachmentService(attachmentRepo, s3Repo)

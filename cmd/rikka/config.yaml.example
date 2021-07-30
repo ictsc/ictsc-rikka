@@ -1,6 +1,9 @@
 listen:
   address: 0.0.0.0
   port: 8080
+  cors:
+  origins:
+    - http://localhost:4040
 # use TLS.
 #  tls:
 #    certFilePath: cmd/rikka/server.crt

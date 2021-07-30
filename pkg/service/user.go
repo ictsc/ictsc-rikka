@@ -8,14 +8,16 @@ import (
 )
 
 type UserService struct {
-	userRepo      repository.UserRepository
-	userGroupRepo repository.UserGroupRepository
+	userRepo        repository.UserRepository
+	userProfileRepo repository.UserProfileRepository
+	userGroupRepo   repository.UserGroupRepository
 }
 
-func NewUserService(userRepo repository.UserRepository, userGroupRepo repository.UserGroupRepository) *UserService {
+func NewUserService(userRepo repository.UserRepository, userProfileRepo repository.UserProfileRepository, userGroupRepo repository.UserGroupRepository) *UserService {
 	return &UserService{
-		userRepo:      userRepo,
-		userGroupRepo: userGroupRepo,
+		userRepo:        userRepo,
+		userProfileRepo: userProfileRepo,
+		userGroupRepo:   userGroupRepo,
 	}
 }
 
@@ -43,5 +45,29 @@ func (s *UserService) Create(name, password string, userGroupID uuid.UUID, invit
 }
 
 func (s *UserService) FindByID(id uuid.UUID) (*entity.User, error) {
-	return s.userRepo.FindByID(id, false)
+	return s.userRepo.FindByID(id, true)
+}
+
+func (s *UserService) Update(userID uuid.UUID, displayName, twitterID, githubID, facebookID, selfIntroduction string) (*entity.User, error) {
+	user, err := s.userRepo.FindByID(userID, false)
+	if err != nil {
+		return nil, err
+	}
+
+	user.DisplayName = displayName
+	if _, err := s.userRepo.Update(user); err != nil {
+		return nil, err
+	}
+
+	if _, err := s.userProfileRepo.UpdateOrCreate(&entity.UserProfile{
+		UserID:           userID,
+		TwitterID:        twitterID,
+		GithubID:         githubID,
+		FacebookID:       facebookID,
+		SelfIntroduction: selfIntroduction,
+	}); err != nil {
+		return nil, err
+	}
+
+	return s.userRepo.FindByID(userID, true)
 }
