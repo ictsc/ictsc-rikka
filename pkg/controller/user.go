@@ -54,3 +54,30 @@ func (c *UserController) FindByID(userID string) (*FindUserByIDResponse, error) 
 		User: user,
 	}, err
 }
+
+type UpdateUserRequest struct {
+	DisplayName      string `json:"display_name"`
+	TwitterID        string `json:"twitter_id"`
+	GithubID         string `json:"github_id"`
+	FacebookID       string `json:"facebook_id"`
+	SelfIntroduction string `json:"self_introduction"`
+}
+
+type UpdateUserResponse struct {
+	User *entity.User `json:"user"`
+}
+
+func (c *UserController) Update(userID string, req *UpdateUserRequest) (*UpdateUserResponse, error) {
+	id, err := uuid.Parse(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := c.userService.Update(id, req.DisplayName, req.TwitterID, req.GithubID, req.FacebookID, req.SelfIntroduction)
+	if err != nil {
+		return nil, err
+	}
+	return &UpdateUserResponse{
+		User: user,
+	}, nil
+}
