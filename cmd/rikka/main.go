@@ -11,8 +11,6 @@ import (
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 
-	"github.com/ictsc/ictsc-rikka/pkg/controller"
-
 	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
 	"github.com/ictsc/ictsc-rikka/pkg/delivery/http/handler"
