@@ -26,7 +26,7 @@ func NewAttachmentHandler(r *gin.RouterGroup, attachmentController *controller.A
 		authed := attachments.Group("")
 		authed.Use(middleware.Auth(userRepo))
 		{
-			authed.POST("/", handler.Upload)
+			authed.POST("", handler.Upload)
 			authed.GET("/:id", handler.Get)
 			authed.DELETE("/:id", handler.Delete)
 
