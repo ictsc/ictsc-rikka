@@ -6,33 +6,28 @@ import (
 	"log"
 	"os"
 
+	"github.com/ictsc/ictsc-rikka/pkg/controller"
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 
-	"github.com/ictsc/ictsc-rikka/pkg/controller"
-
-
 	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
 	"github.com/ictsc/ictsc-rikka/pkg/delivery/http/handler"
-	"github.com/ictsc/ictsc-rikka/pkg/migration"
 	"github.com/ictsc/ictsc-rikka/pkg/repository/mariadb"
+	"github.com/ictsc/ictsc-rikka/pkg/repository/s3repo"
 	"github.com/ictsc/ictsc-rikka/pkg/seed"
 	"github.com/ictsc/ictsc-rikka/pkg/service"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
-	"gorm.io/driver/mysql"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
-	"gorm.io/gorm"
 )
 
 var (
 	configPath  string
 	config      Config
-	db          *gorm.DB
 	store       redis.Store
 	minioClient *minio.Client
 )
@@ -52,20 +47,7 @@ func init() {
 		log.Fatalf(errors.Wrapf(err, "Failed to decode config.").Error())
 	}
 
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		config.MariaDB.Username,
-		config.MariaDB.Password,
-		config.MariaDB.Address,
-		config.MariaDB.Port,
-		config.MariaDB.Database,
-	)
-	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
-	if err != nil {
-		f.Close()
-		log.Fatalf(errors.Wrapf(err, "Failed to open mariadb server.").Error())
-	}
-
-	if err := migration.Migrate(db); err != nil {
+	if err := mariadb.Migrate(&config.MariaDB); err != nil {
 		f.Close()
 		log.Fatalf(errors.Wrapf(err, "Failed to migrate.").Error())
 	}
@@ -100,19 +82,24 @@ func main() {
 
 	r.Use(sessions.Sessions("session", store))
 
-	userRepo := mariadb.NewUserRepository(db)
-	userGroupRepo := mariadb.NewUserGroupRepository(db)
-	problemRepo := mariadb.NewProblemRepository(db)
+	userRepo := mariadb.NewUserRepository(&config.MariaDB)
+	userProfileRepo := mariadb.NewUserProfileRepository(&config.MariaDB)
+	userGroupRepo := mariadb.NewUserGroupRepository(&config.MariaDB)
+	problemRepo := mariadb.NewProblemRepository(&config.MariaDB)
 	answerRepo := mariadb.NewAnswerRepository(db)
+	attachmentRepo := mariadb.NewAttachmentRepository(&config.MariaDB)
+	s3Repo := s3repo.NewS3Repository(minioClient, config.Minio.BucketName)
 
 	authService := service.NewAuthService(userRepo)
-	userService := service.NewUserService(userRepo, userGroupRepo)
+	userService := service.NewUserService(userRepo, userProfileRepo, userGroupRepo)
 	userGroupService := service.NewUserGroupService(userGroupRepo)
 	problemService := service.NewProblemService(userRepo, problemRepo)
 	answerService := service.NewAnswerService(userRepo, answerRepo, problemRepo)
+	attachmentService := service.NewAttachmentService(attachmentRepo, s3Repo)
 
 	problemController := controller.NewProblemController(problemService)
 	answerController := controller.NewAnswerController(answerService)
+	attachmentController := controller.NewAttachmentController(attachmentService)
 
 	seed.Seed(&config.Seed, userRepo, userGroupRepo, *userService, *userGroupService)
 
@@ -122,6 +109,7 @@ func main() {
 		handler.NewUserHandler(api, userRepo, userService)
 		handler.NewUserGroupHandler(api, userRepo, userGroupService)
 		handler.NewProblemHandler(api, userRepo, problemController, answerController)
+		handler.NewAttachmentHandler(api, attachmentController, userRepo)
 	}
 
 	addr := fmt.Sprintf("%s:%d", config.Listen.Address, config.Listen.Port)

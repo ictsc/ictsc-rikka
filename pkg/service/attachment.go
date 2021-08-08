@@ -3,9 +3,9 @@ package service
 import (
 	"io"
 
+	"github.com/google/uuid"
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
 	"github.com/ictsc/ictsc-rikka/pkg/repository"
-	"github.com/minio/minio-go/v7"
 )
 
 type AttachmentService struct {
@@ -27,19 +27,20 @@ func NewAttachmentService(attachmentRepo repository.AttachmentRepository, s3Repo
 	}
 }
 
-func (s *AttachmentService) Create(attachment *entity.Attachment, reader io.Reader) error {
-	id, err := s.attachmentRepo.Create(attachment)
+func (s *AttachmentService) Create(attachment *entity.Attachment, reader io.Reader) (*entity.Attachment, error) {
+	created, err := s.attachmentRepo.Create(attachment)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	err = s.s3Repo.Create(id, reader)
+	err = s.s3Repo.Create(created.ID.String(), reader)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return created, nil
 }
-func (s *AttachmentService) Delete(id string) error {
-	if err := s.s3Repo.Delete(id); err != nil {
+
+func (s *AttachmentService) Delete(id uuid.UUID) error {
+	if err := s.s3Repo.Delete(id.String()); err != nil {
 		return err
 	}
 	if err := s.attachmentRepo.Delete(id); err != nil {
@@ -47,13 +48,11 @@ func (s *AttachmentService) Delete(id string) error {
 	}
 	return nil
 }
+
 func (s *AttachmentService) Get(id string) (io.Reader, error) {
-	obj, err := s.attachmentRepo.Get(id)
+	obj, err := s.s3Repo.Get(id)
 	if err != nil {
 		return nil, err
 	}
 	return obj, nil
-}
-func (s *AttachmentService) GetAll() ([]*minio.ObjectInfo, error) {
-	return s.attachmentRepo.GetAll()
 }
