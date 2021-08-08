@@ -3,6 +3,7 @@ package mariadb
 import (
 	"github.com/google/uuid"
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
+	"github.com/ictsc/ictsc-rikka/pkg/repository"
 )
 
 type AnswerRepository struct {
@@ -14,6 +15,8 @@ func NewAnswerRepository(config *MariaDBConfig) *AnswerRepository {
 		db: newDB(config),
 	}
 }
+
+var _ repository.AnswerRepository = (*AnswerRepository)(nil)
 
 func (r *AnswerRepository) Create(answer *entity.Answer) (*entity.Answer, error) {
 	db, conn, err := r.db.init()
@@ -53,7 +56,7 @@ func (r *AnswerRepository) FindByID(id uuid.UUID) (*entity.Answer, error) {
 	return res, err
 }
 
-func (r *AnswerRepository) FindByProblem(probid uuid.UUID, teamid *uuid.UUID) ([]*entity.Answer, error) {
+func (r *AnswerRepository) FindByProblem(probid uuid.UUID, groupid *uuid.UUID) ([]*entity.Answer, error) {
 	db, conn, err := r.db.init()
 	if err != nil {
 		return nil, err
@@ -61,15 +64,15 @@ func (r *AnswerRepository) FindByProblem(probid uuid.UUID, teamid *uuid.UUID) ([
 	defer conn.Close()
 
 	res := []*entity.Answer{}
-	if teamid != nil {
-		err = db.Where("problem_id", probid).Where("group", teamid).Find(res).Error
+	if groupid != nil {
+		err = db.Where("problem_id", probid).Where("group", groupid).Find(res).Error
 	} else {
 		err = db.Where("problem_id", probid).Find(&res).Error
 	}
 	return res, err
 }
 
-func (r *AnswerRepository) FindByTeam(id uuid.UUID) ([]*entity.Answer, error) {
+func (r *AnswerRepository) FindByUserGroup(id uuid.UUID) ([]*entity.Answer, error) {
 	db, conn, err := r.db.init()
 	if err != nil {
 		return nil, err
@@ -77,11 +80,11 @@ func (r *AnswerRepository) FindByTeam(id uuid.UUID) ([]*entity.Answer, error) {
 	defer conn.Close()
 
 	res := []*entity.Answer{}
-	err = db.Where("team", id).Find(&res).Error
+	err = db.Where("group", id).Find(&res).Error
 	return res, err
 }
 
-func (r *AnswerRepository) FindByProblemAndTeam(problemid uuid.UUID, teamid uuid.UUID) ([]*entity.Answer, error) {
+func (r *AnswerRepository) FindByProblemAndUserGroup(problemid uuid.UUID, groupid uuid.UUID) ([]*entity.Answer, error) {
 	db, conn, err := r.db.init()
 	if err != nil {
 		return nil, err
@@ -89,7 +92,7 @@ func (r *AnswerRepository) FindByProblemAndTeam(problemid uuid.UUID, teamid uuid
 	defer conn.Close()
 
 	res := []*entity.Answer{}
-	err = db.Where("problem", problemid).Where("group", teamid).Find(&res).Error
+	err = db.Where("problem_id", problemid).Where("group", groupid).Find(&res).Error
 	return res, err
 }
 

@@ -1,13 +1,14 @@
 package handler
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
-	"github.com/ictsc/ictsc-rikka/pkg/entity"
 	"github.com/ictsc/ictsc-rikka/pkg/controller"
 	"github.com/ictsc/ictsc-rikka/pkg/delivery/http/middleware"
 	"github.com/ictsc/ictsc-rikka/pkg/delivery/http/response"
+	"github.com/ictsc/ictsc-rikka/pkg/entity"
 	"github.com/ictsc/ictsc-rikka/pkg/repository"
-	"net/http"
 )
 
 type AnswerHandler struct {
@@ -43,7 +44,7 @@ func (h *AnswerHandler) Create(ctx *gin.Context) {
 
 	groupuuid := ctx.MustGet("group").(*entity.UserGroup).ID
 	problem_id := ctx.Param("id")
-	res, err := h.answerController.Create(problem_id,groupuuid,req)
+	res, err := h.answerController.Create(problem_id, groupuuid, req)
 	if err != nil {
 		response.JSON(ctx, http.StatusInternalServerError, err.Error(), nil, nil)
 		return
@@ -88,15 +89,15 @@ func (h *AnswerHandler) FindByProblemAndTeam(ctx *gin.Context) {
 
 	if is_full_access {
 		teamid := ctx.Param("team_group_id")
-		res, err := h.answerController.FindByProblem(probid,teamid)
+		res, err := h.answerController.FindByProblem(probid, teamid)
 		if err != nil {
 			response.JSON(ctx, http.StatusInternalServerError, err.Error(), nil, nil)
 			return
 		}
 		response.JSON(ctx, http.StatusOK, "", res, nil)
-	}else{
+	} else {
 		teamuuid := ctx.MustGet("group").(*entity.UserGroup).ID
-		res, err := h.answerController.FindByProblemAndTeam(probid,teamuuid)
+		res, err := h.answerController.FindByProblemAndUserGroup(probid, teamuuid)
 		if err != nil {
 			response.JSON(ctx, http.StatusInternalServerError, err.Error(), nil, nil)
 			return

@@ -24,15 +24,15 @@ type CreateAnswerResponse struct {
 	Answer *entity.Answer `json:"answer"`
 }
 
-func (c *AnswerController) Create(problem_id string,groupuuid uuid.UUID,req *CreateAnswerRequest) (*CreateAnswerResponse, error) {
+func (c *AnswerController) Create(problem_id string, groupuuid uuid.UUID, req *CreateAnswerRequest) (*CreateAnswerResponse, error) {
 	problem_uuid, err := uuid.Parse(problem_id)
 	if err != nil {
 		return nil, err
 	}
 
 	ans, err := c.answerService.Create(&service.CreateAnswerRequest{
-		Group: groupuuid,
-		Body: req.Body,
+		Group:     groupuuid,
+		Body:      req.Body,
 		ProblemID: problem_uuid,
 	})
 
@@ -69,7 +69,7 @@ type FindByProblemResponse struct {
 }
 
 // team id is optional
-func (c *AnswerController) FindByProblem(probid string,teamid string) (*FindByProblemResponse, error) {
+func (c *AnswerController) FindByProblem(probid string, teamid string) (*FindByProblemResponse, error) {
 	probuuid, err := uuid.Parse(probid)
 	if err != nil {
 		return nil, err
@@ -85,7 +85,7 @@ func (c *AnswerController) FindByProblem(probid string,teamid string) (*FindByPr
 		teamuuid = &id
 	}
 
-	ans, err := c.answerService.FindByProblem(probuuid,teamuuid)
+	ans, err := c.answerService.FindByProblem(probuuid, teamuuid)
 	if err != nil {
 		return nil, err
 	}
@@ -103,12 +103,12 @@ type FindByTeamRequest struct {
 	TeamID string `json:"team_group_id"`
 }
 
-func (c *AnswerController) FindByTeam(req *FindByTeamRequest) (*FindByTeamResponse, error) {
+func (c *AnswerController) FindByUserGroup(req *FindByTeamRequest) (*FindByTeamResponse, error) {
 	uuid, err := uuid.Parse(req.TeamID)
 	if err != nil {
 		return nil, err
 	}
-	ans, err := c.answerService.FindByTeam(uuid)
+	ans, err := c.answerService.FindByUserGroup(uuid)
 	if err != nil {
 		return nil, err
 	}
@@ -122,13 +122,13 @@ type FindByProblemAndTeamResponse struct {
 	Answers []*entity.Answer `json:"answers"`
 }
 
-func (c *AnswerController) FindByProblemAndTeam(probid string, teamuuid uuid.UUID) (*FindByProblemAndTeamResponse, error) {
+func (c *AnswerController) FindByProblemAndUserGroup(probid string, teamuuid uuid.UUID) (*FindByProblemAndTeamResponse, error) {
 	probuuid, err := uuid.Parse(probid)
 	if err != nil {
 		return nil, err
 	}
 
-	ans, err := c.answerService.FindByProblemAndTeam(probuuid,teamuuid)
+	ans, err := c.answerService.FindByProblemAndUserGroup(probuuid, teamuuid)
 	if err != nil {
 		return nil, err
 	}
@@ -154,8 +154,8 @@ func (c *AnswerController) GetAll() (*GetAllAnswersResponse, error) {
 }
 
 type UpdateAnswerRequest struct {
-	Point             uint      `json:"point"`
-	Body           string       `json:"body"`
+	Point     uint       `json:"point"`
+	Body      string     `json:"body"`
 	ProblemID *uuid.UUID `json:"problem_id"`
 }
 
@@ -170,8 +170,8 @@ func (c *AnswerController) Update(id string, req *UpdateAnswerRequest) (*UpdateA
 	}
 
 	ans, err := c.answerService.Update(uuid, &service.UpdateAnswerRequest{
-		Body: req.Body,
-		Point: req.Point,
+		Body:      req.Body,
+		Point:     req.Point,
 		ProblemID: req.ProblemID,
 	})
 	if err != nil {

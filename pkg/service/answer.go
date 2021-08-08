@@ -8,37 +8,37 @@ import (
 )
 
 type AnswerService struct {
-	userRepo      repository.UserRepository
-	answerRepo repository.AnswerRepository
+	userRepo    repository.UserRepository
+	answerRepo  repository.AnswerRepository
 	problemRepo repository.ProblemRepository
 }
 
 type CreateAnswerRequest struct {
-	Point             uint
-	Body           string
-	Group    uuid.UUID
+	Point     uint
+	Body      string
+	Group     uuid.UUID
 	ProblemID uuid.UUID
 }
 
 type UpdateAnswerRequest struct {
-	Point             uint
-	Body           string
+	Point     uint
+	Body      string
 	ProblemID *uuid.UUID
 }
 
 func NewAnswerService(userRepo repository.UserRepository, answerRepo repository.AnswerRepository, problemRepo repository.ProblemRepository) *AnswerService {
 	return &AnswerService{
-		userRepo:      userRepo,
-		answerRepo: answerRepo,
+		userRepo:    userRepo,
+		answerRepo:  answerRepo,
 		problemRepo: problemRepo,
 	}
 }
 
 func (s *AnswerService) Create(req *CreateAnswerRequest) (*entity.Answer, error) {
 	ans := &entity.Answer{
-		Group: req.Group,
-		Point: 0,
-		Body: req.Body,
+		Group:     req.Group,
+		Point:     0,
+		Body:      req.Body,
 		ProblemID: req.ProblemID,
 	}
 
@@ -62,17 +62,17 @@ func (s *AnswerService) FindByID(id uuid.UUID) (*entity.Answer, error) {
 }
 
 // teamid is optional
-func (s *AnswerService) FindByProblem(probid uuid.UUID,teamid *uuid.UUID) ([]*entity.Answer, error) {
-	return s.answerRepo.FindByProblem(probid,teamid)
+func (s *AnswerService) FindByProblem(probid uuid.UUID, teamid *uuid.UUID) ([]*entity.Answer, error) {
+	return s.answerRepo.FindByProblem(probid, teamid)
 }
 
-func (s *AnswerService) FindByTeam(id uuid.UUID) ([]*entity.Answer, error) {
-	return s.answerRepo.FindByTeam(id)
+func (s *AnswerService) FindByUserGroup(id uuid.UUID) ([]*entity.Answer, error) {
+	return s.answerRepo.FindByUserGroup(id)
 }
 
 // teamid is require
-func (s *AnswerService) FindByProblemAndTeam(probid uuid.UUID, teamid uuid.UUID) ([]*entity.Answer, error) {
-	return s.answerRepo.FindByProblemAndTeam(probid,teamid)
+func (s *AnswerService) FindByProblemAndUserGroup(probid uuid.UUID, teamid uuid.UUID) ([]*entity.Answer, error) {
+	return s.answerRepo.FindByProblemAndUserGroup(probid, teamid)
 }
 
 func (s *AnswerService) Update(id uuid.UUID, req *UpdateAnswerRequest) (*entity.Answer, error) {
