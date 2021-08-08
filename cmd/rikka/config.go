@@ -1,14 +1,17 @@
 package main
 
-import "github.com/ictsc/ictsc-rikka/pkg/seed"
+import (
+	"github.com/ictsc/ictsc-rikka/pkg/repository/mariadb"
+	"github.com/ictsc/ictsc-rikka/pkg/seed"
+)
 
 type Config struct {
-	Listen  ListenConfig    `yaml:"listen"`
-	CORS    CORSConfig      `yaml:"cors"`
-	MariaDB MariaDBConfig   `yaml:"mariadb"`
-	Redis   RedisConfig     `yaml:"redis"`
-	Minio   MinioConfig     `yaml:"minio"`
-	Seed    seed.SeedConfig `yaml:"seed"`
+	Listen  ListenConfig          `yaml:"listen"`
+	CORS    CORSConfig            `yaml:"cors"`
+	MariaDB mariadb.MariaDBConfig `yaml:"mariadb"`
+	Redis   RedisConfig           `yaml:"redis"`
+	Minio   MinioConfig           `yaml:"minio"`
+	Seed    seed.SeedConfig       `yaml:"seed"`
 }
 
 type ListenTLSConfig struct {
@@ -24,13 +27,6 @@ type ListenConfig struct {
 
 type CORSConfig struct {
 	Origins []string `yaml:"origins"`
-}
-type MariaDBConfig struct {
-	Username string `yaml:"username"`
-	Password string `yaml:"password"`
-	Address  string `yaml:"address"`
-	Port     int    `yaml:"port"`
-	Database string `yaml:"database"`
 }
 
 type RedisConfig struct {

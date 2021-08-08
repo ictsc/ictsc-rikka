@@ -14,24 +14,20 @@ import (
 	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
 	"github.com/ictsc/ictsc-rikka/pkg/delivery/http/handler"
-	"github.com/ictsc/ictsc-rikka/pkg/migration"
 	"github.com/ictsc/ictsc-rikka/pkg/repository/mariadb"
 	"github.com/ictsc/ictsc-rikka/pkg/repository/s3repo"
 	"github.com/ictsc/ictsc-rikka/pkg/seed"
 	"github.com/ictsc/ictsc-rikka/pkg/service"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
-	"gorm.io/driver/mysql"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
-	"gorm.io/gorm"
 )
 
 var (
 	configPath  string
 	config      Config
-	db          *gorm.DB
 	store       redis.Store
 	minioClient *minio.Client
 )
@@ -51,20 +47,7 @@ func init() {
 		log.Fatalf(errors.Wrapf(err, "Failed to decode config.").Error())
 	}
 
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		config.MariaDB.Username,
-		config.MariaDB.Password,
-		config.MariaDB.Address,
-		config.MariaDB.Port,
-		config.MariaDB.Database,
-	)
-	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
-	if err != nil {
-		f.Close()
-		log.Fatalf(errors.Wrapf(err, "Failed to open mariadb server.").Error())
-	}
-
-	if err := migration.Migrate(db); err != nil {
+	if err := mariadb.Migrate(&config.MariaDB); err != nil {
 		f.Close()
 		log.Fatalf(errors.Wrapf(err, "Failed to migrate.").Error())
 	}
@@ -99,11 +82,11 @@ func main() {
 
 	r.Use(sessions.Sessions("session", store))
 
-	userRepo := mariadb.NewUserRepository(db)
-	userProfileRepo := mariadb.NewUserProfileRepository(db)
-	userGroupRepo := mariadb.NewUserGroupRepository(db)
-	problemRepo := mariadb.NewProblemRepository(db)
-	attachmentRepo := mariadb.NewAttachmentRepository(db)
+	userRepo := mariadb.NewUserRepository(&config.MariaDB)
+	userProfileRepo := mariadb.NewUserProfileRepository(&config.MariaDB)
+	userGroupRepo := mariadb.NewUserGroupRepository(&config.MariaDB)
+	problemRepo := mariadb.NewProblemRepository(&config.MariaDB)
+	attachmentRepo := mariadb.NewAttachmentRepository(&config.MariaDB)
 	s3Repo := s3repo.NewS3Repository(minioClient, config.Minio.BucketName)
 
 	authService := service.NewAuthService(userRepo)
