@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	bucketname = "ictsc"
+	bucketname = "ictsc2021-summer-scoreserver"
 )
 
 type S3Repository struct {
@@ -22,24 +22,8 @@ func NewS3Repository(minioclient *minio.Client) *S3Repository {
 }
 
 func (r *S3Repository) Create(id string, reader io.Reader) error {
-	err := r.minioclient.MakeBucket(context.Background(), bucketname, minio.MakeBucketOptions{ObjectLocking: false})
-	if err != nil {
-		exists, errBucketExists := r.minioclient.BucketExists(context.Background(), bucketname)
-		if errBucketExists == nil && exists {
-			_, errPut := r.minioclient.PutObject(context.Background(), bucketname, id, reader, -1, minio.PutObjectOptions{})
-			if errPut != nil {
-				return err
-			}
-			return nil
-		}
-		return err
-	}
-	_, errPut := r.minioclient.PutObject(context.Background(), bucketname, id, reader, -1, minio.PutObjectOptions{})
-	if errPut != nil {
-		return err
-	}
-	return nil
-
+	_, err := r.minioclient.PutObject(context.Background(), bucketname, id, reader, -1, minio.PutObjectOptions{})
+	return err
 }
 func (r *S3Repository) Delete(id string) error {
 	err := r.minioclient.RemoveObject(context.Background(), bucketname, id, minio.RemoveObjectOptions{})
@@ -47,7 +31,6 @@ func (r *S3Repository) Delete(id string) error {
 		return err
 	}
 	return nil
-
 }
 func (r *S3Repository) Get(id string) (io.Reader, error) {
 	obj, err := r.minioclient.GetObject(context.Background(), bucketname, id, minio.GetObjectOptions{})
