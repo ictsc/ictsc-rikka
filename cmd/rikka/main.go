@@ -104,7 +104,7 @@ func main() {
 	userGroupRepo := mariadb.NewUserGroupRepository(db)
 	problemRepo := mariadb.NewProblemRepository(db)
 	attachmentRepo := mariadb.NewAttachmentRepository(db)
-	s3Repo := s3repo.NewS3Repository(minioClient)
+	s3Repo := s3repo.NewS3Repository(minioClient, config.Minio.BucketName)
 
 	authService := service.NewAuthService(userRepo)
 	userService := service.NewUserService(userRepo, userProfileRepo, userGroupRepo)

@@ -45,5 +45,6 @@ type MinioConfig struct {
 	Endpoint        string `yaml:"endPoint"`
 	AccessKeyID     string `yaml:"accessKeyID"`
 	SecretAccessKey string `yaml:"secretAccessKey"`
+	BucketName      string `yaml:"bucketName`
 	UseSSL          bool   `yaml:"useSSL"`
 }
