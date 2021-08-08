@@ -3,21 +3,26 @@ package mariadb
 import (
 	"github.com/google/uuid"
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
-	"gorm.io/gorm"
 )
 
 type AnswerRepository struct {
-	db *gorm.DB
+	*db
 }
 
-func NewAnswerRepository(db *gorm.DB) *AnswerRepository {
+func NewAnswerRepository(config *MariaDBConfig) *AnswerRepository {
 	return &AnswerRepository{
-		db: db,
+		db: newDB(config),
 	}
 }
 
 func (r *AnswerRepository) Create(answer *entity.Answer) (*entity.Answer, error) {
-	err := r.db.Create(answer).Error
+	db, conn, err := r.db.init()
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+
+	err = db.Create(answer).Error
 	if err != nil {
 		return nil, err
 	}
@@ -25,42 +30,77 @@ func (r *AnswerRepository) Create(answer *entity.Answer) (*entity.Answer, error)
 }
 
 func (r *AnswerRepository) GetAll() ([]*entity.Answer, error) {
+	db, conn, err := r.db.init()
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+
 	answers := make([]*entity.Answer, 0)
-	err := r.db.Find(answers).Error
+	err = db.Find(answers).Error
 	return answers, err
 }
 
 func (r *AnswerRepository) FindByID(id uuid.UUID) (*entity.Answer, error) {
+	db, conn, err := r.db.init()
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+
 	res := &entity.Answer{}
-	err := r.db.First(res, id).Error
+	err = db.First(res, id).Error
 	return res, err
 }
 
-func (r *AnswerRepository) FindByProblem(probid uuid.UUID,teamid *uuid.UUID) ([]*entity.Answer, error) {
-	res  := []*entity.Answer{}
-	var err error
+func (r *AnswerRepository) FindByProblem(probid uuid.UUID, teamid *uuid.UUID) ([]*entity.Answer, error) {
+	db, conn, err := r.db.init()
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+
+	res := []*entity.Answer{}
 	if teamid != nil {
-		err = r.db.Where("problem_id", probid).Where("group", teamid).Find(res).Error
-	}else{
-		err = r.db.Where("problem_id", probid).Find(&res).Error
+		err = db.Where("problem_id", probid).Where("group", teamid).Find(res).Error
+	} else {
+		err = db.Where("problem_id", probid).Find(&res).Error
 	}
 	return res, err
 }
 
 func (r *AnswerRepository) FindByTeam(id uuid.UUID) ([]*entity.Answer, error) {
+	db, conn, err := r.db.init()
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+
 	res := []*entity.Answer{}
-	err := r.db.Where("team", id).Find(&res).Error
+	err = db.Where("team", id).Find(&res).Error
 	return res, err
 }
 
-func (r *AnswerRepository) FindByProblemAndTeam(problemid uuid.UUID,teamid uuid.UUID) ([]*entity.Answer, error) {
+func (r *AnswerRepository) FindByProblemAndTeam(problemid uuid.UUID, teamid uuid.UUID) ([]*entity.Answer, error) {
+	db, conn, err := r.db.init()
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+
 	res := []*entity.Answer{}
-	err := r.db.Where("problem", problemid).Where("group",teamid).Find(&res).Error
+	err = db.Where("problem", problemid).Where("group", teamid).Find(&res).Error
 	return res, err
 }
 
 func (r *AnswerRepository) Update(answer *entity.Answer) (*entity.Answer, error) {
-	err := r.db.Save(answer).Error
+	db, conn, err := r.db.init()
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+
+	err = db.Save(answer).Error
 	if err != nil {
 		return nil, err
 	}
@@ -68,5 +108,11 @@ func (r *AnswerRepository) Update(answer *entity.Answer) (*entity.Answer, error)
 }
 
 func (r *AnswerRepository) Delete(answer *entity.Answer) error {
-	return r.db.Delete(answer, answer.ID).Error
+	db, conn, err := r.db.init()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	return db.Delete(answer, answer.ID).Error
 }

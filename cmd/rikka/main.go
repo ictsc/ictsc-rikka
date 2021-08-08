@@ -86,7 +86,7 @@ func main() {
 	userProfileRepo := mariadb.NewUserProfileRepository(&config.MariaDB)
 	userGroupRepo := mariadb.NewUserGroupRepository(&config.MariaDB)
 	problemRepo := mariadb.NewProblemRepository(&config.MariaDB)
-	answerRepo := mariadb.NewAnswerRepository(db)
+	answerRepo := mariadb.NewAnswerRepository(&config.MariaDB)
 	attachmentRepo := mariadb.NewAttachmentRepository(&config.MariaDB)
 	s3Repo := s3repo.NewS3Repository(minioClient, config.Minio.BucketName)
 
