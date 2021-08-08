@@ -22,7 +22,7 @@ func NewS3Repository(minioclient *minio.Client) *S3Repository {
 }
 
 func (r *S3Repository) Create(id string, reader io.Reader) error {
-	err := r.minioclient.MakeBucket(context.Background(), bucketname, minio.MakeBucketOptions{ObjectLocking: true})
+	err := r.minioclient.MakeBucket(context.Background(), bucketname, minio.MakeBucketOptions{ObjectLocking: false})
 	if err != nil {
 		exists, errBucketExists := r.minioclient.BucketExists(context.Background(), bucketname)
 		if errBucketExists == nil && exists {
