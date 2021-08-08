@@ -80,7 +80,7 @@ func (r *AnswerRepository) FindByUserGroup(id uuid.UUID) ([]*entity.Answer, erro
 	defer conn.Close()
 
 	res := []*entity.Answer{}
-	err = db.Where("group", id).Find(&res).Error
+	err = db.Where("user_group_id", id).Find(&res).Error
 	return res, err
 }
 
