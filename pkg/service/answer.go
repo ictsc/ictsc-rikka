@@ -35,7 +35,7 @@ func NewAnswerService(userRepo repository.UserRepository, answerRepo repository.
 func (s *AnswerService) Create(req *CreateAnswerRequest) (*entity.Answer, error) {
 	ans := &entity.Answer{
 		UserGroupID: req.Group,
-		Point:       0,
+		Point:       nil,
 		Body:        req.Body,
 		ProblemID:   req.ProblemID,
 	}
@@ -82,7 +82,7 @@ func (s *AnswerService) Update(id uuid.UUID, req *UpdateAnswerRequest) (*entity.
 		return nil, errors.New("answer not found")
 	}
 
-	ans.Point = req.Point
+	ans.Point = &req.Point
 
 	return s.answerRepo.Update(ans)
 }
