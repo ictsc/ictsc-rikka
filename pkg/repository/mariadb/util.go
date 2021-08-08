@@ -63,6 +63,7 @@ func Migrate(config *MariaDBConfig) error {
 		&entity.UserProfile{},
 		&entity.UserGroup{},
 		&entity.Problem{},
+		&entity.Answer{},
 		&entity.Attachment{},
 	)
 }

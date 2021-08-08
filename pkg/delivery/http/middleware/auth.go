@@ -34,7 +34,14 @@ func Auth(userRepo repository.UserRepository) gin.HandlerFunc {
 			})
 		}
 
+		if user.UserGroup.IsFullAccess {
+			ctx.Set("is_full_access", true)
+		}else{
+			ctx.Set("is_full_access", false)
+		}
+
 		ctx.Set("user", user)
+		ctx.Set("group", user.UserGroup)
 
 		ctx.Next()
 	}

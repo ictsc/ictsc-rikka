@@ -86,6 +86,7 @@ func main() {
 	userProfileRepo := mariadb.NewUserProfileRepository(&config.MariaDB)
 	userGroupRepo := mariadb.NewUserGroupRepository(&config.MariaDB)
 	problemRepo := mariadb.NewProblemRepository(&config.MariaDB)
+	answerRepo := mariadb.NewAnswerRepository(&config.MariaDB)
 	attachmentRepo := mariadb.NewAttachmentRepository(&config.MariaDB)
 	s3Repo := s3repo.NewS3Repository(minioClient, config.Minio.BucketName)
 
@@ -93,9 +94,11 @@ func main() {
 	userService := service.NewUserService(userRepo, userProfileRepo, userGroupRepo)
 	userGroupService := service.NewUserGroupService(userGroupRepo)
 	problemService := service.NewProblemService(userRepo, problemRepo)
+	answerService := service.NewAnswerService(userRepo, answerRepo, problemRepo)
 	attachmentService := service.NewAttachmentService(attachmentRepo, s3Repo)
 
 	problemController := controller.NewProblemController(problemService)
+	answerController := controller.NewAnswerController(answerService)
 	attachmentController := controller.NewAttachmentController(attachmentService)
 
 	seed.Seed(&config.Seed, userRepo, userGroupRepo, *userService, *userGroupService)
@@ -105,7 +108,7 @@ func main() {
 		handler.NewAuthHandler(api, userRepo, authService, userService)
 		handler.NewUserHandler(api, userRepo, userService)
 		handler.NewUserGroupHandler(api, userRepo, userGroupService)
-		handler.NewProblemHandler(api, userRepo, problemController)
+		handler.NewProblemHandler(api, userRepo, problemController, answerController)
 		handler.NewAttachmentHandler(api, attachmentController, userRepo)
 	}
 

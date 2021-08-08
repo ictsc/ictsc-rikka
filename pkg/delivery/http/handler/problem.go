@@ -13,7 +13,7 @@ type ProblemHandler struct {
 	problemController *controller.ProblemController
 }
 
-func NewProblemHandler(r *gin.RouterGroup, userRepo repository.UserRepository, problemController *controller.ProblemController) {
+func NewProblemHandler(r *gin.RouterGroup, userRepo repository.UserRepository, problemController *controller.ProblemController, answerController *controller.AnswerController) {
 	handler := ProblemHandler{
 		problemController: problemController,
 	}
@@ -26,11 +26,16 @@ func NewProblemHandler(r *gin.RouterGroup, userRepo repository.UserRepository, p
 		privileged.Use(middleware.AuthIsFullAccess(userRepo))
 
 		authed.GET("", handler.GetAll)
-		authed.GET("/:id", handler.Find)
+		authedIds := authed.Group("/:id")
+		{
+			authedIds.GET("", handler.Find)
+			NewAnswerHandler(authedIds, userRepo, answerController)
+	}
 
 		privileged.POST("", handler.Create)
 		privileged.PUT("/:id", handler.Update)
 		privileged.DELETE("/:id", handler.Delete)
+
 	}
 }
 
