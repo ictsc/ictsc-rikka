@@ -25,7 +25,7 @@ func NewAnswerHandler(r *gin.RouterGroup, userRepo repository.UserRepository, an
 
 		authed := answers.Group("")
 		authed.Use(middleware.Auth(userRepo))
-		authed.GET("", handler.FindByProblemAndTeam)
+		authed.GET("", handler.FindByProblemAndUserGroup)
 		authed.POST("", handler.Create)
 		authed.GET("/:answer_id", handler.FindByID)
 
@@ -82,22 +82,22 @@ func (h *AnswerHandler) FindByID(ctx *gin.Context) {
 	response.JSON(ctx, http.StatusOK, "", res, nil)
 }
 
-func (h *AnswerHandler) FindByProblemAndTeam(ctx *gin.Context) {
+func (h *AnswerHandler) FindByProblemAndUserGroup(ctx *gin.Context) {
 	probid := ctx.Param("id")
 
 	is_full_access := ctx.MustGet("is_full_access").(bool)
 
 	if is_full_access {
-		teamid := ctx.Param("team_group_id")
-		res, err := h.answerController.FindByProblem(probid, teamid)
+		userGroupID := ctx.Param("user_group_id")
+		res, err := h.answerController.FindByProblem(probid, userGroupID)
 		if err != nil {
 			response.JSON(ctx, http.StatusInternalServerError, err.Error(), nil, nil)
 			return
 		}
 		response.JSON(ctx, http.StatusOK, "", res, nil)
 	} else {
-		teamuuid := ctx.MustGet("group").(*entity.UserGroup).ID
-		res, err := h.answerController.FindByProblemAndUserGroup(probid, teamuuid)
+		userGroupID := ctx.MustGet("group").(*entity.UserGroup).ID
+		res, err := h.answerController.FindByProblemAndUserGroup(probid, userGroupID)
 		if err != nil {
 			response.JSON(ctx, http.StatusInternalServerError, err.Error(), nil, nil)
 			return

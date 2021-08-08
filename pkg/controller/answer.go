@@ -68,24 +68,24 @@ type FindByProblemResponse struct {
 	Answers []*entity.Answer `json:"answers"`
 }
 
-// team id is optional
-func (c *AnswerController) FindByProblem(probid string, teamid string) (*FindByProblemResponse, error) {
+// user group id is optional
+func (c *AnswerController) FindByProblem(probid string, userGroupID string) (*FindByProblemResponse, error) {
 	probuuid, err := uuid.Parse(probid)
 	if err != nil {
 		return nil, err
 	}
 
-	var teamuuid *uuid.UUID
+	var userGroupUUID *uuid.UUID
 
-	if teamid != "" {
-		id, err := uuid.Parse(teamid)
+	if userGroupID != "" {
+		id, err := uuid.Parse(userGroupID)
 		if err != nil {
 			return nil, err
 		}
-		teamuuid = &id
+		userGroupUUID = &id
 	}
 
-	ans, err := c.answerService.FindByProblem(probuuid, teamuuid)
+	ans, err := c.answerService.FindByProblem(probuuid, userGroupUUID)
 	if err != nil {
 		return nil, err
 	}
@@ -95,16 +95,16 @@ func (c *AnswerController) FindByProblem(probid string, teamid string) (*FindByP
 	}, nil
 }
 
-type FindByTeamResponse struct {
+type FindByUserGroupResponse struct {
 	Answers []*entity.Answer `json:"answers"`
 }
 
-type FindByTeamRequest struct {
-	TeamID string `json:"team_group_id"`
+type FindByUserGroupRequest struct {
+	UserGroupID string `json:"user_group_id"`
 }
 
-func (c *AnswerController) FindByUserGroup(req *FindByTeamRequest) (*FindByTeamResponse, error) {
-	uuid, err := uuid.Parse(req.TeamID)
+func (c *AnswerController) FindByUserGroup(req *FindByUserGroupRequest) (*FindByUserGroupResponse, error) {
+	uuid, err := uuid.Parse(req.UserGroupID)
 	if err != nil {
 		return nil, err
 	}
@@ -113,27 +113,27 @@ func (c *AnswerController) FindByUserGroup(req *FindByTeamRequest) (*FindByTeamR
 		return nil, err
 	}
 
-	return &FindByTeamResponse{
+	return &FindByUserGroupResponse{
 		Answers: ans,
 	}, nil
 }
 
-type FindByProblemAndTeamResponse struct {
+type FindByProblemAndUserGroupResponse struct {
 	Answers []*entity.Answer `json:"answers"`
 }
 
-func (c *AnswerController) FindByProblemAndUserGroup(probid string, teamuuid uuid.UUID) (*FindByProblemAndTeamResponse, error) {
+func (c *AnswerController) FindByProblemAndUserGroup(probid string, userGroupID uuid.UUID) (*FindByProblemAndUserGroupResponse, error) {
 	probuuid, err := uuid.Parse(probid)
 	if err != nil {
 		return nil, err
 	}
 
-	ans, err := c.answerService.FindByProblemAndUserGroup(probuuid, teamuuid)
+	ans, err := c.answerService.FindByProblemAndUserGroup(probuuid, userGroupID)
 	if err != nil {
 		return nil, err
 	}
 
-	return &FindByProblemAndTeamResponse{
+	return &FindByProblemAndUserGroupResponse{
 		Answers: ans,
 	}, nil
 }

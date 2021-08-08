@@ -34,10 +34,10 @@ func NewAnswerService(userRepo repository.UserRepository, answerRepo repository.
 
 func (s *AnswerService) Create(req *CreateAnswerRequest) (*entity.Answer, error) {
 	ans := &entity.Answer{
-		Group:     req.Group,
-		Point:     0,
-		Body:      req.Body,
-		ProblemID: req.ProblemID,
+		UserGroupID: req.Group,
+		Point:       0,
+		Body:        req.Body,
+		ProblemID:   req.ProblemID,
 	}
 
 	problem, err := s.problemRepo.FindByID(req.ProblemID)
@@ -59,18 +59,18 @@ func (s *AnswerService) FindByID(id uuid.UUID) (*entity.Answer, error) {
 	return s.answerRepo.FindByID(id)
 }
 
-// teamid is optional
-func (s *AnswerService) FindByProblem(probid uuid.UUID, teamid *uuid.UUID) ([]*entity.Answer, error) {
-	return s.answerRepo.FindByProblem(probid, teamid)
+// userGroupID is optional
+func (s *AnswerService) FindByProblem(probid uuid.UUID, userGroupID *uuid.UUID) ([]*entity.Answer, error) {
+	return s.answerRepo.FindByProblem(probid, userGroupID)
 }
 
 func (s *AnswerService) FindByUserGroup(id uuid.UUID) ([]*entity.Answer, error) {
 	return s.answerRepo.FindByUserGroup(id)
 }
 
-// teamid is require
-func (s *AnswerService) FindByProblemAndUserGroup(probid uuid.UUID, teamid uuid.UUID) ([]*entity.Answer, error) {
-	return s.answerRepo.FindByProblemAndUserGroup(probid, teamid)
+// userGroupID is require
+func (s *AnswerService) FindByProblemAndUserGroup(probid uuid.UUID, userGroupID uuid.UUID) ([]*entity.Answer, error) {
+	return s.answerRepo.FindByProblemAndUserGroup(probid, userGroupID)
 }
 
 func (s *AnswerService) Update(id uuid.UUID, req *UpdateAnswerRequest) (*entity.Answer, error) {
@@ -83,7 +83,6 @@ func (s *AnswerService) Update(id uuid.UUID, req *UpdateAnswerRequest) (*entity.
 	}
 
 	ans.Point = req.Point
-	ans.Body = req.Body
 
 	return s.answerRepo.Update(ans)
 }

@@ -65,7 +65,7 @@ func (r *AnswerRepository) FindByProblem(probid uuid.UUID, groupid *uuid.UUID) (
 
 	res := []*entity.Answer{}
 	if groupid != nil {
-		err = db.Where("problem_id", probid).Where("group", groupid).Find(res).Error
+		err = db.Where("problem_id", probid).Where("user_group_id", groupid).Find(res).Error
 	} else {
 		err = db.Where("problem_id", probid).Find(&res).Error
 	}
@@ -92,7 +92,7 @@ func (r *AnswerRepository) FindByProblemAndUserGroup(problemid uuid.UUID, groupi
 	defer conn.Close()
 
 	res := []*entity.Answer{}
-	err = db.Where("problem_id", problemid).Where("group", groupid).Find(&res).Error
+	err = db.Where("problem_id", problemid).Where("user_group_id", groupid).Find(&res).Error
 	return res, err
 }
 
