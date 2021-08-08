@@ -154,9 +154,7 @@ func (c *AnswerController) GetAll() (*GetAllAnswersResponse, error) {
 }
 
 type UpdateAnswerRequest struct {
-	Point     uint       `json:"point"`
-	Body      string     `json:"body"`
-	ProblemID *uuid.UUID `json:"problem_id"`
+	Point uint `json:"point"`
 }
 
 type UpdateAnswerResponse struct {
@@ -170,9 +168,7 @@ func (c *AnswerController) Update(id string, req *UpdateAnswerRequest) (*UpdateA
 	}
 
 	ans, err := c.answerService.Update(uuid, &service.UpdateAnswerRequest{
-		Body:      req.Body,
-		Point:     req.Point,
-		ProblemID: req.ProblemID,
+		Point: req.Point,
 	})
 	if err != nil {
 		return nil, err

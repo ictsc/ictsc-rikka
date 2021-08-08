@@ -21,9 +21,7 @@ type CreateAnswerRequest struct {
 }
 
 type UpdateAnswerRequest struct {
-	Point     uint
-	Body      string
-	ProblemID *uuid.UUID
+	Point uint
 }
 
 func NewAnswerService(userRepo repository.UserRepository, answerRepo repository.AnswerRepository, problemRepo repository.ProblemRepository) *AnswerService {
@@ -82,9 +80,6 @@ func (s *AnswerService) Update(id uuid.UUID, req *UpdateAnswerRequest) (*entity.
 	}
 	if ans == nil {
 		return nil, errors.New("answer not found")
-	}
-	if req.ProblemID != nil {
-		return nil, errors.New("problem id can not be changed")
 	}
 
 	ans.Point = req.Point
