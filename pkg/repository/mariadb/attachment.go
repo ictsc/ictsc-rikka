@@ -3,67 +3,44 @@ package mariadb
 import (
 	"github.com/google/uuid"
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
+	"gorm.io/gorm"
 )
 
 type AttachmentRepository struct {
-	*db
+	db *gorm.DB
 }
 
-func NewAttachmentRepository(config *MariaDBConfig) *AttachmentRepository {
+func NewAttachmentRepository(db *gorm.DB) *AttachmentRepository {
 	return &AttachmentRepository{
-		db: newDB(config),
+		db: db,
 	}
 }
 
 func (r *AttachmentRepository) Create(attachment *entity.Attachment) (*entity.Attachment, error) {
-	db, conn, err := r.init()
-	if err != nil {
-		return nil, err
-	}
-	defer conn.Close()
-
-	if err := db.Create(attachment).Error; err != nil {
+	if err := r.db.Create(attachment).Error; err != nil {
 		return nil, err
 	}
 	return r.Get(attachment.ID.String())
 }
 
 func (r *AttachmentRepository) Delete(id uuid.UUID) error {
-	db, conn, err := r.init()
-	if err != nil {
-		return err
-	}
-	defer conn.Close()
-
 	attachment := &entity.Attachment{
 		Base: entity.Base{
 			ID: id,
 		},
 	}
-	return db.Delete(attachment).Error
+	return r.db.Delete(attachment).Error
 }
 func (r *AttachmentRepository) Get(id string) (*entity.Attachment, error) {
-	db, conn, err := r.init()
-	if err != nil {
-		return nil, err
-	}
-	defer conn.Close()
-
 	attachment := &entity.Attachment{}
-	err = db.Where("id", id).Find(attachment).Error
+	err := r.db.Where("id", id).Find(attachment).Error
 	if err != nil {
 		return nil, err
 	}
 	return attachment, nil
 }
 func (r *AttachmentRepository) GetAll() ([]*entity.Attachment, error) {
-	db, conn, err := r.init()
-	if err != nil {
-		return nil, err
-	}
-	defer conn.Close()
-
 	attachments := make([]*entity.Attachment, 0)
-	err = db.Find(attachments).Error
+	err := r.db.Find(attachments).Error
 	return attachments, err
 }

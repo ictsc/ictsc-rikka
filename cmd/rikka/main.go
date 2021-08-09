@@ -6,8 +6,12 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/ictsc/ictsc-rikka/pkg/controller"
+	"github.com/ictsc/ictsc-rikka/pkg/entity"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
@@ -32,6 +36,7 @@ var (
 	config      Config
 	store       redis.Store
 	minioClient *minio.Client
+	db          *gorm.DB
 )
 
 func init() {
@@ -49,10 +54,19 @@ func init() {
 		log.Fatalf(errors.Wrapf(err, "Failed to decode config.").Error())
 	}
 
-	if err := mariadb.Migrate(&config.MariaDB); err != nil {
-		f.Close()
-		log.Fatalf(errors.Wrapf(err, "Failed to migrate.").Error())
+	db, err = initDatabase(&config.MariaDB)
+	if err != nil {
+		log.Fatalf(errors.Wrapf(err, "Failed to initialize database").Error())
 	}
+
+	db.AutoMigrate(
+		&entity.User{},
+		&entity.UserProfile{},
+		&entity.UserGroup{},
+		&entity.Problem{},
+		&entity.Answer{},
+		&entity.Attachment{},
+	)
 
 	store, err = redis.NewStore(
 		config.Redis.IdleConnectionSize,
@@ -82,23 +96,35 @@ func init() {
 
 }
 
+func initDatabase(c *MariaDBConfig) (*gorm.DB, error) {
+	dsn := c.getDSN()
+
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
+		PrepareStmt: true,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	sqlDB, err := db.DB()
+	if err != nil {
+		return nil, err
+	}
+
+	sqlDB.SetMaxOpenConns(48)
+	sqlDB.SetMaxIdleConns(48)
+	sqlDB.SetConnMaxLifetime(10 * time.Minute)
+
+	return db, nil
+}
+
 func main() {
-	r := gin.Default()
-	corsConfig := cors.DefaultConfig()
-	corsConfig.AllowOrigins = config.CORS.Origins
-	corsConfig.AllowCredentials = true
-	r.Use(cors.New(corsConfig))
-
-	r.Use(sessions.Sessions("session", store))
-
-	errorMiddleware := middleware.NewErrorMiddleware()
-
-	userRepo := mariadb.NewUserRepository(&config.MariaDB)
-	userProfileRepo := mariadb.NewUserProfileRepository(&config.MariaDB)
-	userGroupRepo := mariadb.NewUserGroupRepository(&config.MariaDB)
-	problemRepo := mariadb.NewProblemRepository(&config.MariaDB)
-	answerRepo := mariadb.NewAnswerRepository(&config.MariaDB)
-	attachmentRepo := mariadb.NewAttachmentRepository(&config.MariaDB)
+	userRepo := mariadb.NewUserRepository(db)
+	userProfileRepo := mariadb.NewUserProfileRepository(db)
+	userGroupRepo := mariadb.NewUserGroupRepository(db)
+	problemRepo := mariadb.NewProblemRepository(db)
+	answerRepo := mariadb.NewAnswerRepository(db)
+	attachmentRepo := mariadb.NewAttachmentRepository(db)
 	s3Repo := s3repo.NewS3Repository(minioClient, config.Minio.BucketName)
 
 	authService := service.NewAuthService(userRepo)
@@ -112,7 +138,17 @@ func main() {
 	answerController := controller.NewAnswerController(answerService)
 	attachmentController := controller.NewAttachmentController(attachmentService)
 
+	errorMiddleware := middleware.NewErrorMiddleware()
+
 	seed.Seed(&config.Seed, userRepo, userGroupRepo, *userService, *userGroupService)
+
+	r := gin.Default()
+
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowOrigins = config.CORS.Origins
+	corsConfig.AllowCredentials = true
+	r.Use(cors.New(corsConfig))
+	r.Use(sessions.Sessions("session", store))
 
 	api := r.Group("/api")
 	api.Use(errorMiddleware.HandleError)

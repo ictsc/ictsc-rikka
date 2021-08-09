@@ -1,17 +1,18 @@
 package main
 
 import (
-	"github.com/ictsc/ictsc-rikka/pkg/repository/mariadb"
+	"fmt"
+
 	"github.com/ictsc/ictsc-rikka/pkg/seed"
 )
 
 type Config struct {
-	Listen  ListenConfig          `yaml:"listen"`
-	CORS    CORSConfig            `yaml:"cors"`
-	MariaDB mariadb.MariaDBConfig `yaml:"mariadb"`
-	Redis   RedisConfig           `yaml:"redis"`
-	Minio   MinioConfig           `yaml:"minio"`
-	Seed    seed.SeedConfig       `yaml:"seed"`
+	Listen  ListenConfig    `yaml:"listen"`
+	CORS    CORSConfig      `yaml:"cors"`
+	MariaDB MariaDBConfig   `yaml:"mariadb"`
+	Redis   RedisConfig     `yaml:"redis"`
+	Minio   MinioConfig     `yaml:"minio"`
+	Seed    seed.SeedConfig `yaml:"seed"`
 }
 
 type ListenTLSConfig struct {
@@ -43,4 +44,22 @@ type MinioConfig struct {
 	SecretAccessKey string `yaml:"secretAccessKey"`
 	BucketName      string `yaml:"bucketName"`
 	UseSSL          bool   `yaml:"useSSL"`
+}
+
+type MariaDBConfig struct {
+	Username string `yaml:"username"`
+	Password string `yaml:"password"`
+	Address  string `yaml:"address"`
+	Port     int    `yaml:"port"`
+	Database string `yaml:"database"`
+}
+
+func (c *MariaDBConfig) getDSN() string {
+	return fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+		c.Username,
+		c.Password,
+		c.Address,
+		c.Port,
+		c.Database,
+	)
 }
