@@ -7,43 +7,31 @@ import (
 )
 
 type UserProfileRepository struct {
-	*db
+	db *gorm.DB
 }
 
-func NewUserProfileRepository(config *MariaDBConfig) *UserProfileRepository {
+func NewUserProfileRepository(db *gorm.DB) *UserProfileRepository {
 	return &UserProfileRepository{
-		db: newDB(config),
+		db: db,
 	}
 }
 
 func (r *UserProfileRepository) FindByUserID(userID uuid.UUID) (*entity.UserProfile, error) {
-	db, conn, err := r.init()
-	if err != nil {
-		return nil, err
-	}
-	defer conn.Close()
-
 	res := &entity.UserProfile{}
-	err = db.Where("user_id", userID).First(res).Error
+	err := r.db.Where("user_id", userID).First(res).Error
 	return res, err
 }
 
 func (r *UserProfileRepository) UpdateOrCreate(profile *entity.UserProfile) (*entity.UserProfile, error) {
-	db, conn, err := r.init()
-	if err != nil {
-		return nil, err
-	}
-	defer conn.Close()
-
 	if _, err := r.FindByUserID(profile.UserID); err != nil {
 		if err.Error() != gorm.ErrRecordNotFound.Error() {
 			return nil, err
 		}
-		if err := db.Create(profile).Error; err != nil {
+		if err := r.db.Create(profile).Error; err != nil {
 			return nil, err
 		}
 	} else {
-		if err := db.Save(profile).Error; err != nil {
+		if err := r.db.Save(profile).Error; err != nil {
 			return nil, err
 		}
 	}
