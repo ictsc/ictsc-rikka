@@ -8,47 +8,47 @@ import (
 )
 
 type ProblemService struct {
-	userRepo      repository.UserRepository
+	userRepo    repository.UserRepository
 	problemRepo repository.ProblemRepository
 }
 
 type CreateProblemRequest struct {
-	Code string
-	AuthorID uuid.UUID
-	Title string
-	Body string
-	Point uint
+	Code              string
+	AuthorID          uuid.UUID
+	Title             string
+	Body              string
+	Point             uint
 	PreviousProblemID *uuid.UUID
-	SolvedCriterion uint
+	SolvedCriterion   uint
 }
 
 type UpdateProblemRequest struct {
-	ID   uuid.UUID
-	Code string
-	AuthorID uuid.UUID
-	Title string
-	Body string
-	Point uint
+	ID                uuid.UUID
+	Code              string
+	AuthorID          uuid.UUID
+	Title             string
+	Body              string
+	Point             uint
 	PreviousProblemID *uuid.UUID
-	SolvedCriterion uint
+	SolvedCriterion   uint
 }
 
 func NewProblemService(userRepo repository.UserRepository, problemRepo repository.ProblemRepository) *ProblemService {
 	return &ProblemService{
-		userRepo:      userRepo,
+		userRepo:    userRepo,
 		problemRepo: problemRepo,
 	}
 }
 
 func (s *ProblemService) Create(req *CreateProblemRequest) (*entity.Problem, error) {
 	prob := &entity.Problem{
-		Code: req.Code,
-		AuthorID: req.AuthorID,
-		Title: req.Title,
-		Body: req.Body,
-		Point: req.Point,
+		Code:              req.Code,
+		AuthorID:          req.AuthorID,
+		Title:             req.Title,
+		Body:              req.Body,
+		Point:             req.Point,
 		PreviousProblemID: req.PreviousProblemID,
-		SolvedCriterion: req.SolvedCriterion,
+		SolvedCriterion:   req.SolvedCriterion,
 	}
 
 	if err := prob.Validate(); err != nil {

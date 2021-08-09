@@ -17,13 +17,13 @@ func NewProblemController(problemService *service.ProblemService) *ProblemContro
 }
 
 type CreateProblemRequest struct {
-	Code string `json:"code"`
-	AuthorID uuid.UUID `json:"author_id"`
-	Title string `json:"title"`
-	Body string `json:"body"`
-	Point uint `json:"point"`
+	Code              string     `json:"code"`
+	AuthorID          uuid.UUID  `json:"author_id"`
+	Title             string     `json:"title"`
+	Body              string     `json:"body"`
+	Point             uint       `json:"point"`
 	PreviousProblemID *uuid.UUID `json:"previous_problem_id"`
-	SolvedCriterion uint `json:"solved_criterion"`
+	SolvedCriterion   uint       `json:"solved_criterion"`
 }
 
 type CreateProblemResponse struct {
@@ -32,13 +32,13 @@ type CreateProblemResponse struct {
 
 func (c *ProblemController) Create(req *CreateProblemRequest) (*CreateProblemResponse, error) {
 	prob, err := c.problemService.Create(&service.CreateProblemRequest{
-		Code: req.Code,
-		AuthorID: req.AuthorID,
-		Title: req.Title,
-		Body: req.Body,
-		Point: req.Point,
+		Code:              req.Code,
+		AuthorID:          req.AuthorID,
+		Title:             req.Title,
+		Body:              req.Body,
+		Point:             req.Point,
 		PreviousProblemID: req.PreviousProblemID,
-		SolvedCriterion: req.SolvedCriterion,
+		SolvedCriterion:   req.SolvedCriterion,
 	})
 
 	if err != nil {
@@ -114,12 +114,12 @@ func (c *ProblemController) GetAll(metadataOnly bool) (*GetAllProblemsResponse, 
 }
 
 type UpdateProblemRequest struct {
-	AuthorID uuid.UUID `json:"author_id"`
-	Title string `json:"title"`
-	Body string `json:"body"`
-	Point uint `json:"point"`
+	AuthorID          uuid.UUID  `json:"author_id"`
+	Title             string     `json:"title"`
+	Body              string     `json:"body"`
+	Point             uint       `json:"point"`
 	PreviousProblemID *uuid.UUID `json:"previous_problem_id"`
-	SolvedCriterion uint `json:"solved_criterion"`
+	SolvedCriterion   uint       `json:"solved_criterion"`
 }
 
 type UpdateProblemResponse struct {
@@ -133,12 +133,12 @@ func (c *ProblemController) Update(id string, req *UpdateProblemRequest) (*Updat
 	}
 
 	prob, err := c.problemService.Update(uuid, &service.UpdateProblemRequest{
-		AuthorID: req.AuthorID,
-		Title: req.Title,
-		Body: req.Body,
-		Point: req.Point,
+		AuthorID:          req.AuthorID,
+		Title:             req.Title,
+		Body:              req.Body,
+		Point:             req.Point,
 		PreviousProblemID: req.PreviousProblemID,
-		SolvedCriterion: req.SolvedCriterion,
+		SolvedCriterion:   req.SolvedCriterion,
 	})
 	if err != nil {
 		return nil, err
