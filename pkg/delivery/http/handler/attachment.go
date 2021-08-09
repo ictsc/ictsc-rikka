@@ -10,6 +10,7 @@ import (
 	"github.com/ictsc/ictsc-rikka/pkg/delivery/http/middleware"
 	"github.com/ictsc/ictsc-rikka/pkg/delivery/http/response"
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
+	"github.com/ictsc/ictsc-rikka/pkg/error"
 	"github.com/ictsc/ictsc-rikka/pkg/repository"
 )
 
@@ -39,12 +40,12 @@ func (h *AttachmentHandler) Upload(ctx *gin.Context) {
 	user := ctx.MustGet("user").(*entity.User)
 	file, err := ctx.FormFile("file")
 	if err != nil {
-		response.JSON(ctx, http.StatusInternalServerError, err.Error(), nil, nil)
+		ctx.Error(error.NewInternalServerError(err))
 		return
 	}
 	reader, err := file.Open()
 	if err != nil {
-		response.JSON(ctx, http.StatusInternalServerError, err.Error(), nil, nil)
+		ctx.Error(error.NewInternalServerError(err))
 		return
 	}
 	attachment := &entity.Attachment{
@@ -52,7 +53,7 @@ func (h *AttachmentHandler) Upload(ctx *gin.Context) {
 	}
 	res, err := h.attachmentController.Upload(attachment, reader)
 	if err != nil {
-		response.JSON(ctx, http.StatusInternalServerError, err.Error(), nil, nil)
+		ctx.Error(error.NewInternalServerError(err))
 		return
 	}
 
@@ -63,7 +64,7 @@ func (h *AttachmentHandler) Get(ctx *gin.Context) {
 	id := ctx.Param("id")
 	res, err := h.attachmentController.Get(id)
 	if err != nil {
-		response.JSON(ctx, http.StatusBadRequest, err.Error(), nil, nil)
+		ctx.Error(error.NewBadRequestError(err.Error()))
 		return
 	}
 	io.Copy(ctx.Writer, res)
@@ -74,12 +75,12 @@ func (h *AttachmentHandler) Delete(ctx *gin.Context) {
 
 	id, err := uuid.Parse(idString)
 	if err != nil {
-		response.JSON(ctx, http.StatusBadRequest, err.Error(), nil, err)
+		ctx.Error(error.NewBadRequestError(err.Error()))
 		return
 	}
 
 	if err := h.attachmentController.Delete(id); err != nil {
-		response.JSON(ctx, http.StatusBadRequest, err.Error(), nil, nil)
+		ctx.Error(error.NewBadRequestError(err.Error()))
 		return
 	}
 	response.JSON(ctx, http.StatusNoContent, "", nil, nil)

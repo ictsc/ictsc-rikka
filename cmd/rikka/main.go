@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/ictsc/ictsc-rikka/pkg/controller"
@@ -14,6 +15,7 @@ import (
 	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
 	"github.com/ictsc/ictsc-rikka/pkg/delivery/http/handler"
+	"github.com/ictsc/ictsc-rikka/pkg/delivery/http/middleware"
 	"github.com/ictsc/ictsc-rikka/pkg/repository/mariadb"
 	"github.com/ictsc/ictsc-rikka/pkg/repository/s3repo"
 	"github.com/ictsc/ictsc-rikka/pkg/seed"
@@ -59,6 +61,12 @@ func init() {
 		config.Redis.Password,
 		[]byte(config.Redis.KeyPair),
 	)
+	store.Options(sessions.Options{
+		MaxAge:   3600,
+		Secure:   true,
+		HttpOnly: true,
+		SameSite: http.SameSiteNoneMode,
+	})
 	if err != nil {
 		f.Close()
 		log.Fatalf(errors.Wrapf(err, "Failed to open redis connection.").Error())
@@ -82,6 +90,8 @@ func main() {
 
 	r.Use(sessions.Sessions("session", store))
 
+	errorMiddleware := middleware.NewErrorMiddleware()
+
 	userRepo := mariadb.NewUserRepository(&config.MariaDB)
 	userProfileRepo := mariadb.NewUserProfileRepository(&config.MariaDB)
 	userGroupRepo := mariadb.NewUserGroupRepository(&config.MariaDB)
@@ -104,6 +114,7 @@ func main() {
 	seed.Seed(&config.Seed, userRepo, userGroupRepo, *userService, *userGroupService)
 
 	api := r.Group("/api")
+	api.Use(errorMiddleware.HandleError)
 	{
 		handler.NewAuthHandler(api, userRepo, authService, userService)
 		handler.NewUserHandler(api, userRepo, userService)

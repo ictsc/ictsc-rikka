@@ -7,6 +7,7 @@ import (
 	"github.com/ictsc/ictsc-rikka/pkg/controller"
 	"github.com/ictsc/ictsc-rikka/pkg/delivery/http/middleware"
 	"github.com/ictsc/ictsc-rikka/pkg/delivery/http/response"
+	"github.com/ictsc/ictsc-rikka/pkg/error"
 	"github.com/ictsc/ictsc-rikka/pkg/repository"
 	"github.com/ictsc/ictsc-rikka/pkg/service"
 )
@@ -33,12 +34,13 @@ func NewUserGroupHandler(r *gin.RouterGroup, userRepo repository.UserRepository,
 func (h *UserGroupHandler) Create(ctx *gin.Context) {
 	req := &controller.CreateUserGroupRequest{}
 	if err := ctx.Bind(req); err != nil {
-		response.JSON(ctx, http.StatusBadRequest, err.Error(), nil, nil)
+		ctx.Error(error.NewBadRequestError(err.Error()))
 		return
 	}
 
 	res, err := h.userGroupController.Create(req)
 	if err != nil {
+		ctx.Error(error.NewInternalServerError(err))
 		response.JSON(ctx, http.StatusInternalServerError, err.Error(), nil, nil)
 		return
 	}
