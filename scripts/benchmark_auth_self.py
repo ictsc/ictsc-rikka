@@ -1,11 +1,14 @@
 from ictsc2021 import Rikka
 
+import logging
 import time
 from math import pow, sqrt
 
 
 def main():
-    rikka = Rikka(baseurl="http://localhost:8080/api")
+    logging.basicConfig(level=logging.DEBUG)
+
+    rikka = Rikka(baseurl="https://ss.ictsc.net/api")
 
     print(f"\x1b[33m\n*** signin\x1b[0m")
     rikka.signin("ictsc", "")
