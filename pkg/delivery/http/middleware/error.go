@@ -21,7 +21,7 @@ func (m *ErrorMiddleware) HandleError(ctx *gin.Context) {
 	if len(ctx.Errors) != 0 {
 		var statusCode int
 		err := ctx.Errors.Last().Err
-		switch err.(type) {
+		switch err := err.(type) {
 		case *error.BadRequestError:
 			statusCode = http.StatusBadRequest
 		case *error.UnauthorizedError:
@@ -31,7 +31,6 @@ func (m *ErrorMiddleware) HandleError(ctx *gin.Context) {
 		case *error.NotFoundError:
 			statusCode = http.StatusNotFound
 		case *error.InternalServerError:
-			err := err.(*error.InternalServerError)
 			statusCode = http.StatusInternalServerError
 			log.Printf("error occurred while request processing: %v", err.Err)
 		default:
