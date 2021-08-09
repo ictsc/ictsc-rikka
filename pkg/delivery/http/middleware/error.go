@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -30,11 +31,14 @@ func (m *ErrorMiddleware) HandleError(ctx *gin.Context) {
 		case *error.NotFoundError:
 			statusCode = http.StatusNotFound
 		case *error.InternalServerError:
+			err := err.(*error.InternalServerError)
 			statusCode = http.StatusInternalServerError
+			log.Printf("error occurred while request processing: %v", err.Err)
 		default:
 			ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 				"error": "unknown error",
 			})
+			return
 		}
 		ctx.AbortWithStatusJSON(statusCode, gin.H{"error": err.Error()})
 	}
