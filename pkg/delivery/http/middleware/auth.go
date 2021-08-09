@@ -1,6 +1,8 @@
 package middleware
 
 import (
+	"fmt"
+
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -14,7 +16,7 @@ func Auth(userRepo repository.UserRepository) gin.HandlerFunc {
 
 		idString, ok := session.Get("id").(string)
 		if !ok || idString == "" {
-			ctx.Error(error.NewUnauthorizedError("unauthorized"))
+			ctx.Error(error.NewUnauthorizedError("user id bound this session isn't found"))
 			ctx.Abort()
 			return
 		}
@@ -29,6 +31,18 @@ func Auth(userRepo repository.UserRepository) gin.HandlerFunc {
 		user, err := userRepo.FindByID(id, true)
 		if err != nil {
 			ctx.Error(error.NewInternalServerError(err))
+			ctx.Abort()
+			return
+		}
+
+		if user == nil {
+			ctx.Error(error.NewInternalServerError(fmt.Errorf("session found, but user not found")))
+			ctx.Abort()
+			return
+		}
+
+		if user.UserGroup == nil {
+			ctx.Error(error.NewInternalServerError(fmt.Errorf("user constraint error, usergroup MUST not be nil")))
 			ctx.Abort()
 			return
 		}
@@ -47,7 +61,7 @@ func AuthIsFullAccess(userRepo repository.UserRepository) gin.HandlerFunc {
 
 		idString, ok := session.Get("id").(string)
 		if !ok || idString == "" {
-			ctx.Error(error.NewUnauthorizedError("unauthorized"))
+			ctx.Error(error.NewUnauthorizedError("user id bound this session isn't found"))
 			ctx.Abort()
 			return
 		}
@@ -66,8 +80,16 @@ func AuthIsFullAccess(userRepo repository.UserRepository) gin.HandlerFunc {
 			return
 		}
 
+		if user == nil {
+			ctx.Error(error.NewInternalServerError(fmt.Errorf("session found, but user not found")))
+			ctx.Abort()
+			return
+		}
+
 		if user.UserGroup == nil {
-			panic("user.UserGroup must not be nil")
+			ctx.Error(error.NewInternalServerError(fmt.Errorf("user constraint error, usergroup MUST not be nil")))
+			ctx.Abort()
+			return
 		}
 
 		if !user.UserGroup.IsFullAccess {
