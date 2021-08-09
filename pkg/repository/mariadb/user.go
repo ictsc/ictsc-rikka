@@ -1,6 +1,8 @@
 package mariadb
 
 import (
+	"errors"
+
 	"github.com/google/uuid"
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
 	"gorm.io/gorm"
@@ -27,9 +29,7 @@ func (r *UserRepository) Create(user *entity.User) (*entity.User, error) {
 		return nil, err
 	}
 
-	res := &entity.User{}
-	err = db.First(res, user.ID).Error
-	return res, err
+	return r.FindByID(user.ID, false)
 }
 
 func (r *UserRepository) FindByID(id uuid.UUID, isPreload bool) (*entity.User, error) {
@@ -44,6 +44,9 @@ func (r *UserRepository) FindByID(id uuid.UUID, isPreload bool) (*entity.User, e
 		db = preload(db)
 	}
 	err = db.First(res, id).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
 	return res, err
 }
 
@@ -59,6 +62,9 @@ func (r *UserRepository) FindByName(name string, isPreload bool) (*entity.User, 
 		db = preload(db)
 	}
 	err = db.Where("name", name).First(&res).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
 	return res, err
 }
 
