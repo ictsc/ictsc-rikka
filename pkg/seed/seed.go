@@ -68,13 +68,16 @@ type AdminUserGroupAndUserSeederConfig struct {
 }
 
 func (s *seeder) adminUserGroupAndUserSeeder(config AdminUserGroupAndUserSeederConfig) error {
+	userGroup, err := s.userGroupRepo.FindByName(config.UserGroupName)
+	if err != nil {
+		return err
+	}
 
-	_, err := s.userGroupRepo.FindByName(config.UserGroupName)
-	if err == nil {
+	if userGroup != nil {
 		return fmt.Errorf("Skip")
 	}
 
-	userGroup, err := s.userGroupService.Create(
+	userGroup, err = s.userGroupService.Create(
 		config.UserGroupName,
 		config.Organization,
 		config.InvitationCode,

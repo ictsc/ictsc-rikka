@@ -1,8 +1,11 @@
 package mariadb
 
 import (
+	"errors"
+
 	"github.com/google/uuid"
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
+	"gorm.io/gorm"
 )
 
 type UserGroupRepository struct {
@@ -27,9 +30,7 @@ func (r *UserGroupRepository) Create(userGroup *entity.UserGroup) (*entity.UserG
 		return nil, err
 	}
 
-	res := &entity.UserGroup{}
-	err = db.First(res, userGroup.ID).Error
-	return res, err
+	return r.FindByID(userGroup.ID)
 }
 
 func (r *UserGroupRepository) FindByID(id uuid.UUID) (*entity.UserGroup, error) {
@@ -41,6 +42,9 @@ func (r *UserGroupRepository) FindByID(id uuid.UUID) (*entity.UserGroup, error) 
 
 	res := &entity.UserGroup{}
 	err = db.First(res, id).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
 	return res, err
 }
 
@@ -53,5 +57,8 @@ func (r *UserGroupRepository) FindByName(name string) (*entity.UserGroup, error)
 
 	res := &entity.UserGroup{}
 	err = db.Where("name", name).First(res).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
 	return res, err
 }
