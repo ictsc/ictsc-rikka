@@ -25,9 +25,18 @@ class Rikka:
             "password": password,
         })
         self._jar = resp.cookies
+        return resp
 
     def self(self):
         return self._get("/auth/self")
+
+    def create_user(self, name, password, usergroupid, invitation_code):
+        return self._post("/users", json={
+            "name": name,
+            "password": password,
+            "user_group_id": usergroupid,
+            "invitation_code": invitation_code,
+        })
 
     def create_usergroup(self, name, organization, invitation_code, is_full_access):
         return self._post("/usergroups", json={
