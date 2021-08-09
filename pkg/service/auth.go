@@ -1,6 +1,8 @@
 package service
 
 import (
+	"fmt"
+
 	"github.com/google/uuid"
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
 	"github.com/ictsc/ictsc-rikka/pkg/repository"
@@ -23,6 +25,10 @@ func (s *AuthService) SignIn(name, password string) (*entity.User, error) {
 		return nil, err
 	}
 
+	if user == nil {
+		return nil, fmt.Errorf("no such user")
+	}
+
 	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordDigest), []byte(password)); err != nil {
 		return nil, err
 	}
@@ -32,7 +38,7 @@ func (s *AuthService) SignIn(name, password string) (*entity.User, error) {
 
 func (s *AuthService) IsFullAccess(id uuid.UUID) bool {
 	user, err := s.userRepo.FindByID(id, true)
-	if err != nil {
+	if err != nil || user == nil {
 		return false
 	}
 
