@@ -14,10 +14,10 @@ type AnswerService struct {
 }
 
 type CreateAnswerRequest struct {
-	Point     uint
-	Body      string
-	Group     uuid.UUID
-	ProblemID uuid.UUID
+	Point       uint
+	Body        string
+	UserGroupID uuid.UUID
+	ProblemID   uuid.UUID
 }
 
 type UpdateAnswerRequest struct {
@@ -34,7 +34,7 @@ func NewAnswerService(userRepo repository.UserRepository, answerRepo repository.
 
 func (s *AnswerService) Create(req *CreateAnswerRequest) (*entity.Answer, error) {
 	ans := &entity.Answer{
-		UserGroupID: req.Group,
+		UserGroupID: req.UserGroupID,
 		Point:       nil,
 		Body:        req.Body,
 		ProblemID:   req.ProblemID,

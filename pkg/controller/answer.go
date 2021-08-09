@@ -31,9 +31,9 @@ func (c *AnswerController) Create(problem_id string, groupuuid uuid.UUID, req *C
 	}
 
 	ans, err := c.answerService.Create(&service.CreateAnswerRequest{
-		Group:     groupuuid,
-		Body:      req.Body,
-		ProblemID: problem_uuid,
+		UserGroupID: groupuuid,
+		Body:        req.Body,
+		ProblemID:   problem_uuid,
 	})
 
 	if err != nil {
