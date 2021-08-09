@@ -40,7 +40,7 @@ func (h *AttachmentHandler) Upload(ctx *gin.Context) {
 	user := ctx.MustGet("user").(*entity.User)
 	file, err := ctx.FormFile("file")
 	if err != nil {
-		ctx.Error(error.NewInternalServerError(err))
+		ctx.Error(error.NewBadRequestError("FormFile isn't specified"))
 		return
 	}
 	reader, err := file.Open()
