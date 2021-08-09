@@ -76,6 +76,7 @@ func (h *UserHandler) Update(ctx *gin.Context) {
 	req := &controller.UpdateUserRequest{}
 	if err := ctx.Bind(req); err != nil {
 		response.JSON(ctx, http.StatusBadRequest, "", nil, nil)
+		return
 	}
 
 	res, err := h.userController.Update(id, req)
