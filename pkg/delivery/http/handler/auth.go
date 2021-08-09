@@ -8,6 +8,7 @@ import (
 	"github.com/ictsc/ictsc-rikka/pkg/controller"
 	"github.com/ictsc/ictsc-rikka/pkg/delivery/http/middleware"
 	"github.com/ictsc/ictsc-rikka/pkg/delivery/http/response"
+	"github.com/ictsc/ictsc-rikka/pkg/error"
 	"github.com/ictsc/ictsc-rikka/pkg/repository"
 	"github.com/ictsc/ictsc-rikka/pkg/service"
 )
@@ -38,12 +39,12 @@ func (h *AuthHandler) Self(ctx *gin.Context) {
 	session := sessions.Default(ctx)
 	id, ok := session.Get("id").(string)
 	if !ok {
-		response.JSON(ctx, http.StatusUnauthorized, "", nil, nil)
+		ctx.Error(error.NewUnauthorizedError("couldn't get id"))
 		return
 	}
 	res, err := h.authController.Self(id)
 	if err != nil {
-		response.JSON(ctx, http.StatusInternalServerError, "", nil, nil)
+		ctx.Error(error.NewInternalServerError(err))
 		return
 	}
 
@@ -53,7 +54,7 @@ func (h *AuthHandler) Self(ctx *gin.Context) {
 func (h *AuthHandler) SignIn(ctx *gin.Context) {
 	req := &controller.SignInRequest{}
 	if err := ctx.Bind(req); err != nil {
-		response.JSON(ctx, http.StatusBadRequest, err.Error(), nil, nil)
+		ctx.Error(error.NewBadRequestError(err.Error()))
 		return
 
 	}
@@ -62,13 +63,13 @@ func (h *AuthHandler) SignIn(ctx *gin.Context) {
 
 	res, err := h.authController.SignIn(req)
 	if err != nil {
-		response.JSON(ctx, http.StatusUnauthorized, err.Error(), nil, nil)
+		ctx.Error(error.NewUnauthorizedError(err.Error()))
 		return
 	}
 
 	session.Set("id", res.User.ID.String())
 	if err := session.Save(); err != nil {
-		response.JSON(ctx, http.StatusInternalServerError, err.Error(), nil, nil)
+		ctx.Error(error.NewInternalServerError(err))
 		return
 	}
 
@@ -83,7 +84,7 @@ func (h *AuthHandler) SignOut(ctx *gin.Context) {
 		MaxAge: -1,
 	})
 	if err := session.Save(); err != nil {
-		response.JSON(ctx, http.StatusInternalServerError, err.Error(), nil, nil)
+		ctx.Error(error.NewInternalServerError(err))
 		return
 	}
 	response.JSON(ctx, http.StatusOK, "", nil, nil)

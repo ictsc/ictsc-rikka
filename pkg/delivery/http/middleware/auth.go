@@ -1,11 +1,10 @@
 package middleware
 
 import (
-	"net/http"
-
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/ictsc/ictsc-rikka/pkg/error"
 	"github.com/ictsc/ictsc-rikka/pkg/repository"
 )
 
@@ -15,25 +14,22 @@ func Auth(userRepo repository.UserRepository) gin.HandlerFunc {
 
 		idString, ok := session.Get("id").(string)
 		if !ok || idString == "" {
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-				"message": "unauthorized.",
-			})
+			ctx.Error(error.NewUnauthorizedError("unauthorized"))
+			ctx.Abort()
 			return
 		}
 
 		id, err := uuid.Parse(idString)
 		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-				"message": "internal server error",
-			})
+			ctx.Error(error.NewInternalServerError(err))
+			ctx.Abort()
 			return
 		}
 
 		user, err := userRepo.FindByID(id, true)
 		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-				"message": "internal server error",
-			})
+			ctx.Error(error.NewInternalServerError(err))
+			ctx.Abort()
 			return
 		}
 
@@ -51,39 +47,32 @@ func AuthIsFullAccess(userRepo repository.UserRepository) gin.HandlerFunc {
 
 		idString, ok := session.Get("id").(string)
 		if !ok || idString == "" {
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-				"message": "unauthorized.",
-			})
+			ctx.Error(error.NewUnauthorizedError("unauthorized"))
+			ctx.Abort()
 			return
 		}
 
 		id, err := uuid.Parse(idString)
 		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-				"message": "unauthorized.",
-			})
+			ctx.Error(error.NewInternalServerError(err))
+			ctx.Abort()
 			return
 		}
 
 		user, err := userRepo.FindByID(id, true)
 		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-				"message": "internal server error.",
-			})
+			ctx.Error(error.NewInternalServerError(err))
+			ctx.Abort()
 			return
 		}
 
 		if user.UserGroup == nil {
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-				"message": "unauthorized.",
-			})
-			return
+			panic("user.UserGroup must not be nil")
 		}
 
 		if !user.UserGroup.IsFullAccess {
-			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{
-				"message": "forbidden.",
-			})
+			ctx.Error(error.NewForbiddenError("you don't have enough permission"))
+			ctx.Abort()
 			return
 		}
 
