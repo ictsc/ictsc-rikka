@@ -9,23 +9,17 @@ import (
 )
 
 type UserRepository struct {
-	*db
+	db *gorm.DB
 }
 
-func NewUserRepository(config *MariaDBConfig) *UserRepository {
+func NewUserRepository(db *gorm.DB) *UserRepository {
 	return &UserRepository{
-		db: newDB(config),
+		db: db,
 	}
 }
 
 func (r *UserRepository) Create(user *entity.User) (*entity.User, error) {
-	db, conn, err := r.init()
-	if err != nil {
-		return nil, err
-	}
-	defer conn.Close()
-
-	if err := db.Create(user).Error; err != nil {
+	if err := r.db.Create(user).Error; err != nil {
 		return nil, err
 	}
 
@@ -33,17 +27,12 @@ func (r *UserRepository) Create(user *entity.User) (*entity.User, error) {
 }
 
 func (r *UserRepository) FindByID(id uuid.UUID, isPreload bool) (*entity.User, error) {
-	db, conn, err := r.init()
-	if err != nil {
-		return nil, err
-	}
-	defer conn.Close()
-
+	db := r.db
 	res := &entity.User{}
 	if isPreload {
 		db = preload(db)
 	}
-	err = db.First(res, id).Error
+	err := db.First(res, id).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
 	}
@@ -51,17 +40,12 @@ func (r *UserRepository) FindByID(id uuid.UUID, isPreload bool) (*entity.User, e
 }
 
 func (r *UserRepository) FindByName(name string, isPreload bool) (*entity.User, error) {
-	db, conn, err := r.init()
-	if err != nil {
-		return nil, err
-	}
-	defer conn.Close()
-
+	db := r.db
 	res := &entity.User{}
 	if isPreload {
 		db = preload(db)
 	}
-	err = db.Where("name", name).First(&res).Error
+	err := db.Where("name", name).First(&res).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
 	}
@@ -69,13 +53,7 @@ func (r *UserRepository) FindByName(name string, isPreload bool) (*entity.User, 
 }
 
 func (r *UserRepository) Update(user *entity.User) (*entity.User, error) {
-	db, conn, err := r.init()
-	if err != nil {
-		return nil, err
-	}
-	defer conn.Close()
-
-	if err := db.Save(user).Error; err != nil {
+	if err := r.db.Save(user).Error; err != nil {
 		return nil, err
 	}
 	return r.FindByID(user.ID, true)

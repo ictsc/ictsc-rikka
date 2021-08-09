@@ -9,23 +9,17 @@ import (
 )
 
 type UserGroupRepository struct {
-	*db
+	db *gorm.DB
 }
 
-func NewUserGroupRepository(config *MariaDBConfig) *UserGroupRepository {
+func NewUserGroupRepository(db *gorm.DB) *UserGroupRepository {
 	return &UserGroupRepository{
-		db: newDB(config),
+		db: db,
 	}
 }
 
 func (r *UserGroupRepository) Create(userGroup *entity.UserGroup) (*entity.UserGroup, error) {
-	db, conn, err := r.init()
-	if err != nil {
-		return nil, err
-	}
-	defer conn.Close()
-
-	err = db.Create(userGroup).Error
+	err := r.db.Create(userGroup).Error
 	if err != nil {
 		return nil, err
 	}
@@ -34,14 +28,8 @@ func (r *UserGroupRepository) Create(userGroup *entity.UserGroup) (*entity.UserG
 }
 
 func (r *UserGroupRepository) FindByID(id uuid.UUID) (*entity.UserGroup, error) {
-	db, conn, err := r.init()
-	if err != nil {
-		return nil, err
-	}
-	defer conn.Close()
-
 	res := &entity.UserGroup{}
-	err = db.First(res, id).Error
+	err := r.db.First(res, id).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
 	}
@@ -49,14 +37,8 @@ func (r *UserGroupRepository) FindByID(id uuid.UUID) (*entity.UserGroup, error) 
 }
 
 func (r *UserGroupRepository) FindByName(name string) (*entity.UserGroup, error) {
-	db, conn, err := r.init()
-	if err != nil {
-		return nil, err
-	}
-	defer conn.Close()
-
 	res := &entity.UserGroup{}
-	err = db.Where("name", name).First(res).Error
+	err := r.db.Where("name", name).First(res).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
 	}
