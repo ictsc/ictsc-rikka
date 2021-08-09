@@ -30,7 +30,7 @@ func NewProblemHandler(r *gin.RouterGroup, userRepo repository.UserRepository, p
 		{
 			authedIds.GET("", handler.Find)
 			NewAnswerHandler(authedIds, userRepo, answerController)
-	}
+		}
 
 		privileged.POST("", handler.Create)
 		privileged.PUT("/:id", handler.Update)
