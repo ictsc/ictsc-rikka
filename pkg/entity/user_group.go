@@ -3,8 +3,8 @@ package entity
 type UserGroup struct {
 	Base
 
-	Name                 string `json:"name"`
-	Organization         string `json:"organization"`
-	InvitationCodeDigest string `json:"-"`
-	IsFullAccess         bool   `json:"is_full_access"`
+	Name                 string `json:"name" gorm:"unique;not null"`
+	Organization         string `json:"organization" gorm:"not null"`
+	InvitationCodeDigest string `json:"-" gorm:"not null"`
+	IsFullAccess         bool   `json:"is_full_access" gorm:"not null"`
 }
