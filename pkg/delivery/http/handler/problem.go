@@ -23,7 +23,7 @@ func NewProblemHandler(r *gin.RouterGroup, userRepo repository.UserRepository, p
 	problems := r.Group("/problems")
 	{
 		authed := problems.Group("")
-		authed.Use(middleware.AuthIsFullAccess(userRepo))
+		authed.Use(middleware.Auth(userRepo))
 		privileged := problems.Group("")
 		privileged.Use(middleware.AuthIsFullAccess(userRepo))
 
