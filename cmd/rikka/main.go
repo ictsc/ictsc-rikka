@@ -76,7 +76,7 @@ func init() {
 		[]byte(config.Redis.KeyPair),
 	)
 	store.Options(sessions.Options{
-		MaxAge:   3600,
+		MaxAge:   43200,
 		Path:     "/",
 		Secure:   true,
 		HttpOnly: true,
