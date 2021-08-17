@@ -6,6 +6,7 @@ import (
 )
 
 type UserProfileRepository interface {
+	Create(profile *entity.UserProfile) (*entity.UserProfile, error)
 	FindByUserID(userID uuid.UUID) (*entity.UserProfile, error)
-	UpdateOrCreate(profile *entity.UserProfile) (*entity.UserProfile, error)
+	Update(profile *entity.UserProfile) (*entity.UserProfile, error)
 }
