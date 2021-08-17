@@ -5,6 +5,7 @@ import (
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
 	"github.com/ictsc/ictsc-rikka/pkg/repository"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 type UserService struct {
@@ -59,13 +60,30 @@ func (s *UserService) Update(userID uuid.UUID, displayName, twitterID, githubID,
 		return nil, err
 	}
 
-	if _, err := s.userProfileRepo.UpdateOrCreate(&entity.UserProfile{
-		UserID:           userID,
-		TwitterID:        twitterID,
-		GithubID:         githubID,
-		FacebookID:       facebookID,
-		SelfIntroduction: selfIntroduction,
-	}); err != nil {
+	userProfile, err := s.userProfileRepo.FindByUserID(userID)
+	//Create
+	if err != nil {
+		if err.Error() != gorm.ErrRecordNotFound.Error() {
+			return nil, err
+		}
+		if _, err := s.userProfileRepo.Create(&entity.UserProfile{
+			UserID:           userID,
+			TwitterID:        twitterID,
+			GithubID:         githubID,
+			FacebookID:       facebookID,
+			SelfIntroduction: selfIntroduction,
+		}); err != nil {
+			return nil, err
+		}
+
+		return s.userRepo.FindByID(userID, true)
+	}
+	//Update
+	userProfile.TwitterID = twitterID
+	userProfile.GithubID = githubID
+	userProfile.FacebookID = facebookID
+	userProfile.SelfIntroduction = selfIntroduction
+	if _, err := s.userProfileRepo.Update(userProfile); err != nil {
 		return nil, err
 	}
 
