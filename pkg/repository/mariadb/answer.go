@@ -29,36 +29,36 @@ func (r *AnswerRepository) Create(answer *entity.Answer) (*entity.Answer, error)
 
 func (r *AnswerRepository) GetAll() ([]*entity.Answer, error) {
 	answers := make([]*entity.Answer, 0)
-	err := r.db.Find(answers).Error
+	err := r.db.Preload("UserGroup").Find(answers).Error
 	return answers, err
 }
 
 func (r *AnswerRepository) FindByID(id uuid.UUID) (*entity.Answer, error) {
 	res := &entity.Answer{}
-	err := r.db.First(res, id).Error
+	err := r.db.Preload("UserGroup").First(res, id).Error
 	return res, err
 }
 
 func (r *AnswerRepository) FindByProblem(probid uuid.UUID, groupid *uuid.UUID) ([]*entity.Answer, error) {
 	res := []*entity.Answer{}
 	if groupid != nil {
-		err := r.db.Where("problem_id", probid).Where("user_group_id", groupid).Find(res).Error
+		err := r.db.Preload("UserGroup").Where("problem_id", probid).Where("user_group_id", groupid).Find(res).Error
 		return res, err
 	} else {
-		err := r.db.Where("problem_id", probid).Find(&res).Error
+		err := r.db.Preload("UserGroup").Where("problem_id", probid).Find(&res).Error
 		return res, err
 	}
 }
 
 func (r *AnswerRepository) FindByUserGroup(id uuid.UUID) ([]*entity.Answer, error) {
 	res := []*entity.Answer{}
-	err := r.db.Where("user_group_id", id).Find(&res).Error
+	err := r.db.Preload("UserGroup").Where("user_group_id", id).Find(&res).Error
 	return res, err
 }
 
 func (r *AnswerRepository) FindByProblemAndUserGroup(problemid uuid.UUID, groupid uuid.UUID) ([]*entity.Answer, error) {
 	res := []*entity.Answer{}
-	err := r.db.Where("problem_id", problemid).Where("user_group_id", groupid).Find(&res).Error
+	err := r.db.Preload("UserGroup").Where("problem_id", problemid).Where("user_group_id", groupid).Find(&res).Error
 	return res, err
 }
 
