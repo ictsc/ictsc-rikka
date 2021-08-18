@@ -1,6 +1,8 @@
 package mariadb
 
 import (
+	"errors"
+
 	"github.com/google/uuid"
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
 	"gorm.io/gorm"
@@ -26,6 +28,9 @@ func (r *UserProfileRepository) Create(profile *entity.UserProfile) (*entity.Use
 func (r *UserProfileRepository) FindByUserID(userID uuid.UUID) (*entity.UserProfile, error) {
 	res := &entity.UserProfile{}
 	err := r.db.Where("user_id", userID).First(res).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
 	return res, err
 }
 

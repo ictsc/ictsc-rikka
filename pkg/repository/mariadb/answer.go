@@ -1,6 +1,8 @@
 package mariadb
 
 import (
+	"errors"
+
 	"github.com/google/uuid"
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
 	"github.com/ictsc/ictsc-rikka/pkg/repository"
@@ -36,6 +38,9 @@ func (r *AnswerRepository) GetAll() ([]*entity.Answer, error) {
 func (r *AnswerRepository) FindByID(id uuid.UUID) (*entity.Answer, error) {
 	res := &entity.Answer{}
 	err := r.db.Preload("UserGroup").First(res, id).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
 	return res, err
 }
 
