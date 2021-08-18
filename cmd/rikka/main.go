@@ -144,8 +144,13 @@ func main() {
 
 	r := gin.Default()
 
+	origins := config.CORS.Origins
+	if len(origins) == 0 {
+		origins = []string{"*"}
+	}
+
 	corsConfig := cors.DefaultConfig()
-	corsConfig.AllowOrigins = config.CORS.Origins
+	corsConfig.AllowOrigins = origins
 	corsConfig.AllowCredentials = true
 	r.Use(cors.New(corsConfig))
 	r.Use(sessions.Sessions("session", store))
