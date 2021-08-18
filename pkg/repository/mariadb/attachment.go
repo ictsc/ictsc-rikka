@@ -1,6 +1,8 @@
 package mariadb
 
 import (
+	"errors"
+
 	"github.com/google/uuid"
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
 	"gorm.io/gorm"
@@ -34,10 +36,10 @@ func (r *AttachmentRepository) Delete(id uuid.UUID) error {
 func (r *AttachmentRepository) Get(id string) (*entity.Attachment, error) {
 	attachment := &entity.Attachment{}
 	err := r.db.Where("id", id).Find(attachment).Error
-	if err != nil {
-		return nil, err
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
 	}
-	return attachment, nil
+	return attachment, err
 }
 func (r *AttachmentRepository) GetAll() ([]*entity.Attachment, error) {
 	attachments := make([]*entity.Attachment, 0)

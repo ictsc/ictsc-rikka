@@ -1,6 +1,8 @@
 package mariadb
 
 import (
+	"errors"
+
 	"github.com/google/uuid"
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
 	"gorm.io/gorm"
@@ -33,12 +35,18 @@ func (r *ProblemRepository) GetAll() ([]*entity.Problem, error) {
 func (r *ProblemRepository) FindByID(id uuid.UUID) (*entity.Problem, error) {
 	res := &entity.Problem{}
 	err := r.db.First(res, id).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
 	return res, err
 }
 
 func (r *ProblemRepository) FindByCode(code string) (*entity.Problem, error) {
 	res := &entity.Problem{}
 	err := r.db.Where("code", code).First(res).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
 	return res, err
 }
 
