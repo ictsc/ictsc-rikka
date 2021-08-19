@@ -37,8 +37,8 @@ func (c *AuthController) Self(userID string) (*SelfResponse, error) {
 }
 
 type SignInRequest struct {
-	Name     string `json:"name"`
-	Password string `json:"password"`
+	Name     string `json:"name" binding:"required,max=32"`
+	Password string `json:"password" binding:"required,min=8,max=40"`
 }
 
 type SignInResponse struct {

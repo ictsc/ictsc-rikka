@@ -17,10 +17,10 @@ func NewUserController(userService *service.UserService) *UserController {
 }
 
 type CreateUserRequest struct {
-	Name           string `json:"name"`
-	Password       string `json:"password"`
-	UserGroupID    string `json:"user_group_id"`
-	InvitationCode string `json:"invitation_code"`
+	Name           string `json:"name" binding:"required,max=32"`
+	Password       string `json:"password" binding:"required,min=8,max=40"`
+	UserGroupID    string `json:"user_group_id" binding:"required"`
+	InvitationCode string `json:"invitation_code" binding:"required"`
 }
 
 type CreateUserResponse struct {
@@ -56,11 +56,11 @@ func (c *UserController) FindByID(userID string) (*FindUserByIDResponse, error) 
 }
 
 type UpdateUserRequest struct {
-	DisplayName      string `json:"display_name"`
-	TwitterID        string `json:"twitter_id"`
-	GithubID         string `json:"github_id"`
-	FacebookID       string `json:"facebook_id"`
-	SelfIntroduction string `json:"self_introduction"`
+	DisplayName      string `json:"display_name" binding:"omitempty,max=32"`
+	TwitterID        string `json:"twitter_id" binding:"omitempty,max=15,ascii"`
+	GithubID         string `json:"github_id" binding:"omitempty,max=39,ascii"`
+	FacebookID       string `json:"facebook_id" binding:"omitempty,max=64,ascii"`//正確なmaxの値が不明
+	SelfIntroduction string `json:"self_introduction" binding:"max=500"`
 }
 
 type UpdateUserResponse struct {
