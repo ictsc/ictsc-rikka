@@ -17,9 +17,9 @@ func NewUserController(userService *service.UserService) *UserController {
 }
 
 type CreateUserRequest struct {
-	Name           string `json:"name" binding:"required,max=32"`
-	Password       string `json:"password" binding:"required,min=8,max=40"`
-	UserGroupID    string `json:"user_group_id" binding:"required"`
+	Name           string `json:"name" binding:"required,max=32,excludesall=\r\n"`
+	Password       string `json:"password" binding:"required,min=8,max=40,excludesall=\r\n"`
+	UserGroupID    string `json:"user_group_id" binding:"required,uuid"`
 	InvitationCode string `json:"invitation_code" binding:"required"`
 }
 
@@ -56,10 +56,10 @@ func (c *UserController) FindByID(userID string) (*FindUserByIDResponse, error) 
 }
 
 type UpdateUserRequest struct {
-	DisplayName      string `json:"display_name" binding:"omitempty,max=32"`
-	TwitterID        string `json:"twitter_id" binding:"omitempty,max=15,ascii"`
-	GithubID         string `json:"github_id" binding:"omitempty,max=39,ascii"`
-	FacebookID       string `json:"facebook_id" binding:"omitempty,max=64,ascii"`//正確なmaxの値が不明
+	DisplayName      string `json:"display_name" binding:"required,max=32,excludesall=\r\n"`
+	TwitterID        string `json:"twitter_id" binding:"omitempty,max=15,printascii"`
+	GithubID         string `json:"github_id" binding:"omitempty,max=39,printascii"`
+	FacebookID       string `json:"facebook_id" binding:"omitempty,max=64,printascii"`//正確なmaxの値が不明
 	SelfIntroduction string `json:"self_introduction" binding:"max=500"`
 }
 
