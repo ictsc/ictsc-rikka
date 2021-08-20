@@ -7,7 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
-	"github.com/ictsc/ictsc-rikka/pkg/error"
+	e "github.com/ictsc/ictsc-rikka/pkg/error"
 	"github.com/ictsc/ictsc-rikka/pkg/repository"
 )
 
@@ -89,12 +89,16 @@ func (s *RankingService) getLatestRanking() (map[uuid.UUID]*Rank, error) {
 
 	// 各チーム・各問題の得点を計算する
 	answerTable := make(map[uuid.UUID]map[uuid.UUID]problemPoint)
+	for _, userGroup := range userGroups {
+		answerTable[userGroup.ID] = make(map[uuid.UUID]problemPoint)
+	}
+
 	for _, answer := range answers {
-		point := answerTable[answer.UserGroupID][answer.ID].point
+		point := answerTable[answer.UserGroupID][answer.ProblemID].point
 
 		// answer.Pointは、getAnswersForRankingでnullでないことが保証されているので問題ない
 		if point < *answer.Point {
-			answerTable[answer.UserGroupID][answer.ID] = problemPoint{
+			answerTable[answer.UserGroupID][answer.ProblemID] = problemPoint{
 				point: *answer.Point,
 				gotAt: answer.CreatedAt,
 			}
@@ -122,7 +126,18 @@ func (s *RankingService) getLatestRanking() (map[uuid.UUID]*Rank, error) {
 	sort.SliceStable(ranks, func(i, j int) bool {
 		// 1. 得点順でソートする
 		// 2. その点数になる最後の加点が行われた回答の投稿日時でソートする
-		return ranks[i].point > ranks[j].point || ranks[i].lastPointed.Before(ranks[j].lastPointed)
+
+		if ranks[i].point > ranks[j].point {
+			return true
+		}
+
+		if ranks[i].point == ranks[j].point {
+			if ranks[i].lastPointed.Before(ranks[j].lastPointed) {
+				return true
+			}
+		}
+
+		return false
 	})
 
 	// ソートした結果を利用して順位を計算する
@@ -131,16 +146,12 @@ func (s *RankingService) getLatestRanking() (map[uuid.UUID]*Rank, error) {
 	cPoint := ranks[0].point
 	cLastPointed := ranks[0].lastPointed
 	for _, rank := range ranks[1:] {
-		if cPoint > rank.point {
+		if cPoint > rank.point || cLastPointed.Before(rank.lastPointed) {
 			cRank++
-			cPoint = rank.point
-			cLastPointed = time.Time{}
-		} else if cLastPointed.Before(rank.lastPointed) {
-			cRank++
-			cPoint = rank.point
-			cLastPointed = rank.lastPointed
 		}
 
+		cPoint = rank.point
+		cLastPointed = rank.lastPointed
 		rank.rank = cRank
 	}
 
@@ -186,7 +197,7 @@ func (s *RankingService) GetNearMeRanking(user *entity.User) ([]*Rank, error) {
 
 	cRank, ok := rankTable[user.UserGroupID]
 	if !ok {
-		return nil, error.NewInternalServerError(errors.New("user group not found"))
+		return nil, e.NewInternalServerError(errors.New("user group not found"))
 	}
 
 	min := cRank.rank - 1
