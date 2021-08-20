@@ -1,8 +1,11 @@
 package service
 
 import (
+	"fmt"
+
 	"github.com/google/uuid"
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
+	e "github.com/ictsc/ictsc-rikka/pkg/error"
 	"github.com/ictsc/ictsc-rikka/pkg/repository"
 	"github.com/pkg/errors"
 )
@@ -80,6 +83,18 @@ func (s *AnswerService) Update(id uuid.UUID, req *UpdateAnswerRequest) (*entity.
 	}
 	if ans == nil {
 		return nil, errors.New("answer not found")
+	}
+
+	problem, err := s.problemRepo.FindByID(ans.ProblemID)
+	if err != nil {
+		return nil, e.NewInternalServerError(err)
+	}
+	if ans == nil {
+		return nil, e.NewInternalServerError(fmt.Errorf("problem %s bound answer %s is not found", ans.ProblemID, ans.ID))
+	}
+
+	if !(req.Point <= problem.Point) {
+		return nil, e.NewBadRequestError("invalid point")
 	}
 
 	ans.Point = &req.Point
