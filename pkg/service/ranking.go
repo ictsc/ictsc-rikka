@@ -95,9 +95,10 @@ func (s *RankingService) getLatestRanking() (map[uuid.UUID]*Rank, error) {
 
 	for _, answer := range answers {
 		point := answerTable[answer.UserGroupID][answer.ProblemID].point
+		gotAt := answerTable[answer.UserGroupID][answer.ProblemID].gotAt
 
 		// answer.Pointは、getAnswersForRankingでnullでないことが保証されているので問題ない
-		if point < *answer.Point {
+		if point < *answer.Point || (point == *answer.Point && answer.CreatedAt.Before(gotAt)) {
 			answerTable[answer.UserGroupID][answer.ProblemID] = problemPoint{
 				point: *answer.Point,
 				gotAt: answer.CreatedAt,
