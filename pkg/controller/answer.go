@@ -17,7 +17,7 @@ func NewAnswerController(answerService *service.AnswerService) *AnswerController
 }
 
 type CreateAnswerRequest struct {
-	Body string `json:"body" binding:"required"`
+	Body string `json:"body" binding:"required,max=10000"`
 }
 
 type CreateAnswerResponse struct {
