@@ -17,10 +17,10 @@ type RankingService struct {
 }
 
 type Rank struct {
-	userGroup   *entity.UserGroup
-	point       uint
-	lastPointed time.Time
-	rank        uint
+	UserGroup   *entity.UserGroup
+	Point       uint
+	LastPointed time.Time
+	Rank        uint
 }
 
 type problemPoint struct {
@@ -76,8 +76,8 @@ func (s *RankingService) getLatestRanking() (map[uuid.UUID]*Rank, error) {
 		}
 
 		rankTable[userGroup.ID] = &Rank{
-			userGroup: userGroup,
-			point:     0,
+			UserGroup: userGroup,
+			Point:     0,
 		}
 	}
 
@@ -109,9 +109,9 @@ func (s *RankingService) getLatestRanking() (map[uuid.UUID]*Rank, error) {
 	for userGroupId := range rankTable {
 		rank := rankTable[userGroupId]
 		for _, problemPoint := range answerTable[userGroupId] {
-			rank.point += problemPoint.point
-			if problemPoint.gotAt.After(rank.lastPointed) {
-				rank.lastPointed = problemPoint.gotAt
+			rank.Point += problemPoint.point
+			if problemPoint.gotAt.After(rank.LastPointed) {
+				rank.LastPointed = problemPoint.gotAt
 			}
 		}
 	}
@@ -127,12 +127,12 @@ func (s *RankingService) getLatestRanking() (map[uuid.UUID]*Rank, error) {
 		// 1. 得点順でソートする
 		// 2. その点数になる最後の加点が行われた回答の投稿日時でソートする
 
-		if ranks[i].point > ranks[j].point {
+		if ranks[i].Point > ranks[j].Point {
 			return true
 		}
 
-		if ranks[i].point == ranks[j].point {
-			if ranks[i].lastPointed.Before(ranks[j].lastPointed) {
+		if ranks[i].Point == ranks[j].Point {
+			if ranks[i].LastPointed.Before(ranks[j].LastPointed) {
 				return true
 			}
 		}
@@ -141,18 +141,18 @@ func (s *RankingService) getLatestRanking() (map[uuid.UUID]*Rank, error) {
 	})
 
 	// ソートした結果を利用して順位を計算する
-	ranks[0].rank = 1
+	ranks[0].Rank = 1
 	cRank := uint(1)
-	cPoint := ranks[0].point
-	cLastPointed := ranks[0].lastPointed
+	cPoint := ranks[0].Point
+	cLastPointed := ranks[0].LastPointed
 	for _, rank := range ranks[1:] {
-		if cPoint > rank.point || cLastPointed.Before(rank.lastPointed) {
+		if cPoint > rank.Point || cLastPointed.Before(rank.LastPointed) {
 			cRank++
 		}
 
-		cPoint = rank.point
-		cLastPointed = rank.lastPointed
-		rank.rank = cRank
+		cPoint = rank.Point
+		cLastPointed = rank.LastPointed
+		rank.Rank = cRank
 	}
 
 	return rankTable, nil
@@ -169,7 +169,7 @@ func (s *RankingService) table2slice(table map[uuid.UUID]*Rank) []*Rank {
 	}
 
 	sort.SliceStable(ranks, func(i, j int) bool {
-		return ranks[i].rank < ranks[j].rank
+		return ranks[i].Rank < ranks[j].Rank
 	})
 
 	return ranks
@@ -200,12 +200,12 @@ func (s *RankingService) GetNearMeRanking(user *entity.User) ([]*Rank, error) {
 		return nil, e.NewInternalServerError(errors.New("user group not found"))
 	}
 
-	min := cRank.rank - 1
-	max := cRank.rank + 1
+	min := cRank.Rank - 1
+	max := cRank.Rank + 1
 
 	pos := 0
 	for _, rank := range ranks {
-		if min <= rank.rank && rank.rank <= max {
+		if min <= rank.Rank && rank.Rank <= max {
 			ranks[pos] = rank
 			pos++
 		}

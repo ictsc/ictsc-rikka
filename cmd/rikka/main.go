@@ -133,6 +133,7 @@ func main() {
 	problemService := service.NewProblemService(userRepo, problemRepo)
 	answerService := service.NewAnswerService(userRepo, answerRepo, problemRepo)
 	attachmentService := service.NewAttachmentService(attachmentRepo, s3Repo)
+	rankingService := service.NewRankingService(userGroupRepo, answerRepo)
 
 	problemController := controller.NewProblemController(problemService)
 	answerController := controller.NewAnswerController(answerService)
@@ -163,6 +164,7 @@ func main() {
 		handler.NewUserGroupHandler(api, userRepo, userGroupService)
 		handler.NewProblemHandler(api, userRepo, problemController, answerController)
 		handler.NewAttachmentHandler(api, attachmentController, userRepo)
+		handler.NewRankingHandler(api, userRepo, rankingService)
 	}
 
 	addr := fmt.Sprintf("%s:%d", config.Listen.Address, config.Listen.Port)
