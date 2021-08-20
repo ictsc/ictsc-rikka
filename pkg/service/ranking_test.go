@@ -259,61 +259,61 @@ func TestRanking(t *testing.T) {
 	// 4. team6 0点
 	{
 		rank := rankTable[teams[0]]
-		if rank.rank != 3 {
-			t.Errorf("team1's rank expect 3, actual %d", rank.rank)
+		if rank.Rank != 3 {
+			t.Errorf("team1's rank expect 3, actual %d", rank.Rank)
 		}
-		if rank.point != 200 {
-			t.Errorf("team1's point expect 200, actual %d", rank.point)
+		if rank.Point != 200 {
+			t.Errorf("team1's point expect 200, actual %d", rank.Point)
 		}
 	}
 
 	{
 		rank := rankTable[teams[1]]
-		if rank.rank != 1 {
-			t.Errorf("team2's rank expect 1, actual %d", rank.rank)
+		if rank.Rank != 1 {
+			t.Errorf("team2's rank expect 1, actual %d", rank.Rank)
 		}
-		if rank.point != 300 {
-			t.Errorf("team2's point expect 300, actual %d", rank.point)
+		if rank.Point != 300 {
+			t.Errorf("team2's point expect 300, actual %d", rank.Point)
 		}
 	}
 
 	{
 		rank := rankTable[teams[2]]
-		if rank.rank != 3 {
-			t.Errorf("team3's rank expect 3, actual %d", rank.rank)
+		if rank.Rank != 3 {
+			t.Errorf("team3's rank expect 3, actual %d", rank.Rank)
 		}
-		if rank.point != 200 {
-			t.Errorf("team3's point expect 200, actual %d", rank.point)
+		if rank.Point != 200 {
+			t.Errorf("team3's point expect 200, actual %d", rank.Point)
 		}
 	}
 
 	{
 		rank := rankTable[teams[3]]
-		if rank.rank != 2 {
-			t.Errorf("team4's rank expect 2, actual %d", rank.rank)
+		if rank.Rank != 2 {
+			t.Errorf("team4's rank expect 2, actual %d", rank.Rank)
 		}
-		if rank.point != 300 {
-			t.Errorf("team4's point expect 300, actual %d", rank.point)
+		if rank.Point != 300 {
+			t.Errorf("team4's point expect 300, actual %d", rank.Point)
 		}
 	}
 
 	{
 		rank := rankTable[teams[4]]
-		if rank.rank != 4 {
-			t.Errorf("team5's rank expect 4, actual %d", rank.rank)
+		if rank.Rank != 4 {
+			t.Errorf("team5's rank expect 4, actual %d", rank.Rank)
 		}
-		if rank.point != 0 {
-			t.Errorf("team5's point expect 0, actual %d", rank.point)
+		if rank.Point != 0 {
+			t.Errorf("team5's point expect 0, actual %d", rank.Point)
 		}
 	}
 
 	{
 		rank := rankTable[teams[5]]
-		if rank.rank != 4 {
-			t.Errorf("team6's rank expect 4, actual %d", rank.rank)
+		if rank.Rank != 4 {
+			t.Errorf("team6's rank expect 4, actual %d", rank.Rank)
 		}
-		if rank.point != 0 {
-			t.Errorf("team6's point expect 0, actual %d", rank.point)
+		if rank.Point != 0 {
+			t.Errorf("team6's point expect 0, actual %d", rank.Point)
 		}
 	}
 }
