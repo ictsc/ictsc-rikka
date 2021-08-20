@@ -5,7 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
-	"github.com/ictsc/ictsc-rikka/pkg/error"
+	e "github.com/ictsc/ictsc-rikka/pkg/error"
 	"github.com/ictsc/ictsc-rikka/pkg/repository"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -32,7 +32,7 @@ func (s *UserService) validateUserName(name string) bool {
 
 func (s *UserService) Create(name, password string, userGroupID uuid.UUID, invitationCode string) (*entity.User, error) {
 	if !s.validateUserName(name) {
-		return nil, error.NewBadRequestError("invalid name")
+		return nil, e.NewBadRequestError("invalid name")
 	}
 
 	userGroup, err := s.userGroupRepo.FindByID(userGroupID)
