@@ -1,11 +1,13 @@
 package service
 
 import (
+	"errors"
 	"sort"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
+	"github.com/ictsc/ictsc-rikka/pkg/error"
 	"github.com/ictsc/ictsc-rikka/pkg/repository"
 )
 
@@ -145,8 +147,58 @@ func (s *RankingService) getLatestRanking() (map[uuid.UUID]*Rank, error) {
 	return rankTable, nil
 }
 
-func (s *RankingService) GetTopRanking() {
+func (s *RankingService) getRanking() (map[uuid.UUID]*Rank, error) {
+	return s.getLatestRanking()
 }
 
-func (s *RankingService) GetNearMeRanking(userID uuid.UUID) {
+func (s *RankingService) table2slice(table map[uuid.UUID]*Rank) []*Rank {
+	ranks := make([]*Rank, 0, len(table))
+	for _, rank := range table {
+		ranks = append(ranks, rank)
+	}
+
+	sort.SliceStable(ranks, func(i, j int) bool {
+		return ranks[i].rank < ranks[j].rank
+	})
+
+	return ranks
+}
+
+func (s *RankingService) GetTopRanking() ([]*Rank, error) {
+	rankTable, err := s.getRanking()
+	if err != nil {
+		return nil, err
+	}
+
+	ranks := s.table2slice(rankTable)
+
+	// 上位5チームを抽出する
+	return ranks[:5], nil
+}
+
+func (s *RankingService) GetNearMeRanking(user *entity.User) ([]*Rank, error) {
+	rankTable, err := s.getRanking()
+	if err != nil {
+		return nil, err
+	}
+
+	ranks := s.table2slice(rankTable)
+
+	cRank, ok := rankTable[user.UserGroupID]
+	if !ok {
+		return nil, error.NewInternalServerError(errors.New("user group not found"))
+	}
+
+	min := cRank.rank - 1
+	max := cRank.rank + 1
+
+	pos := 0
+	for _, rank := range ranks {
+		if min <= rank.rank && rank.rank <= max {
+			ranks[pos] = rank
+			pos++
+		}
+	}
+
+	return ranks[:pos], nil
 }
