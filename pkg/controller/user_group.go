@@ -18,8 +18,8 @@ func NewUserGroupController(userService *service.UserService, userGroupService *
 }
 
 type ListParticipatesMember struct {
-	DisplayName string `json:"display_name"`
-	Profile     *entity.UserProfile
+	DisplayName string              `json:"display_name"`
+	Profile     *entity.UserProfile `json:"profile"`
 }
 
 type ListParticipates struct {
