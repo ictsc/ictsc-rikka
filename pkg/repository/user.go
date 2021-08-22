@@ -8,6 +8,7 @@ import (
 type UserRepository interface {
 	Create(user *entity.User) (*entity.User, error)
 	FindByID(id uuid.UUID, isPreload bool) (*entity.User, error)
+	FindByUserGroupID(id uuid.UUID) ([]*entity.User, error)
 	FindByName(name string, isPreload bool) (*entity.User, error)
 	Update(user *entity.User) (*entity.User, error)
 }
