@@ -30,6 +30,24 @@ func (s *UserGroupService) Create(name, organization, invitationCode string, isF
 	})
 }
 
+func (s *UserGroupService) List() ([]*entity.UserGroup, error) {
+	userGroups, err := s.userGroupRepo.GetAll()
+	if err != nil {
+		return nil, err
+	}
+
+	pos := 0
+	for _, userGroup := range userGroups {
+		if userGroup.IsFullAccess {
+			continue
+		}
+		userGroups[pos] = userGroup
+		pos++
+	}
+
+	return userGroups, nil
+}
+
 func (s *UserGroupService) FindByID(id uuid.UUID) (*entity.UserGroup, error) {
 	return s.userGroupRepo.FindByID(id)
 }

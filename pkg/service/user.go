@@ -61,6 +61,10 @@ func (s *UserService) FindByID(id uuid.UUID) (*entity.User, error) {
 	return s.userRepo.FindByID(id, true)
 }
 
+func (s *UserService) FindByUserGroupID(id uuid.UUID) ([]*entity.User, error) {
+	return s.userRepo.FindByUserGroupID(id)
+}
+
 func (s *UserService) Update(userID uuid.UUID, displayName, twitterID, githubID, facebookID, selfIntroduction string) (*entity.User, error) {
 	user, err := s.userRepo.FindByID(userID, false)
 	if err != nil {
