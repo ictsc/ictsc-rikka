@@ -1,7 +1,11 @@
 package service
 
 import (
+<<<<<<< HEAD
 	"fmt"
+=======
+	"time"
+>>>>>>> implement GET /usergroups
 
 	"github.com/google/uuid"
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
@@ -36,6 +40,22 @@ func NewAnswerService(userRepo repository.UserRepository, answerRepo repository.
 }
 
 func (s *AnswerService) Create(req *CreateAnswerRequest) (*entity.Answer, error) {
+	lastAnswered := time.Time{}
+	pastAnswers, err := s.answerRepo.FindByUserGroup(req.UserGroupID)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, answer := range pastAnswers {
+		if answer.CreatedAt.After(lastAnswered) {
+			lastAnswered = answer.CreatedAt
+		}
+	}
+
+	if !time.Now().After(lastAnswered.Add(1 * time.Minute)) {
+		return nil, e.NewForbiddenError("couldn't submit answer if you submit answer within last 20 minutes")
+	}
+
 	ans := &entity.Answer{
 		UserGroupID: req.UserGroupID,
 		Point:       nil,
