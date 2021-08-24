@@ -40,6 +40,15 @@ func (c *RankingController) entity2response(ranks []*service.Rank) *Ranking {
 	return &Ranking{Ranking: ranks_resp}
 }
 
+func (c *RankingController) GetRanking() (*Ranking, error) {
+	ranking, err := c.rankingService.GetRanking()
+	if err != nil {
+		return nil, err
+	}
+
+	return c.entity2response(ranking), nil
+}
+
 func (c *RankingController) GetTopRanking() (*Ranking, error) {
 	ranking, err := c.rankingService.GetTopRanking()
 	if err != nil {

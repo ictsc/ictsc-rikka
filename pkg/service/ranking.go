@@ -89,11 +89,10 @@ func (s *RankingService) getLatestRanking() (map[uuid.UUID]*Rank, error) {
 
 	// 各チーム・各問題の得点を計算する
 	answerTable := make(map[uuid.UUID]map[uuid.UUID]problemPoint)
-	for _, userGroup := range userGroups {
-		answerTable[userGroup.ID] = make(map[uuid.UUID]problemPoint)
-	}
-
 	for _, answer := range answers {
+		if _, ok := answerTable[answer.UserGroupID]; !ok {
+			answerTable[answer.UserGroupID] = make(map[uuid.UUID]problemPoint)
+		}
 		point := answerTable[answer.UserGroupID][answer.ProblemID].point
 		gotAt := answerTable[answer.UserGroupID][answer.ProblemID].gotAt
 
@@ -174,6 +173,15 @@ func (s *RankingService) table2slice(table map[uuid.UUID]*Rank) []*Rank {
 	})
 
 	return ranks
+}
+
+func (s *RankingService) GetRanking() ([]*Rank, error) {
+	rankTable, err := s.getRanking()
+	if err != nil {
+		return nil, err
+	}
+
+	return s.table2slice(rankTable), nil
 }
 
 func (s *RankingService) GetTopRanking() ([]*Rank, error) {
