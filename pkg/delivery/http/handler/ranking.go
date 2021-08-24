@@ -26,7 +26,7 @@ func NewRankingHandler(r *gin.RouterGroup, userRepo repository.UserRepository, r
 	route := r.Group("/ranking")
 	route.Use(middleware.Auth(userRepo))
 	{
-		route.PUT("/top", handler.GetTopRanking)
+		route.GET("/top", handler.GetTopRanking)
 		route.GET("/near-me", handler.GetNearMeRanking)
 	}
 }
