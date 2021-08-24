@@ -24,11 +24,27 @@ func NewRankingHandler(r *gin.RouterGroup, userRepo repository.UserRepository, r
 	}
 
 	route := r.Group("/ranking")
-	route.Use(middleware.Auth(userRepo))
 	{
-		route.GET("/top", handler.GetTopRanking)
-		route.GET("/near-me", handler.GetNearMeRanking)
+		authed := route.Group("")
+		privileged := route.Group("")
+
+		authed.Use(middleware.Auth(userRepo))
+		privileged.Use(middleware.AuthIsFullAccess(userRepo))
+
+		privileged.GET("", handler.GetRanking)
+		authed.GET("/top", handler.GetTopRanking)
+		authed.GET("/near-me", handler.GetNearMeRanking)
 	}
+}
+
+func (h *RankingHandler) GetRanking(ctx *gin.Context) {
+	ranking, err := h.rankingController.GetRanking()
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	response.JSON(ctx, http.StatusOK, "", ranking, nil)
 }
 
 func (h *RankingHandler) GetTopRanking(ctx *gin.Context) {

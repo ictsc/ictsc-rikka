@@ -29,7 +29,7 @@ func (r *UserGroupRepository) Create(userGroup *entity.UserGroup) (*entity.UserG
 
 func (r *UserGroupRepository) GetAll() ([]*entity.UserGroup, error) {
 	userGroups := make([]*entity.UserGroup, 0)
-	err := r.db.Find(userGroups).Error
+	err := r.db.Find(&userGroups).Error
 	return userGroups, err
 }
 
