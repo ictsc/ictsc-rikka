@@ -27,6 +27,12 @@ func (r *UserGroupRepository) Create(userGroup *entity.UserGroup) (*entity.UserG
 	return r.FindByID(userGroup.ID)
 }
 
+func (r *UserGroupRepository) GetAll() ([]*entity.UserGroup, error) {
+	userGroups := make([]*entity.UserGroup, 0)
+	err := r.db.Find(&userGroups).Error
+	return userGroups, err
+}
+
 func (r *UserGroupRepository) FindByID(id uuid.UUID) (*entity.UserGroup, error) {
 	res := &entity.UserGroup{}
 	err := r.db.First(res, id).Error
