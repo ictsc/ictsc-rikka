@@ -1,11 +1,8 @@
 package service
 
 import (
-<<<<<<< HEAD
 	"fmt"
-=======
 	"time"
->>>>>>> implement GET /usergroups
 
 	"github.com/google/uuid"
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
