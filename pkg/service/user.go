@@ -8,7 +8,6 @@ import (
 	e "github.com/ictsc/ictsc-rikka/pkg/error"
 	"github.com/ictsc/ictsc-rikka/pkg/repository"
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
 )
 
 type UserService struct {
@@ -77,11 +76,11 @@ func (s *UserService) Update(userID uuid.UUID, displayName, twitterID, githubID,
 	}
 
 	userProfile, err := s.userProfileRepo.FindByUserID(userID)
-	//Create
 	if err != nil {
-		if err.Error() != gorm.ErrRecordNotFound.Error() {
-			return nil, err
-		}
+		return nil, err
+	}
+
+	if userProfile == nil {
 		if _, err := s.userProfileRepo.Create(&entity.UserProfile{
 			UserID:           userID,
 			TwitterID:        twitterID,
@@ -94,7 +93,7 @@ func (s *UserService) Update(userID uuid.UUID, displayName, twitterID, githubID,
 
 		return s.userRepo.FindByID(userID, true)
 	}
-	//Update
+
 	userProfile.TwitterID = twitterID
 	userProfile.GithubID = githubID
 	userProfile.FacebookID = facebookID
