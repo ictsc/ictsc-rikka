@@ -16,19 +16,33 @@ type UserGroupHandler struct {
 	userGroupController *controller.UserGroupController
 }
 
-func NewUserGroupHandler(r *gin.RouterGroup, userRepo repository.UserRepository, userGroupService *service.UserGroupService) {
+func NewUserGroupHandler(r *gin.RouterGroup, userRepo repository.UserRepository, userService *service.UserService, userGroupService *service.UserGroupService) {
 	handler := UserGroupHandler{
-		userGroupController: controller.NewUserGroupController(userGroupService),
+		userGroupController: controller.NewUserGroupController(userService, userGroupService),
 	}
 
 	userGroup := r.Group("/usergroups")
 	{
 		authed := userGroup.Group("")
-		authed.Use(middleware.AuthIsFullAccess(userRepo))
+		authed.Use(middleware.Auth(userRepo))
+		privileged := userGroup.Group("")
+		privileged.Use(middleware.AuthIsFullAccess(userRepo))
+
 		{
-			authed.POST("", handler.Create)
+			authed.GET("", handler.ListParticipates)
+			privileged.POST("", handler.Create)
 		}
 	}
+}
+
+func (h *UserGroupHandler) ListParticipates(ctx *gin.Context) {
+	res, err := h.userGroupController.ListParticipates()
+	if err != nil {
+		ctx.Error(error.NewInternalServerError(err))
+		return
+	}
+
+	response.JSON(ctx, http.StatusOK, "", res, nil)
 }
 
 func (h *UserGroupHandler) Create(ctx *gin.Context) {
@@ -41,7 +55,6 @@ func (h *UserGroupHandler) Create(ctx *gin.Context) {
 	res, err := h.userGroupController.Create(req)
 	if err != nil {
 		ctx.Error(error.NewInternalServerError(err))
-		response.JSON(ctx, http.StatusInternalServerError, err.Error(), nil, nil)
 		return
 	}
 

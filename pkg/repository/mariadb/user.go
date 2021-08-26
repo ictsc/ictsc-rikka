@@ -39,6 +39,12 @@ func (r *UserRepository) FindByID(id uuid.UUID, isPreload bool) (*entity.User, e
 	return res, err
 }
 
+func (r *UserRepository) FindByUserGroupID(id uuid.UUID) ([]*entity.User, error) {
+	res := make([]*entity.User, 0)
+	err := preload(r.db).Where("user_group_id", id).Find(&res).Error
+	return res, err
+}
+
 func (r *UserRepository) FindByName(name string, isPreload bool) (*entity.User, error) {
 	db := r.db
 	res := &entity.User{}
