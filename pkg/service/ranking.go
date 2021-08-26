@@ -106,8 +106,7 @@ func (s *RankingService) getLatestRanking() (map[uuid.UUID]*Rank, error) {
 	}
 
 	// 各チームの得点を計算する
-	for userGroupId := range rankTable {
-		rank := rankTable[userGroupId]
+	for userGroupId, rank := range rankTable {
 		for _, problemPoint := range answerTable[userGroupId] {
 			rank.Point += problemPoint.point
 			if problemPoint.gotAt.After(rank.LastPointed) {
@@ -169,7 +168,7 @@ func (s *RankingService) table2slice(table map[uuid.UUID]*Rank) []*Rank {
 	}
 
 	sort.SliceStable(ranks, func(i, j int) bool {
-		return ranks[i].Rank < ranks[j].Rank
+		return ranks[i].Rank < ranks[j].Rank || (ranks[i].Rank == ranks[j].Rank && ranks[i].UserGroup.Name < ranks[j].UserGroup.Name)
 	})
 
 	return ranks
@@ -192,8 +191,13 @@ func (s *RankingService) GetTopRanking() ([]*Rank, error) {
 
 	ranks := s.table2slice(rankTable)
 
-	// 上位5チームを抽出する
-	return ranks[:5], nil
+	for i := range ranks {
+		if ranks[i].Rank > 5 {
+			return ranks[:i-1], nil
+		}
+	}
+
+	return ranks, nil
 }
 
 func (s *RankingService) GetNearMeRanking(user *entity.User) ([]*Rank, error) {
