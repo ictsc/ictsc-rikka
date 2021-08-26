@@ -45,7 +45,7 @@ func (s *UserGroupService) List() ([]*entity.UserGroup, error) {
 		pos++
 	}
 
-	return userGroups, nil
+	return userGroups[:pos], nil
 }
 
 func (s *UserGroupService) FindByID(id uuid.UUID) (*entity.UserGroup, error) {
