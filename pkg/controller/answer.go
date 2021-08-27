@@ -138,21 +138,6 @@ func (c *AnswerController) FindByProblemAndUserGroup(probid string, userGroupID 
 	}, nil
 }
 
-type GetAllAnswersResponse struct {
-	Answers []*entity.Answer `json:"answers"`
-}
-
-func (c *AnswerController) GetAll() (*GetAllAnswersResponse, error) {
-	ans, err := c.answerService.GetAll()
-	if err != nil {
-		return nil, err
-	}
-
-	return &GetAllAnswersResponse{
-		Answers: ans,
-	}, nil
-}
-
 type UpdateAnswerRequest struct {
 	Point uint `json:"point"`
 }
@@ -177,13 +162,4 @@ func (c *AnswerController) Update(id string, req *UpdateAnswerRequest) (*UpdateA
 	return &UpdateAnswerResponse{
 		Answer: ans,
 	}, nil
-}
-
-func (c *AnswerController) Delete(id string) error {
-	uuid, err := uuid.Parse(id)
-	if err != nil {
-		return err
-	}
-
-	return c.answerService.Delete(uuid)
 }
