@@ -107,25 +107,3 @@ func (h *AnswerHandler) FindByProblemAndUserGroup(ctx *gin.Context) {
 	}
 
 }
-
-func (h *AnswerHandler) GetAll(ctx *gin.Context) {
-	res, err := h.answerController.GetAll()
-	if err != nil {
-		ctx.Error(error.NewInternalServerError(err))
-		return
-	}
-
-	response.JSON(ctx, http.StatusOK, "", res, nil)
-}
-
-func (h *AnswerHandler) Delete(ctx *gin.Context) {
-	id := ctx.Param("answer_id")
-
-	err := h.answerController.Delete(id)
-	if err != nil {
-		ctx.Error(error.NewInternalServerError(err))
-		return
-	}
-
-	response.JSON(ctx, http.StatusNoContent, "", nil, nil)
-}
