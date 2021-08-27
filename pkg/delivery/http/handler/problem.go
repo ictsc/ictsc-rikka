@@ -92,7 +92,7 @@ func (h *ProblemHandler) GetAll(ctx *gin.Context) {
 	group := ctx.MustGet("group").(*entity.UserGroup)
 	metadataOnly := ctx.Query("metadata_only") != ""
 
-	if group.IsFullAccess {
+	if !group.IsFullAccess {
 		res, err := h.problemController.GetAll(metadataOnly)
 		if err != nil {
 			ctx.Error(error.NewInternalServerError(err))

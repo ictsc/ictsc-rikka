@@ -119,8 +119,8 @@ func (s *ProblemService) GetAllWithAnswerInformation() ([]*entity.ProblemWithAns
 			Problem: *problem,
 
 			Unchecked:            uint(unchecked),
-			UncheckedNearOverdue: uint(unchecked),
-			UncheckedOverdue:     uint(unchecked),
+			UncheckedNearOverdue: uint(uncheckedNearOverdue),
+			UncheckedOverdue:     uint(uncheckedOverdue),
 		})
 	}
 

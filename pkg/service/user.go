@@ -2,6 +2,7 @@ package service
 
 import (
 	"regexp"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
@@ -79,6 +80,8 @@ func (s *UserService) Update(userID uuid.UUID, displayName, twitterID, githubID,
 	if err != nil {
 		return nil, err
 	}
+
+	selfIntroduction = strings.ReplaceAll(selfIntroduction, "\n", "")
 
 	if userProfile == nil {
 		if _, err := s.userProfileRepo.Create(&entity.UserProfile{
