@@ -16,9 +16,11 @@ require (
 	github.com/minio/minio-go/v7 v7.0.11
 	github.com/minio/sha256-simd v1.0.0 // indirect
 	github.com/pkg/errors v0.9.1
+	github.com/prometheus/client_golang v1.11.0 // indirect
 	github.com/rs/xid v1.3.0 // indirect
 	github.com/tsenart/go-tsz v0.0.0-20180814235614-0bd30b3df1c3 // indirect
 	github.com/tsenart/vegeta v12.7.0+incompatible // indirect
+	github.com/zsais/go-gin-prometheus v0.1.0
 	golang.org/x/crypto v0.0.0-20210616213533-5ff15b29337e
 	golang.org/x/net v0.0.0-20210805182204-aaa1db679c0d // indirect
 	golang.org/x/sys v0.0.0-20210616094352-59db8d763f22 // indirect
