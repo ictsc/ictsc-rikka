@@ -12,6 +12,7 @@ import (
 )
 
 type RankingService struct {
+	answerLimit         time.Duration
 	userGroupRepository repository.UserGroupRepository
 	answerRepository    repository.AnswerRepository
 }
@@ -28,24 +29,26 @@ type problemPoint struct {
 	gotAt time.Time
 }
 
-func NewRankingService(userGroupRepository repository.UserGroupRepository, answerRepository repository.AnswerRepository) *RankingService {
+func NewRankingService(answerLimit int, userGroupRepository repository.UserGroupRepository, answerRepository repository.AnswerRepository) *RankingService {
 	return &RankingService{
+		answerLimit:         time.Duration(answerLimit) * time.Minute,
 		userGroupRepository: userGroupRepository,
 		answerRepository:    answerRepository,
 	}
 }
 
-func (s *RankingService) getAnswersForRanking() ([]*entity.Answer, error) {
+func (s *RankingService) getAnswersForRanking(isFullAccess bool) ([]*entity.Answer, error) {
 	answers, err := s.answerRepository.GetAll()
 	if err != nil {
 		return []*entity.Answer{}, err
 	}
 
 	// まだユーザに点数が公開されていない回答を除外する
+	now := time.Now()
 	pos := 0
 	for _, answer := range answers {
 		// 20分制約によって回答が見れていない場合
-		if !time.Now().After(answer.CreatedAt.Add(20 * time.Minute)) {
+		if !isFullAccess && !now.After(answer.CreatedAt.Add(s.answerLimit)) {
 			continue
 		}
 
@@ -57,11 +60,10 @@ func (s *RankingService) getAnswersForRanking() ([]*entity.Answer, error) {
 		answers[pos] = answer
 		pos++
 	}
-
 	return answers[:pos], nil
 }
 
-func (s *RankingService) getLatestRanking() (map[uuid.UUID]*Rank, error) {
+func (s *RankingService) getLatestRanking(isFullAccess bool) (map[uuid.UUID]*Rank, error) {
 	userGroups, err := s.userGroupRepository.GetAll()
 	if err != nil {
 		return nil, err
@@ -82,7 +84,7 @@ func (s *RankingService) getLatestRanking() (map[uuid.UUID]*Rank, error) {
 	}
 
 	// ランキング計算に利用する回答を取得する
-	answers, err := s.getAnswersForRanking()
+	answers, err := s.getAnswersForRanking(isFullAccess)
 	if err != nil {
 		return nil, err
 	}
@@ -157,8 +159,8 @@ func (s *RankingService) getLatestRanking() (map[uuid.UUID]*Rank, error) {
 	return rankTable, nil
 }
 
-func (s *RankingService) getRanking() (map[uuid.UUID]*Rank, error) {
-	return s.getLatestRanking()
+func (s *RankingService) getRanking(isFullAccess bool) (map[uuid.UUID]*Rank, error) {
+	return s.getLatestRanking(isFullAccess)
 }
 
 func (s *RankingService) table2slice(table map[uuid.UUID]*Rank) []*Rank {
@@ -175,7 +177,7 @@ func (s *RankingService) table2slice(table map[uuid.UUID]*Rank) []*Rank {
 }
 
 func (s *RankingService) GetRanking() ([]*Rank, error) {
-	rankTable, err := s.getRanking()
+	rankTable, err := s.getRanking(true)
 	if err != nil {
 		return nil, err
 	}
@@ -184,7 +186,7 @@ func (s *RankingService) GetRanking() ([]*Rank, error) {
 }
 
 func (s *RankingService) GetTopRanking() ([]*Rank, error) {
-	rankTable, err := s.getRanking()
+	rankTable, err := s.getRanking(false)
 	if err != nil {
 		return nil, err
 	}
@@ -201,7 +203,7 @@ func (s *RankingService) GetTopRanking() ([]*Rank, error) {
 }
 
 func (s *RankingService) GetNearMeRanking(user *entity.User) ([]*Rank, error) {
-	rankTable, err := s.getRanking()
+	rankTable, err := s.getRanking(false)
 	if err != nil {
 		return nil, err
 	}

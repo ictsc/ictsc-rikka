@@ -24,16 +24,16 @@ type CreateAnswerResponse struct {
 	Answer *entity.Answer `json:"answer"`
 }
 
-func (c *AnswerController) Create(problem_id string, groupuuid uuid.UUID, req *CreateAnswerRequest) (*CreateAnswerResponse, error) {
+func (c *AnswerController) Create(group *entity.UserGroup, problem_id string, req *CreateAnswerRequest) (*CreateAnswerResponse, error) {
 	problem_uuid, err := uuid.Parse(problem_id)
 	if err != nil {
 		return nil, err
 	}
 
 	ans, err := c.answerService.Create(&service.CreateAnswerRequest{
-		UserGroupID: groupuuid,
-		Body:        req.Body,
-		ProblemID:   problem_uuid,
+		UserGroup: group,
+		Body:      req.Body,
+		ProblemID: problem_uuid,
 	})
 
 	if err != nil {
@@ -48,13 +48,13 @@ type FindByIDResponse struct {
 	Answer *entity.Answer `json:"answer"`
 }
 
-func (c *AnswerController) FindByID(id string) (*FindByIDResponse, error) {
+func (c *AnswerController) FindByID(group *entity.UserGroup, id string) (*FindByIDResponse, error) {
 	uuid, err := uuid.Parse(id)
 	if err != nil {
 		return nil, err
 	}
 
-	ans, err := c.answerService.FindByID(uuid)
+	ans, err := c.answerService.FindByID(group, uuid)
 	if err != nil {
 		return nil, err
 	}
@@ -69,23 +69,13 @@ type FindByProblemResponse struct {
 }
 
 // user group id is optional
-func (c *AnswerController) FindByProblem(probid string, userGroupID string) (*FindByProblemResponse, error) {
+func (c *AnswerController) FindByProblem(group *entity.UserGroup, probid string, userGroupId *uuid.UUID) (*FindByProblemResponse, error) {
 	probuuid, err := uuid.Parse(probid)
 	if err != nil {
 		return nil, err
 	}
 
-	var userGroupUUID *uuid.UUID
-
-	if userGroupID != "" {
-		id, err := uuid.Parse(userGroupID)
-		if err != nil {
-			return nil, err
-		}
-		userGroupUUID = &id
-	}
-
-	ans, err := c.answerService.FindByProblem(probuuid, userGroupUUID)
+	ans, err := c.answerService.FindByProblem(group, probuuid, userGroupId)
 	if err != nil {
 		return nil, err
 	}
@@ -122,33 +112,18 @@ type FindByProblemAndUserGroupResponse struct {
 	Answers []*entity.Answer `json:"answers"`
 }
 
-func (c *AnswerController) FindByProblemAndUserGroup(probid string, userGroupID uuid.UUID) (*FindByProblemAndUserGroupResponse, error) {
+func (c *AnswerController) FindByProblemAndUserGroup(group *entity.UserGroup, probid string) (*FindByProblemAndUserGroupResponse, error) {
 	probuuid, err := uuid.Parse(probid)
 	if err != nil {
 		return nil, err
 	}
 
-	ans, err := c.answerService.FindByProblemAndUserGroup(probuuid, userGroupID)
+	ans, err := c.answerService.FindByProblemAndUserGroup(group, probuuid, group.ID)
 	if err != nil {
 		return nil, err
 	}
 
 	return &FindByProblemAndUserGroupResponse{
-		Answers: ans,
-	}, nil
-}
-
-type GetAllAnswersResponse struct {
-	Answers []*entity.Answer `json:"answers"`
-}
-
-func (c *AnswerController) GetAll() (*GetAllAnswersResponse, error) {
-	ans, err := c.answerService.GetAll()
-	if err != nil {
-		return nil, err
-	}
-
-	return &GetAllAnswersResponse{
 		Answers: ans,
 	}, nil
 }
@@ -177,13 +152,4 @@ func (c *AnswerController) Update(id string, req *UpdateAnswerRequest) (*UpdateA
 	return &UpdateAnswerResponse{
 		Answer: ans,
 	}, nil
-}
-
-func (c *AnswerController) Delete(id string) error {
-	uuid, err := uuid.Parse(id)
-	if err != nil {
-		return err
-	}
-
-	return c.answerService.Delete(uuid)
 }

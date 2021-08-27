@@ -132,9 +132,9 @@ func main() {
 	userService := service.NewUserService(userRepo, userProfileRepo, userGroupRepo)
 	userGroupService := service.NewUserGroupService(userGroupRepo)
 	problemService := service.NewProblemService(userRepo, problemRepo)
-	answerService := service.NewAnswerService(userRepo, answerRepo, problemRepo)
+	answerService := service.NewAnswerService(config.Contest.AnswerLimit, userRepo, answerRepo, problemRepo)
 	attachmentService := service.NewAttachmentService(attachmentRepo, s3Repo)
-	rankingService := service.NewRankingService(userGroupRepo, answerRepo)
+	rankingService := service.NewRankingService(config.Contest.AnswerLimit, userGroupRepo, answerRepo)
 
 	problemController := controller.NewProblemController(problemService)
 	answerController := controller.NewAnswerController(answerService)

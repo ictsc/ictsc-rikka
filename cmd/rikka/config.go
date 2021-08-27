@@ -7,12 +7,17 @@ import (
 )
 
 type Config struct {
+	Contest ContestConfig   `yaml:"contest"`
 	Listen  ListenConfig    `yaml:"listen"`
 	CORS    CORSConfig      `yaml:"cors"`
 	MariaDB MariaDBConfig   `yaml:"mariadb"`
 	Redis   RedisConfig     `yaml:"redis"`
 	Minio   MinioConfig     `yaml:"minio"`
 	Seed    seed.SeedConfig `yaml:"seed"`
+}
+
+type ContestConfig struct {
+	AnswerLimit int `yaml:"answerLimit"`
 }
 
 type ListenTLSConfig struct {
