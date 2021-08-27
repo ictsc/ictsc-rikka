@@ -6,7 +6,7 @@ from http import client
 
 
 def load_setting():
-    filename = "./setting.json"
+    filename = "./setting.prod.json"
     with open(filename, "r") as f:
         setting_json = f.read()
     return json.loads(setting_json)
@@ -17,7 +17,7 @@ def main():
 
     setting = load_setting()
 
-    rikka = Rikka(baseurl="http://localhost:8080/api")
+    rikka = Rikka(baseurl="https://contest.ictsc.net/api")
 
     print(f"\x1b[33m\n*** signin\x1b[0m")
     rikka.signin("ictsc", "")
