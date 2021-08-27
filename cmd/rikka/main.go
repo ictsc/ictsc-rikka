@@ -6,7 +6,9 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
 	"regexp"
+	"syscall"
 	"time"
 
 	"github.com/ictsc/ictsc-rikka/pkg/controller"
@@ -116,8 +118,8 @@ func initDatabase(c *MariaDBConfig) (*gorm.DB, error) {
 		return nil, err
 	}
 
-	sqlDB.SetMaxOpenConns(48)
-	sqlDB.SetMaxIdleConns(48)
+	sqlDB.SetMaxOpenConns(config.MariaDB.MaxConn)
+	sqlDB.SetMaxIdleConns(config.MariaDB.MaxConn)
 	sqlDB.SetConnMaxLifetime(10 * time.Minute)
 
 	return db, nil
@@ -200,17 +202,27 @@ func main() {
 		})
 	}
 
-	addr := fmt.Sprintf("%s:%d", config.Listen.Address, config.Listen.Port)
-	if config.Listen.TLS == nil {
-		// not serve tls
-		if err := r.Run(addr); err != nil {
-			log.Fatal(err.Error())
+	go func() {
+		addr := fmt.Sprintf("%s:%d", config.Listen.Address, config.Listen.Port)
+		if config.Listen.TLS == nil {
+			// not serve tls
+			if err := r.Run(addr); err != nil {
+				log.Fatal(err.Error())
+			}
+		} else {
+			// serve tls
+			if err := r.RunTLS(addr, config.Listen.TLS.CertFilePath, config.Listen.TLS.KeyFilePath); err != nil {
+				log.Fatal(err.Error())
+			}
 		}
-	} else {
-		// serve tls
-		if err := r.RunTLS(addr, config.Listen.TLS.CertFilePath, config.Listen.TLS.KeyFilePath); err != nil {
-			log.Fatal(err.Error())
-		}
-	}
+	}()
 
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGHUP, syscall.SIGTERM, syscall.SIGINT)
+
+	<-quit
+
+	fmt.Println("signal received, quitting...")
+	sqlDb, _ := db.DB()
+	sqlDb.Close()
 }
