@@ -169,6 +169,10 @@ func main() {
 		handler.NewProblemHandler(api, userRepo, problemController, answerController)
 		handler.NewAttachmentHandler(api, attachmentController, userRepo)
 		handler.NewRankingHandler(api, userRepo, rankingService)
+
+		api.GET("/ping", func(ctx *gin.Context) {
+			ctx.JSON(200, "")
+		})
 	}
 
 	addr := fmt.Sprintf("%s:%d", config.Listen.Address, config.Listen.Port)
