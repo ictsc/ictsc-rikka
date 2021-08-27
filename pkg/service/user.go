@@ -81,7 +81,7 @@ func (s *UserService) Update(userID uuid.UUID, displayName, twitterID, githubID,
 		return nil, err
 	}
 
-	selfIntroduction = strings.ReplaceAll(selfIntroduction, "\n", "")
+	selfIntroduction = strings.ReplaceAll(selfIntroduction, "\n", " ")
 
 	if userProfile == nil {
 		if _, err := s.userProfileRepo.Create(&entity.UserProfile{
