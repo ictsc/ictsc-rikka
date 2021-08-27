@@ -96,8 +96,7 @@ func (h *AnswerHandler) FindByProblemAndUserGroup(ctx *gin.Context) {
 		}
 		response.JSON(ctx, http.StatusOK, "", res, nil)
 	} else {
-		userGroupID := ctx.MustGet("group").(*entity.UserGroup).ID
-		res, err := h.answerController.FindByProblemAndUserGroup(group, probid, userGroupID)
+		res, err := h.answerController.FindByProblemAndUserGroup(group, probid)
 		if err != nil {
 			ctx.Error(error.NewInternalServerError(err))
 			return
