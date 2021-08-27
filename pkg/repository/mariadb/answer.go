@@ -68,7 +68,7 @@ func (r *AnswerRepository) FindByProblemAndUserGroup(problemid uuid.UUID, groupi
 }
 
 func (r *AnswerRepository) Update(answer *entity.Answer) (*entity.Answer, error) {
-	err := r.db.Save(answer).Error
+	err := r.db.Model(&entity.Answer{}).Where("id", answer.ID).Update("point", answer.Point).Error
 	if err != nil {
 		return nil, err
 	}

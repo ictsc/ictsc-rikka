@@ -148,7 +148,7 @@ func (s *AnswerService) Update(id uuid.UUID, req *UpdateAnswerRequest) (*entity.
 	if err != nil {
 		return nil, e.NewInternalServerError(err)
 	}
-	if ans == nil {
+	if problem == nil {
 		return nil, e.NewInternalServerError(fmt.Errorf("problem %s bound answer %s is not found", ans.ProblemID, ans.ID))
 	}
 
