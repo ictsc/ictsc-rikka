@@ -4,20 +4,30 @@ import logging
 import time
 from math import pow, sqrt
 
+import random, string
+
+def randomname(n):
+   randlst = [random.choice(string.ascii_letters + string.digits) for i in range(n)]
+   return ''.join(randlst)
 
 def main():
     logging.basicConfig(level=logging.DEBUG)
 
     rikka = Rikka(baseurl="https://contest.ictsc.net/api")
+    rikka2 = Rikka(baseurl="https://contest.ictsc.net/api")
 
     print(f"\x1b[33m\n*** signin\x1b[0m")
-    rikka.signin("ictsc", "2ht4BN9q6tjc")
+    rikka.signin("team91", "ictsc2021")
+    rikka2.signin("ictsc", "2ht4BN9q6tjc")
 
-    print(f"\x1b[33m\n*** get self\x1b[0m")
+    print(f"\x1b[33m\n*** send answer\x1b[0m")
     results = []
+    problem_id = "0060002b-8898-4035-bf3a-f313426cd013"
     for i in range(256):
         start = time.clock_gettime_ns(time.CLOCK_MONOTONIC)
-        rikka.self()
+        answer = rikka.send_answer(problem_id, randomname(1024)).json()
+        answer_id = answer["data"]["answer"]["id"]
+        rikka2.point(problem_id, answer_id, 100)
         end = time.clock_gettime_ns(time.CLOCK_MONOTONIC)
 
         req_ms = (end - start) / 1000000

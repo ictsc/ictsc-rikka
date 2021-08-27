@@ -19,6 +19,10 @@ class Rikka:
         url = self._get_url(endpoint)
         return requests.post(url, cookies=self._jar, **kwargs)
 
+    def _patch(self, endpoint, **kwargs):
+        url = self._get_url(endpoint)
+        return requests.patch(url, cookies=self._jar, **kwargs)
+
     def signin(self, username, password):
         resp = self._post("/auth/signin", json={
             "name": username,
@@ -44,4 +48,14 @@ class Rikka:
             "organization": organization,
             "invitation_code": invitation_code,
             "is_full_access": is_full_access,
+        })
+
+    def send_answer(self, problem_id, content):
+        return self._post("/problems/%s/answers" % problem_id, json={
+            "body": content
+        })
+
+    def point(self, problem_id, answer_id, point):
+        return self._patch("/problems/%s/answers/%s" % (problem_id, answer_id), json={
+            "point": point,
         })
