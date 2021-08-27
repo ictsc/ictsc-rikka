@@ -1,6 +1,8 @@
 package service
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
 	"github.com/ictsc/ictsc-rikka/pkg/repository"
@@ -8,8 +10,12 @@ import (
 )
 
 type ProblemService struct {
+	uncheckedNearOverdueThreshold time.Duration
+	uncheckedOverdueThreshold     time.Duration
+
 	userRepo    repository.UserRepository
 	problemRepo repository.ProblemRepository
+	answerRepo  repository.AnswerRepository
 }
 
 type CreateProblemRequest struct {
@@ -33,10 +39,14 @@ type UpdateProblemRequest struct {
 	SolvedCriterion   uint
 }
 
-func NewProblemService(userRepo repository.UserRepository, problemRepo repository.ProblemRepository) *ProblemService {
+func NewProblemService(answerLimit int, userRepo repository.UserRepository, problemRepo repository.ProblemRepository, answerRepo repository.AnswerRepository) *ProblemService {
 	return &ProblemService{
+		uncheckedNearOverdueThreshold: time.Duration(answerLimit*3/4) * time.Minute,
+		uncheckedOverdueThreshold:     time.Duration(answerLimit) * time.Minute,
+
 		userRepo:    userRepo,
 		problemRepo: problemRepo,
+		answerRepo:  answerRepo,
 	}
 }
 
@@ -70,6 +80,51 @@ func (s *ProblemService) Create(req *CreateProblemRequest) (*entity.Problem, err
 
 func (s *ProblemService) GetAll() ([]*entity.Problem, error) {
 	return s.problemRepo.GetAll()
+}
+
+func (s *ProblemService) GetAllWithAnswerInformation() ([]*entity.ProblemWithAnswerInformation, error) {
+	problems, err := s.problemRepo.GetAll()
+	if err != nil {
+		return nil, err
+	}
+
+	now := time.Now()
+	detailProblems := make([]*entity.ProblemWithAnswerInformation, 0, len(problems))
+	for _, problem := range problems {
+		answers, err := s.answerRepo.FindByProblem(problem.ID, nil)
+		if err != nil {
+			return nil, err
+		}
+
+		unchecked := 0
+		uncheckedNearOverdue := 0
+		uncheckedOverdue := 0
+		for _, answer := range answers {
+			if answer.Point != nil {
+				continue
+			}
+
+			unchecked += 1
+
+			if now.After(answer.CreatedAt.Add(s.uncheckedNearOverdueThreshold)) {
+				uncheckedNearOverdue += 1
+			}
+
+			if now.After(answer.CreatedAt.Add(s.uncheckedOverdueThreshold)) {
+				uncheckedOverdue += 1
+			}
+		}
+
+		detailProblems = append(detailProblems, &entity.ProblemWithAnswerInformation{
+			Problem: *problem,
+
+			Unchecked:            uint(unchecked),
+			UncheckedNearOverdue: uint(unchecked),
+			UncheckedOverdue:     uint(unchecked),
+		})
+	}
+
+	return detailProblems, nil
 }
 
 func (s *ProblemService) FindByID(id uuid.UUID) (*entity.Problem, error) {

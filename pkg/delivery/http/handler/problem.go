@@ -7,6 +7,7 @@ import (
 	"github.com/ictsc/ictsc-rikka/pkg/controller"
 	"github.com/ictsc/ictsc-rikka/pkg/delivery/http/middleware"
 	"github.com/ictsc/ictsc-rikka/pkg/delivery/http/response"
+	"github.com/ictsc/ictsc-rikka/pkg/entity"
 	"github.com/ictsc/ictsc-rikka/pkg/error"
 	"github.com/ictsc/ictsc-rikka/pkg/repository"
 )
@@ -88,15 +89,24 @@ func (h *ProblemHandler) Find(ctx *gin.Context) {
 }
 
 func (h *ProblemHandler) GetAll(ctx *gin.Context) {
+	group := ctx.MustGet("group").(*entity.UserGroup)
 	metadataOnly := ctx.Query("metadata_only") != ""
 
-	res, err := h.problemController.GetAll(metadataOnly)
-	if err != nil {
-		ctx.Error(error.NewInternalServerError(err))
-		return
+	if group.IsFullAccess {
+		res, err := h.problemController.GetAll(metadataOnly)
+		if err != nil {
+			ctx.Error(error.NewInternalServerError(err))
+			return
+		}
+		response.JSON(ctx, http.StatusOK, "", res, nil)
+	} else {
+		res, err := h.problemController.GetAllWithAnswerInformation(metadataOnly)
+		if err != nil {
+			ctx.Error(error.NewInternalServerError(err))
+			return
+		}
+		response.JSON(ctx, http.StatusOK, "", res, nil)
 	}
-
-	response.JSON(ctx, http.StatusOK, "", res, nil)
 }
 
 func (h *ProblemHandler) Delete(ctx *gin.Context) {

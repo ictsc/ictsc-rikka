@@ -113,6 +113,27 @@ func (c *ProblemController) GetAll(metadataOnly bool) (*GetAllProblemsResponse, 
 	}, nil
 }
 
+type GetAllProblemsWithAnswerInformationResponse struct {
+	Problems []*entity.ProblemWithAnswerInformation `json:"problems"`
+}
+
+func (c *ProblemController) GetAllWithAnswerInformation(metadataOnly bool) (*GetAllProblemsWithAnswerInformationResponse, error) {
+	probs, err := c.problemService.GetAllWithAnswerInformation()
+	if err != nil {
+		return nil, err
+	}
+
+	if metadataOnly {
+		for _, prob := range probs {
+			prob.Body = ""
+		}
+	}
+
+	return &GetAllProblemsWithAnswerInformationResponse{
+		Problems: probs,
+	}, nil
+}
+
 type UpdateProblemRequest struct {
 	AuthorID          uuid.UUID  `json:"author_id"`
 	Title             string     `json:"title"`
