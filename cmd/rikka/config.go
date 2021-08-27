@@ -57,6 +57,7 @@ type MariaDBConfig struct {
 	Password string `yaml:"password"`
 	Address  string `yaml:"address"`
 	Port     int    `yaml:"port"`
+	MaxConn  int    `yaml:"maxConn"`
 	Database string `yaml:"database"`
 }
 
