@@ -14,6 +14,7 @@ type Config struct {
 	Redis   RedisConfig     `yaml:"redis"`
 	Minio   MinioConfig     `yaml:"minio"`
 	Seed    seed.SeedConfig `yaml:"seed"`
+	Sentry  SentryConfig    `yaml:"sentry"`
 }
 
 type ContestConfig struct {
@@ -67,4 +68,10 @@ func (c *MariaDBConfig) getDSN() string {
 		c.Port,
 		c.Database,
 	)
+}
+
+type SentryConfig struct {
+	Dsn              string  `yaml:"dsn"`
+	Environment      string  `yaml:"environment"`
+	TracesSampleRate float64 `yaml:"sampleRate"`
 }

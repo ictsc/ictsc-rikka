@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"regexp"
 	"time"
 
 	"github.com/ictsc/ictsc-rikka/pkg/controller"
@@ -30,6 +31,9 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
+
+	"github.com/getsentry/sentry-go"
+	sentrygin "github.com/getsentry/sentry-go/gin"
 )
 
 var (
@@ -142,6 +146,14 @@ func main() {
 
 	errorMiddleware := middleware.NewErrorMiddleware()
 	prometheus := ginprometheus.NewPrometheus("gin")
+	if err := sentry.Init(sentry.ClientOptions{
+		Debug:            true,
+		Dsn:              config.Sentry.Dsn,
+		Environment:      config.Sentry.Environment,
+		TracesSampleRate: config.Sentry.TracesSampleRate,
+	}); err != nil {
+		log.Fatal(err.Error())
+	}
 
 	seed.Seed(&config.Seed, userRepo, userGroupRepo, *userService, *userGroupService)
 
@@ -155,6 +167,19 @@ func main() {
 	corsConfig := cors.DefaultConfig()
 	corsConfig.AllowOrigins = origins
 	corsConfig.AllowCredentials = true
+
+	r.Use(func(ctx *gin.Context) {
+		rex := regexp.MustCompile("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")
+		uri := rex.ReplaceAllString(ctx.Request.RequestURI, "...")
+		span := sentry.StartSpan(ctx.Request.Context(), "handleRequest",
+			sentry.TransactionName(fmt.Sprintf("handleRequest: %s %s", ctx.Request.Method, uri)))
+		ctx.Next()
+		span.Finish()
+	})
+
+	r.Use(sentrygin.New(sentrygin.Options{
+		Repanic: true,
+	}))
 	r.Use(cors.New(corsConfig))
 	r.Use(sessions.Sessions("session", store))
 
