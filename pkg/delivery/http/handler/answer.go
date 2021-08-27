@@ -43,9 +43,9 @@ func (h *AnswerHandler) Create(ctx *gin.Context) {
 		return
 	}
 
-	groupuuid := ctx.MustGet("group").(*entity.UserGroup).ID
+	group := ctx.MustGet("group").(*entity.UserGroup)
 	problem_id := ctx.Param("id")
-	res, err := h.answerController.Create(problem_id, groupuuid, req)
+	res, err := h.answerController.Create(group, problem_id, req)
 	if err != nil {
 		ctx.Error(error.NewInternalServerError(err))
 		return
@@ -72,9 +72,10 @@ func (h *AnswerHandler) Update(ctx *gin.Context) {
 }
 
 func (h *AnswerHandler) FindByID(ctx *gin.Context) {
+	group := ctx.MustGet("group").(*entity.UserGroup)
 	id := ctx.Param("answer_id")
 
-	res, err := h.answerController.FindByID(id)
+	res, err := h.answerController.FindByID(group, id)
 	if err != nil {
 		ctx.Error(error.NewInternalServerError(err))
 		return
@@ -84,13 +85,11 @@ func (h *AnswerHandler) FindByID(ctx *gin.Context) {
 }
 
 func (h *AnswerHandler) FindByProblemAndUserGroup(ctx *gin.Context) {
+	group := ctx.MustGet("group").(*entity.UserGroup)
 	probid := ctx.Param("id")
 
-	is_full_access := ctx.MustGet("is_full_access").(bool)
-
-	if is_full_access {
-		userGroupID := ctx.Param("user_group_id")
-		res, err := h.answerController.FindByProblem(probid, userGroupID)
+	if group.IsFullAccess {
+		res, err := h.answerController.FindByProblem(group, probid, nil)
 		if err != nil {
 			ctx.Error(error.NewInternalServerError(err))
 			return
@@ -98,7 +97,7 @@ func (h *AnswerHandler) FindByProblemAndUserGroup(ctx *gin.Context) {
 		response.JSON(ctx, http.StatusOK, "", res, nil)
 	} else {
 		userGroupID := ctx.MustGet("group").(*entity.UserGroup).ID
-		res, err := h.answerController.FindByProblemAndUserGroup(probid, userGroupID)
+		res, err := h.answerController.FindByProblemAndUserGroup(group, probid, userGroupID)
 		if err != nil {
 			ctx.Error(error.NewInternalServerError(err))
 			return
