@@ -25,6 +25,7 @@ import (
 	"github.com/ictsc/ictsc-rikka/pkg/seed"
 	"github.com/ictsc/ictsc-rikka/pkg/service"
 	"github.com/pkg/errors"
+	ginprometheus "github.com/zsais/go-gin-prometheus"
 	"gopkg.in/yaml.v3"
 
 	"github.com/gin-contrib/cors"
@@ -140,6 +141,7 @@ func main() {
 	attachmentController := controller.NewAttachmentController(attachmentService)
 
 	errorMiddleware := middleware.NewErrorMiddleware()
+	prometheus := ginprometheus.NewPrometheus("gin")
 
 	seed.Seed(&config.Seed, userRepo, userGroupRepo, *userService, *userGroupService)
 
@@ -155,6 +157,8 @@ func main() {
 	corsConfig.AllowCredentials = true
 	r.Use(cors.New(corsConfig))
 	r.Use(sessions.Sessions("session", store))
+
+	prometheus.Use(r)
 
 	api := r.Group("/api")
 	api.Use(errorMiddleware.HandleError)
