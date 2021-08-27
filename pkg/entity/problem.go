@@ -1,9 +1,10 @@
 package entity
 
 import (
+	"regexp"
+
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
-	"regexp"
 )
 
 type Problem struct {
@@ -32,4 +33,12 @@ func (p *Problem) Validate() error {
 	}
 
 	return nil
+}
+
+type ProblemWithAnswerInformation struct {
+	Problem
+
+	Unchecked            uint `json:"unchecked"`
+	UncheckedNearOverdue uint `json:"unchecked_near_overdue"`
+	UncheckedOverdue     uint `json:"unchecked_overdue"`
 }

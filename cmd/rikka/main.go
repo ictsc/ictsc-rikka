@@ -131,7 +131,7 @@ func main() {
 	authService := service.NewAuthService(userRepo)
 	userService := service.NewUserService(userRepo, userProfileRepo, userGroupRepo)
 	userGroupService := service.NewUserGroupService(userGroupRepo)
-	problemService := service.NewProblemService(userRepo, problemRepo)
+	problemService := service.NewProblemService(config.Contest.AnswerLimit, userRepo, problemRepo, answerRepo)
 	answerService := service.NewAnswerService(config.Contest.AnswerLimit, userRepo, answerRepo, problemRepo)
 	attachmentService := service.NewAttachmentService(attachmentRepo, s3Repo)
 	rankingService := service.NewRankingService(config.Contest.AnswerLimit, userGroupRepo, answerRepo)
