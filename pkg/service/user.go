@@ -25,7 +25,7 @@ func NewUserService(userRepo repository.UserRepository, userProfileRepo reposito
 }
 
 func (s *UserService) validateUserName(name string) bool {
-	matched, err := regexp.MatchString("[A-Za-z0-9_]{1,32}", name)
+	matched, err := regexp.MatchString("[A-Za-z0-9_]{3,32}", name)
 	return err == nil && matched
 }
 
