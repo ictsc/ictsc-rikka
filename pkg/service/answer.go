@@ -3,6 +3,11 @@ package service
 import (
 	"fmt"
 	"time"
+	"net/http"
+	"bytes"
+	"io"
+	"encoding/json"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
@@ -13,6 +18,7 @@ import (
 
 type AnswerService struct {
 	answerLimit time.Duration
+	webhook     string
 	userRepo    repository.UserRepository
 	answerRepo  repository.AnswerRepository
 	problemRepo repository.ProblemRepository
@@ -28,9 +34,10 @@ type UpdateAnswerRequest struct {
 	Point uint
 }
 
-func NewAnswerService(answerLimit int, userRepo repository.UserRepository, answerRepo repository.AnswerRepository, problemRepo repository.ProblemRepository) *AnswerService {
+func NewAnswerService(answerLimit int, webhook string, userRepo repository.UserRepository, answerRepo repository.AnswerRepository, problemRepo repository.ProblemRepository) *AnswerService {
 	return &AnswerService{
 		answerLimit: time.Duration(answerLimit) * time.Minute,
+		webhook:     webhook,
 		userRepo:    userRepo,
 		answerRepo:  answerRepo,
 		problemRepo: problemRepo,
@@ -67,6 +74,27 @@ func (s *AnswerService) Create(req *CreateAnswerRequest) (*entity.Answer, error)
 	}
 	if problem == nil {
 		return nil, errors.New("problem id is invalid")
+	}
+
+	//TODO: クリーンアーキテクチャ的にここでするべきではないので後でプレゼンターにする
+	{
+
+		param := struct {
+			Text string `json:"text"`
+			Channel string `json:"channel"`
+		}{
+			Text: "<https://contest.ictsc.net/#/problems/"+ req.ProblemID.String() + "|新着解答> 問題名:" + problem.Title + " チーム名:" + req.UserGroup.Name + "",
+			Channel: "#prob-" + strings.ToLower(problem.Code),
+		}
+		json_str, err := json.Marshal(param)
+		if err != nil { fmt.Println(err.Error()) }
+		fmt.Println(string(json_str))
+		resp, err := http.Post(s.webhook,"application/json",bytes.NewBuffer(json_str))
+		if err != nil { fmt.Println(err.Error()) }
+		body, err := io.ReadAll(resp.Body)
+		if err != nil { fmt.Println(err.Error()) }
+		fmt.Println(string(body))
+		resp.Body.Close()
 	}
 
 	return s.answerRepo.Create(ans)
