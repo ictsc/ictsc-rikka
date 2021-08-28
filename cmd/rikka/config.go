@@ -10,6 +10,7 @@ type Config struct {
 	Contest ContestConfig   `yaml:"contest"`
 	Listen  ListenConfig    `yaml:"listen"`
 	CORS    CORSConfig      `yaml:"cors"`
+	Notify  NotifyConfig    `yaml:notify`
 	MariaDB MariaDBConfig   `yaml:"mariadb"`
 	Redis   RedisConfig     `yaml:"redis"`
 	Minio   MinioConfig     `yaml:"minio"`
@@ -30,6 +31,10 @@ type ListenConfig struct {
 	Address string           `yaml:"address"`
 	Port    int              `yaml:"port"`
 	TLS     *ListenTLSConfig `yaml:"tls"`
+}
+
+type NotifyConfig struct {
+	Answer string `yaml:"answer"`
 }
 
 type CORSConfig struct {
