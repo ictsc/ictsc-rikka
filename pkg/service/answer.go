@@ -83,7 +83,7 @@ func (s *AnswerService) Create(req *CreateAnswerRequest) (*entity.Answer, error)
 			Text string `json:"text"`
 			Channel string `json:"channel"`
 		}{
-			Text: "<https://contest.ictsc.net/#/problems/"+ req.ProblemID.String() + "|新着解答> 問題名:" + problem.Title + " チーム名:" + req.UserGroup.Name + "",
+			Text: "<https://contest.mgmt.ictsc.net/#/problems/"+ req.ProblemID.String() + "|新着解答> 問題名:" + problem.Title + " チーム名:" + req.UserGroup.Name + "",
 			Channel: "#prob-" + strings.ToLower(problem.Code),
 		}
 		json_str, err := json.Marshal(param)
