@@ -82,6 +82,10 @@ func init() {
 		config.Redis.Password,
 		[]byte(config.Redis.KeyPair),
 	)
+        if err != nil {
+                f.Close()
+                log.Fatalf(errors.Wrapf(err, "Failed to open redis connection.").Error())
+        }
 	store.Options(sessions.Options{
 		MaxAge:   43200,
 		Path:     "/",
@@ -89,10 +93,6 @@ func init() {
 		HttpOnly: true,
 		SameSite: http.SameSiteNoneMode,
 	})
-	if err != nil {
-		f.Close()
-		log.Fatalf(errors.Wrapf(err, "Failed to open redis connection.").Error())
-	}
 	minioClient, err = minio.New(config.Minio.Endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(config.Minio.AccessKeyID, config.Minio.SecretAccessKey, ""),
 		Secure: config.Minio.UseSSL,
