@@ -22,7 +22,7 @@ type Problem struct {
 }
 
 func (p *Problem) Validate() error {
-	if matches, err := regexp.Match("[A-Z]{3}", []byte(p.Code)); err != nil {
+	if matches, err := regexp.Match("[a-zA-Z]{3}", []byte(p.Code)); err != nil {
 		return err
 	} else if !matches {
 		return errors.New("code must match the pattern [A-Z]{3}")
