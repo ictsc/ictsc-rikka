@@ -1,0 +1,8 @@
+### 開発用コンテナ ###
+FROM golang:1.16
+
+WORKDIR /go/src/ictsc-rikka
+
+RUN curl -sSfL https://raw.githubusercontent.com/cosmtrek/air/master/install.sh | sh -s -- -b $(go env GOPATH)/bin
+
+COPY . .
