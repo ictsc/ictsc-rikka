@@ -1,6 +1,17 @@
 version: "3"
 
 services:
+  rikka:
+    build:
+      context: .
+      dockerfile: Dockerfile.local
+    working_dir: /go/src/ictsc-rikka
+    command: air -c .air.toml
+    ports:
+      - 8080:8080
+    volumes:
+      - .:/go/src/ictsc-rikka:cached
+      - .local/pkg:/go/pkg:cached
   mariadb:
     image: mariadb:10.5.10
     ports:
