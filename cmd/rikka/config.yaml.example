@@ -1,9 +1,9 @@
 listen:
   address: 0.0.0.0
   port: 8080
-  cors:
+cors:
   origins:
-    - http://localhost:4040
+    - http://localhost:3000s
 notify:
   answer: https://hooks.slack.com/services/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
 # use TLS.
