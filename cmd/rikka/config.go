@@ -10,6 +10,7 @@ type Config struct {
 	Contest ContestConfig   `yaml:"contest"`
 	Listen  ListenConfig    `yaml:"listen"`
 	CORS    CORSConfig      `yaml:"cors"`
+	Store   StoreConfig     `yaml:"store"`
 	Notify  NotifyConfig    `yaml:notify`
 	MariaDB MariaDBConfig   `yaml:"mariadb"`
 	Redis   RedisConfig     `yaml:"redis"`
@@ -39,6 +40,10 @@ type NotifyConfig struct {
 
 type CORSConfig struct {
 	Origins []string `yaml:"origins"`
+}
+
+type StoreConfig struct {
+	Secure bool `yaml:"secure"`
 }
 
 type RedisConfig struct {

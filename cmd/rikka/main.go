@@ -82,14 +82,14 @@ func init() {
 		config.Redis.Password,
 		[]byte(config.Redis.KeyPair),
 	)
-        if err != nil {
-                f.Close()
-                log.Fatalf(errors.Wrapf(err, "Failed to open redis connection.").Error())
-        }
+	if err != nil {
+		f.Close()
+		log.Fatalf(errors.Wrapf(err, "Failed to open redis connection.").Error())
+	}
 	store.Options(sessions.Options{
 		MaxAge:   43200,
 		Path:     "/",
-		Secure:   true,
+		Secure:   config.Store.Secure,
 		HttpOnly: true,
 		SameSite: http.SameSiteNoneMode,
 	})
