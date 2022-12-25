@@ -22,10 +22,22 @@ cmd/rikka/config.yaml
 cmd/rikka/config.docker.yaml
 ```
 
+### Docker での開発
+
+#### 初回
+
+docker を起動しデータベースを初期化します
+
+```
+make up
+make mariadb-reset-db
+```
+
 ### docker-compose.yml
 
 | service | image           | 用途         | 永続化                 |
 | ------- | --------------- | ------------ | ---------------------- |
+| rikka | golang:1.16 |   API       | なし                     |
 | mariadb | mariadb:10.5.10 | データベース | mariadb:/var/lib/mysql |
 | redis   | redis:6.2.4     | session 用   | なし                   |
 | go      | golang:1.16     | 開発時実行用 | go-pkg:/go/pkg         |
@@ -38,16 +50,16 @@ cmd/rikka/config.docker.yaml
 # ローカルでgo run実行
 make run
 
-# docker composeでgo run実行
+# docker composeでgo run実行（非推奨）
 make run-docker
 
 # docker compose ps
 make ps
 
-# mariadb, redisを起動
+# api, mariadb, redisを起動
 make up
 
-# mariadb, redis, goのコンテナとネットワークを削除
+# api, mariadb, redis, goのコンテナとネットワークを削除
 make down
 
 # mariadbにmysqlコマンドでログイン
