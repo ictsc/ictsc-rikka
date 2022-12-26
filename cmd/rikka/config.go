@@ -43,7 +43,8 @@ type CORSConfig struct {
 }
 
 type StoreConfig struct {
-	Secure bool `yaml:"secure"`
+	Secure             bool `yaml:"secure"`
+	SameSiteStrictMode bool `yaml:"sameSiteStrictMode"`
 }
 
 type RedisConfig struct {

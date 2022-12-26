@@ -86,12 +86,20 @@ func init() {
 		f.Close()
 		log.Fatalf(errors.Wrapf(err, "Failed to open redis connection.").Error())
 	}
+
+	var sameSiteMode http.SameSite
+	if config.Store.SameSiteStrictMode {
+		sameSiteMode = http.SameSiteStrictMode
+	} else {
+		sameSiteMode = http.SameSiteDefaultMode
+	}
+
 	store.Options(sessions.Options{
 		MaxAge:   43200,
 		Path:     "/",
 		Secure:   config.Store.Secure,
 		HttpOnly: true,
-		SameSite: http.SameSiteNoneMode,
+		SameSite: sameSiteMode,
 	})
 	minioClient, err = minio.New(config.Minio.Endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(config.Minio.AccessKeyID, config.Minio.SecretAccessKey, ""),
