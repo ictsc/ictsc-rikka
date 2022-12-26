@@ -1,5 +1,6 @@
 from ictsc2021 import Rikka
 
+import sys
 import logging
 from http import client
 
@@ -8,7 +9,9 @@ def main():
     client.HTTPConnection.debuglevel = 1
     logging.basicConfig(level=logging.DEBUG)
 
-    rikka = Rikka(baseurl="https://ss.ictsc.net/api")
+    baseurl = sys.argv[0]
+
+    rikka = Rikka(baseurl="http://localhost:8080/api")
 
     ugn = input("user_group_name: ")
     ugo = input("user_group_organization: ")
