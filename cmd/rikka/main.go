@@ -88,10 +88,13 @@ func init() {
 	}
 
 	var sameSiteMode http.SameSite
+	domain := ""
+	fmt.Println(config.Store.SameSiteStrictMode)
 	if config.Store.SameSiteStrictMode {
 		sameSiteMode = http.SameSiteStrictMode
 	} else {
 		sameSiteMode = http.SameSiteDefaultMode
+		domain = config.Store.Domain
 	}
 
 	store.Options(sessions.Options{
@@ -100,6 +103,7 @@ func init() {
 		Secure:   config.Store.Secure,
 		HttpOnly: true,
 		SameSite: sameSiteMode,
+		Domain:   domain,
 	})
 	minioClient, err = minio.New(config.Minio.Endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(config.Minio.AccessKeyID, config.Minio.SecretAccessKey, ""),
