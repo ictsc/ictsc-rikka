@@ -87,14 +87,14 @@ func init() {
 		log.Fatalf(errors.Wrapf(err, "Failed to open redis connection.").Error())
 	}
 
-	var sameSiteMode http.SameSite
-	domain := ""
-	fmt.Println(config.Store.SameSiteStrictMode)
-	if config.Store.SameSiteStrictMode {
+	sameSiteMode := http.SameSiteDefaultMode
+	switch config.Store.SameSiteStrictMode {
+	case "lax":
+		sameSiteMode = http.SameSiteLaxMode
+	case "strict":
 		sameSiteMode = http.SameSiteStrictMode
-	} else {
-		sameSiteMode = http.SameSiteDefaultMode
-		domain = config.Store.Domain
+	case "none":
+		sameSiteMode = http.SameSiteNoneMode
 	}
 
 	store.Options(sessions.Options{
@@ -103,7 +103,7 @@ func init() {
 		Secure:   config.Store.Secure,
 		HttpOnly: true,
 		SameSite: sameSiteMode,
-		Domain:   domain,
+		Domain:   config.Store.Domain,
 	})
 	minioClient, err = minio.New(config.Minio.Endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(config.Minio.AccessKeyID, config.Minio.SecretAccessKey, ""),

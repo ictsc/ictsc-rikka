@@ -11,8 +11,13 @@ cors:
 ## Cookie Secure Flag
 store:
   secure: false
-  sameSiteStrictMode: false
-  domain: localhost
+  ## bool
+  ## If lax, Lax
+  ## If strict, Strict
+  ## If none, None
+  ## If empty, not set
+  sameSiteStrictMode:
+  domain:
 notify:
   answer: https://hooks.slack.com/services/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
 mariadb:
