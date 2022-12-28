@@ -12,6 +12,7 @@ cors:
 store:
   secure: false
   sameSiteStrictMode: false
+  domain: localhost
 notify:
   answer: https://hooks.slack.com/services/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
 mariadb:
