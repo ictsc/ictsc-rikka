@@ -44,7 +44,7 @@ type CORSConfig struct {
 
 type StoreConfig struct {
 	Secure             bool   `yaml:"secure"`
-	SameSiteStrictMode bool   `yaml:"sameSiteStrictMode"`
+	SameSiteStrictMode string `yaml:"sameSiteStrictMode"`
 	Domain             string `yaml:"domain"`
 }
 
