@@ -1,5 +1,5 @@
 ### ビルド用コンテナ ###
-FROM golang:1.16 AS builder
+FROM golang:1.19 AS builder
 
 WORKDIR /go/src/ictsc-rikka/
 
