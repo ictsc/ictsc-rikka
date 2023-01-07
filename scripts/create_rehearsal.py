@@ -8,10 +8,10 @@ def main():
     client.HTTPConnection.debuglevel = 1
     logging.basicConfig(level=logging.DEBUG)
 
-    rikka = Rikka(baseurl="https://ss.ictsc.net/api")
+    rikka = Rikka(baseurl="http://localhost:8080/api")
 
     print(f"\x1b[33m\n*** signin\x1b[0m")
-    rikka.signin("ictsc", "")
+    rikka.signin("admin", "")
 
     print(f"\x1b[33m\n*** Create user group\x1b[0m")
     resp = rikka.create_usergroup("team90", "team90", "ictsc2021team90hotstage", False)
