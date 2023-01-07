@@ -19,7 +19,7 @@ store:
   sameSiteStrictMode:
   domain:
 notify:
-  answer: https://hooks.slack.com/services/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
+  answer: http://localhost:8080
 ## answerLimit (value * time.Minute)
 contest:
   answerLimit: 20
