@@ -1,15 +1,12 @@
 package handler
 
 import (
-	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/ictsc/ictsc-rikka/pkg/controller"
 	"github.com/ictsc/ictsc-rikka/pkg/delivery/http/middleware"
 	"github.com/ictsc/ictsc-rikka/pkg/delivery/http/response"
-	"github.com/ictsc/ictsc-rikka/pkg/entity"
-	"github.com/ictsc/ictsc-rikka/pkg/error"
 	"github.com/ictsc/ictsc-rikka/pkg/repository"
 	"github.com/ictsc/ictsc-rikka/pkg/service"
 )
@@ -26,44 +23,15 @@ func NewRankingHandler(r *gin.RouterGroup, userRepo repository.UserRepository, r
 	route := r.Group("/ranking")
 	{
 		authed := route.Group("")
-		privileged := route.Group("")
 
 		authed.Use(middleware.Auth(userRepo))
-		privileged.Use(middleware.AuthIsFullAccess(userRepo))
 
-		privileged.GET("", handler.GetRanking)
-		authed.GET("/top", handler.GetTopRanking)
-		authed.GET("/near-me", handler.GetNearMeRanking)
+		authed.GET("", handler.GetRanking)
 	}
 }
 
 func (h *RankingHandler) GetRanking(ctx *gin.Context) {
 	ranking, err := h.rankingController.GetRanking()
-	if err != nil {
-		ctx.Error(err)
-		return
-	}
-
-	response.JSON(ctx, http.StatusOK, "", ranking, nil)
-}
-
-func (h *RankingHandler) GetTopRanking(ctx *gin.Context) {
-	ranking, err := h.rankingController.GetTopRanking()
-	if err != nil {
-		ctx.Error(err)
-		return
-	}
-
-	response.JSON(ctx, http.StatusOK, "", ranking, nil)
-}
-
-func (h *RankingHandler) GetNearMeRanking(ctx *gin.Context) {
-	user, ok := ctx.MustGet("user").(*entity.User)
-	if !ok {
-		ctx.Error(error.NewInternalServerError(errors.New("user couldn't get")))
-	}
-
-	ranking, err := h.rankingController.GetNearMeRanking(user)
 	if err != nil {
 		ctx.Error(err)
 		return

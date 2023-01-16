@@ -48,21 +48,3 @@ func (c *RankingController) GetRanking() (*Ranking, error) {
 
 	return c.entity2response(ranking), nil
 }
-
-func (c *RankingController) GetTopRanking() (*Ranking, error) {
-	ranking, err := c.rankingService.GetTopRanking()
-	if err != nil {
-		return nil, err
-	}
-
-	return c.entity2response(ranking), nil
-}
-
-func (c *RankingController) GetNearMeRanking(user *entity.User) (*Ranking, error) {
-	ranking, err := c.rankingService.GetNearMeRanking(user)
-	if err != nil {
-		return nil, err
-	}
-
-	return c.entity2response(ranking), nil
-}
