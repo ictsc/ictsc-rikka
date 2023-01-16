@@ -163,7 +163,7 @@ func (s *GrowiProblemSync) Sync(ctx context.Context) error {
 					Code:              matter.Code,
 					AuthorID:          uuid.MustParse(matter.AuthorId),
 					Title:             matter.Title,
-					Body:              string(body),
+					Body:              problemPage.Revision.Body,
 					Point:             matter.Point,
 					PreviousProblemID: nil,
 					SolvedCriterion:   matter.SolvedCriterion,
