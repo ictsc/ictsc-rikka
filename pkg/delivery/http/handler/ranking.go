@@ -39,3 +39,13 @@ func (h *RankingHandler) GetRanking(ctx *gin.Context) {
 
 	response.JSON(ctx, http.StatusOK, "", ranking, nil)
 }
+
+func (h *RankingHandler) GetTopRanking(ctx *gin.Context) {
+	ranking, err := h.rankingController.GetTopRanking()
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	response.JSON(ctx, http.StatusOK, "", ranking, nil)
+}

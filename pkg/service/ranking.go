@@ -182,3 +182,20 @@ func (s *RankingService) GetRanking() ([]*Rank, error) {
 
 	return s.table2slice(rankTable), nil
 }
+
+func (s *RankingService) GetTopRanking() ([]*Rank, error) {
+	rankTable, err := s.getRanking(false)
+	if err != nil {
+		return nil, err
+	}
+
+	ranks := s.table2slice(rankTable)
+
+	for i := range ranks {
+		if ranks[i].Rank > 5 {
+			return ranks[:i-1], nil
+		}
+	}
+
+	return ranks, nil
+}
