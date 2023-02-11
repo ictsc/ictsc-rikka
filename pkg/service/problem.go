@@ -78,8 +78,68 @@ func (s *ProblemService) Create(req *CreateProblemRequest) (*entity.Problem, err
 	return s.problemRepo.Create(prob)
 }
 
+func (s *ProblemService) GetCurrentPointAnswer(problem *entity.Problem, group *entity.UserGroup) (*entity.Answer, error) {
+	var currentAnswer *entity.Answer
+	answers, err := s.answerRepo.FindByProblemAndUserGroup(problem.ID, group.ID)
+	if err != nil {
+		return nil, err
+	}
+	// まだユーザに点数が公開されていない回答を除外する
+	now := time.Now()
+	var CurrentPoint uint = 0
+	for _, answer := range answers {
+		// 20分制約によって回答が見れていない場合
+		if !group.IsFullAccess && !now.After(answer.CreatedAt.Add(s.uncheckedOverdueThreshold)) {
+			continue
+		}
+
+		// 採点がされていない
+		if answer.Point == nil {
+			continue
+		}
+
+		var gotAt time.Time
+		if currentAnswer != nil {
+			gotAt = currentAnswer.CreatedAt
+		}
+
+		//一番最新で一番高い得点かつ一番最新のanswerを出す
+		if CurrentPoint < *answer.Point || (CurrentPoint == *answer.Point && answer.CreatedAt.Before(gotAt)) {
+			currentAnswer = answer
+		}
+	}
+	if currentAnswer == nil {
+		return nil, errors.New("No answer yet")
+	}
+	return currentAnswer, nil
+}
+
+func (s *ProblemService) GetCurrentPoint(problem *entity.Problem, group *entity.UserGroup) uint {
+	if answer, err := s.GetCurrentPointAnswer(problem, group); err == nil {
+		return *answer.Point
+	}
+	return 0
+}
+
 func (s *ProblemService) GetAll() ([]*entity.Problem, error) {
 	return s.problemRepo.GetAll()
+}
+
+func (s *ProblemService) GetAllWithCurrentPoint(group *entity.UserGroup) ([]*entity.ProblemWithCurrentPoint, error) {
+	problems, err := s.problemRepo.GetAll()
+	if err != nil {
+		return nil, err
+	}
+	detailProblems := make([]*entity.ProblemWithCurrentPoint, 0, len(problems))
+	for _, problem := range problems {
+		CurrentPoint := s.GetCurrentPoint(problem, group)
+		detailProblems = append(detailProblems, &entity.ProblemWithCurrentPoint{
+			Problem:      *problem,
+			CurrentPoint: CurrentPoint,
+			IsSolved:     CurrentPoint >= problem.SolvedCriterion,
+		})
+	}
+	return detailProblems, nil
 }
 
 func (s *ProblemService) GetAllWithAnswerInformation() ([]*entity.ProblemWithAnswerInformation, error) {
