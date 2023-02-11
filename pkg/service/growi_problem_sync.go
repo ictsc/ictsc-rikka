@@ -145,7 +145,7 @@ func (s *GrowiProblemSync) Sync(ctx context.Context) error {
 				log.Fatalf(errors.Wrapf(err, "Failed to get page").Error())
 			}
 
-			var matter = &entity.Matter{}
+			var matter = &entity.FrontMatter{}
 
 			// frontmatter
 			// TODO(k-shir0): フォーマットもチェックする
