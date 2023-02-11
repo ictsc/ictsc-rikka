@@ -1,13 +1,11 @@
 package service
 
 import (
-	"errors"
 	"sort"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
-	e "github.com/ictsc/ictsc-rikka/pkg/error"
 	"github.com/ictsc/ictsc-rikka/pkg/repository"
 )
 
@@ -200,31 +198,4 @@ func (s *RankingService) GetTopRanking() ([]*Rank, error) {
 	}
 
 	return ranks, nil
-}
-
-func (s *RankingService) GetNearMeRanking(user *entity.User) ([]*Rank, error) {
-	rankTable, err := s.getRanking(false)
-	if err != nil {
-		return nil, err
-	}
-
-	ranks := s.table2slice(rankTable)
-
-	cRank, ok := rankTable[user.UserGroupID]
-	if !ok {
-		return nil, e.NewInternalServerError(errors.New("user group not found"))
-	}
-
-	min := cRank.Rank - 1
-	max := cRank.Rank + 1
-
-	pos := 0
-	for _, rank := range ranks {
-		if min <= rank.Rank && rank.Rank <= max {
-			ranks[pos] = rank
-			pos++
-		}
-	}
-
-	return ranks[:pos], nil
 }
