@@ -7,15 +7,15 @@ import (
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
 )
 
-type ProblemWithInfoRepository struct {
+type ProblemWithSyncTimeRepository struct {
 	rc *redis.Client
 }
 
-func NewProblemWithInfoRepository(rc *redis.Client) *ProblemWithInfoRepository {
-	return &ProblemWithInfoRepository{rc: rc}
+func NewProblemWithSyncTimeRepository(rc *redis.Client) *ProblemWithSyncTimeRepository {
+	return &ProblemWithSyncTimeRepository{rc: rc}
 }
 
-func (r *ProblemWithInfoRepository) Set(ctx context.Context, path string, problemWithInfo entity.ProblemWithInfo) error {
+func (r *ProblemWithSyncTimeRepository) Set(ctx context.Context, path string, problemWithInfo entity.ProblemWithSyncTime) error {
 	jsonBytes, err := json.Marshal(problemWithInfo)
 	if err != nil {
 		return err
@@ -25,13 +25,13 @@ func (r *ProblemWithInfoRepository) Set(ctx context.Context, path string, proble
 	return err
 }
 
-func (r *ProblemWithInfoRepository) Get(ctx context.Context, path string) (*entity.ProblemWithInfo, error) {
+func (r *ProblemWithSyncTimeRepository) Get(ctx context.Context, path string) (*entity.ProblemWithSyncTime, error) {
 	problemWithInfo, err := r.rc.Get(ctx, path).Result()
 	if err != nil {
 		return nil, err
 	}
 
-	problemWithInfoEntity := entity.ProblemWithInfo{}
+	problemWithInfoEntity := entity.ProblemWithSyncTime{}
 	err = json.Unmarshal([]byte(problemWithInfo), &problemWithInfoEntity)
 
 	return &problemWithInfoEntity, err

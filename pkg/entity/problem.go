@@ -2,6 +2,7 @@ package entity
 
 import (
 	"regexp"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
@@ -41,4 +42,9 @@ type ProblemWithAnswerInformation struct {
 	Unchecked            uint `json:"unchecked"`
 	UncheckedNearOverdue uint `json:"unchecked_near_overdue"`
 	UncheckedOverdue     uint `json:"unchecked_overdue"`
+}
+
+type ProblemWithSyncTime struct {
+	Problem
+	UpdatedAt time.Time
 }

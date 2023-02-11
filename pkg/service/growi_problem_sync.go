@@ -26,7 +26,7 @@ type GrowiProblemSync struct {
 	password                     string
 	token                        string
 	growiSessionCookieRepository repository.GrowiSessionCookieRepository
-	problemWithInfoRepository    repository.ProblemWithInfoRepository
+	problemWithInfoRepository    repository.ProblemWithSyncTimeRepository
 	pageRepository               repository.PageRepository
 	subordinatedPageRepository   repository.SubordinatedPageRepository
 	problemRepository            repository.ProblemRepository
@@ -40,7 +40,7 @@ func NewGrowiProblemSyncService(
 	password string,
 	token string,
 	growiSessionCookieRepository repository.GrowiSessionCookieRepository,
-	problemWithInfoRepository repository.ProblemWithInfoRepository,
+	problemWithInfoRepository repository.ProblemWithSyncTimeRepository,
 	pageRepository repository.PageRepository,
 	subordinatedPageRepository repository.SubordinatedPageRepository,
 	problemRepository repository.ProblemRepository,
@@ -158,7 +158,7 @@ func (s *GrowiProblemSync) Sync(ctx context.Context) error {
 			fmt.Println(string(body))
 
 			// ここから先最終更新日と問題内容をキャッシュしておく
-			newProblemWithInfo := &entity.ProblemWithInfo{
+			newProblemWithInfo := &entity.ProblemWithSyncTime{
 				Problem: entity.Problem{
 					Code:              matter.Code,
 					AuthorID:          uuid.MustParse(matter.AuthorId),
