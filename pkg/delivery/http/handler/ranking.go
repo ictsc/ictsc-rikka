@@ -26,6 +26,7 @@ func NewRankingHandler(r *gin.RouterGroup, userRepo repository.UserRepository, r
 
 		authed.Use(middleware.Auth(userRepo))
 
+		authed.GET("/top", handler.GetTopRanking)
 		authed.GET("", handler.GetRanking)
 	}
 }
