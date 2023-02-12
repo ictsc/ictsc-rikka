@@ -30,7 +30,7 @@ func (c *AuthController) Self(userID string) (*SelfResponse, error) {
 		return nil, fmt.Errorf("invalid id")
 	}
 
-	user, err := c.userService.FindByID(id)
+	user, err := c.userService.FindMe(id)
 	return &SelfResponse{
 		User: user,
 	}, err

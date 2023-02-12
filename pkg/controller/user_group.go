@@ -60,10 +60,14 @@ func (c *UserGroupController) ListParticipates() ([]*ListParticipates, error) {
 }
 
 type CreateUserGroupRequest struct {
-	Name           string `json:"name"`
-	Organization   string `json:"organization"`
-	InvitationCode string `json:"invitation_code"`
-	IsFullAccess   bool   `json:"is_full_access"`
+	Name            string `json:"name"`
+	Organization    string `json:"organization"`
+	InvitationCode  string `json:"invitation_code"`
+	IsFullAccess    bool   `json:"is_full_access"`
+	BastionUser     string `json:"bastion_user"`
+	BastionPassword string `json:"bastion_password"`
+	BastionHost     string `json:"bastion_host"`
+	BastionPort     int    `json:"bastion_port"`
 }
 
 type CreateUserGroupResponse struct {

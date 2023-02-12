@@ -70,6 +70,7 @@ func init() {
 		&entity.User{},
 		&entity.UserProfile{},
 		&entity.UserGroup{},
+		&entity.Bastion{},
 		&entity.Problem{},
 		&entity.Answer{},
 		&entity.Attachment{},
@@ -141,6 +142,7 @@ func main() {
 	userRepo := mariadb.NewUserRepository(db)
 	userProfileRepo := mariadb.NewUserProfileRepository(db)
 	userGroupRepo := mariadb.NewUserGroupRepository(db)
+	bastionRepo := mariadb.NewBastionRepository(db)
 	problemRepo := mariadb.NewProblemRepository(db)
 	answerRepo := mariadb.NewAnswerRepository(db)
 	attachmentRepo := mariadb.NewAttachmentRepository(db)
@@ -149,6 +151,7 @@ func main() {
 	authService := service.NewAuthService(userRepo)
 	userService := service.NewUserService(userRepo, userProfileRepo, userGroupRepo)
 	userGroupService := service.NewUserGroupService(userGroupRepo)
+	bastionService := service.NewBastionService(bastionRepo)
 	problemService := service.NewProblemService(config.Contest.AnswerLimit, userRepo, problemRepo, answerRepo)
 	answerService := service.NewAnswerService(config.Contest.AnswerLimit, config.Notify.Answer, userRepo, answerRepo, problemRepo)
 	attachmentService := service.NewAttachmentService(attachmentRepo, s3Repo)
@@ -169,7 +172,7 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
-	seed.Seed(&config.Seed, userRepo, userGroupRepo, *userService, *userGroupService)
+	seed.Seed(&config.Seed, userRepo, userGroupRepo, *userService, *userGroupService, *bastionService, bastionRepo)
 
 	r := gin.Default()
 

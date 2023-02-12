@@ -57,8 +57,12 @@ func (s *UserService) Create(name, password string, userGroupID uuid.UUID, invit
 	})
 }
 
+func (s *UserService) FindMe(id uuid.UUID) (*entity.User, error) {
+	return s.userRepo.FindByID(id, true, true)
+}
+
 func (s *UserService) FindByID(id uuid.UUID) (*entity.User, error) {
-	return s.userRepo.FindByID(id, true)
+	return s.userRepo.FindByID(id, true, false)
 }
 
 func (s *UserService) FindByUserGroupID(id uuid.UUID) ([]*entity.User, error) {
@@ -66,7 +70,7 @@ func (s *UserService) FindByUserGroupID(id uuid.UUID) ([]*entity.User, error) {
 }
 
 func (s *UserService) Update(userID uuid.UUID, displayName, twitterID, githubID, facebookID, selfIntroduction string) (*entity.User, error) {
-	user, err := s.userRepo.FindByID(userID, false)
+	user, err := s.userRepo.FindByID(userID, false, false)
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +98,7 @@ func (s *UserService) Update(userID uuid.UUID, displayName, twitterID, githubID,
 			return nil, err
 		}
 
-		return s.userRepo.FindByID(userID, true)
+		return s.userRepo.FindByID(userID, true, false)
 	}
 
 	userProfile.TwitterID = twitterID
@@ -105,5 +109,5 @@ func (s *UserService) Update(userID uuid.UUID, displayName, twitterID, githubID,
 		return nil, err
 	}
 
-	return s.userRepo.FindByID(userID, true)
+	return s.userRepo.FindByID(userID, true, false)
 }

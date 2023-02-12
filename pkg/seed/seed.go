@@ -16,8 +16,10 @@ type SeedConfig struct {
 type seeder struct {
 	userService      service.UserService
 	userGroupService service.UserGroupService
+	bastionService   service.BastionService
 	userRepo         repository.UserRepository
 	userGroupRepo    repository.UserGroupRepository
+	bastionRepo      repository.BastionRepository
 }
 
 func Seed(
@@ -26,12 +28,16 @@ func Seed(
 	userGroupRepo repository.UserGroupRepository,
 	userService service.UserService,
 	userGroupService service.UserGroupService,
+	bastionService service.BastionService,
+	bastionRepo repository.BastionRepository,
 ) error {
 	s := seeder{
 		userService:      userService,
 		userGroupService: userGroupService,
+		bastionService:   bastionService,
 		userRepo:         userRepo,
 		userGroupRepo:    userGroupRepo,
+		bastionRepo:      bastionRepo,
 	}
 
 	seeds := []struct {
@@ -60,11 +66,15 @@ func Seed(
 }
 
 type AdminUserGroupAndUserSeederConfig struct {
-	UserGroupName  string `yaml:"userGroupName"`
-	Organization   string `yaml:"organization"`
-	InvitationCode string `yaml:"invitationCode"`
-	UserName       string `yaml:"userName"`
-	UserPassword   string `yaml:"userPassword"`
+	UserGroupName   string `yaml:"userGroupName"`
+	Organization    string `yaml:"organization"`
+	InvitationCode  string `yaml:"invitationCode"`
+	UserName        string `yaml:"userName"`
+	UserPassword    string `yaml:"userPassword"`
+	BastionUser     string `yaml:"bastionUser"`
+	BastionPassword string `yaml:"bastionPassword"`
+	BastionHost     string `yaml:"bastionHost"`
+	BastionPort     int    `yaml:"bastionPort"`
 }
 
 func (s *seeder) adminUserGroupAndUserSeeder(config AdminUserGroupAndUserSeederConfig) error {
@@ -95,5 +105,16 @@ func (s *seeder) adminUserGroupAndUserSeeder(config AdminUserGroupAndUserSeederC
 	); err != nil {
 		return err
 	}
+
+	if _, err := s.bastionService.Create(
+		userGroup.ID,
+		config.BastionUser,
+		config.BastionPassword,
+		config.BastionHost,
+		config.BastionPort,
+	); err != nil {
+		return err
+	}
+
 	return nil
 }
