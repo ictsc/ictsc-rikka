@@ -42,3 +42,10 @@ type ProblemWithAnswerInformation struct {
 	UncheckedNearOverdue uint `json:"unchecked_near_overdue"`
 	UncheckedOverdue     uint `json:"unchecked_overdue"`
 }
+
+type ProblemWithCurrentPoint struct {
+	Problem
+
+	CurrentPoint uint `json:"current_point"`
+	IsSolved     bool `json:"is_solved"`
+}

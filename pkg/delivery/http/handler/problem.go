@@ -93,14 +93,14 @@ func (h *ProblemHandler) GetAll(ctx *gin.Context) {
 	metadataOnly := ctx.Query("metadata_only") != ""
 
 	if !group.IsFullAccess {
-		res, err := h.problemController.GetAll(metadataOnly)
+		res, err := h.problemController.GetAllProblemsWithCurrentPoint(group, metadataOnly)
 		if err != nil {
 			ctx.Error(error.NewInternalServerError(err))
 			return
 		}
 		response.JSON(ctx, http.StatusOK, "", res, nil)
 	} else {
-		res, err := h.problemController.GetAllWithAnswerInformation(metadataOnly)
+		res, err := h.problemController.GetAllProblemsWithCurrentPoint(group, metadataOnly)
 		if err != nil {
 			ctx.Error(error.NewInternalServerError(err))
 			return
