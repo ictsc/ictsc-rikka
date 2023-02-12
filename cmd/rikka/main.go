@@ -207,7 +207,7 @@ func main() {
 	{
 		handler.NewAuthHandler(api, userRepo, authService, userService)
 		handler.NewUserHandler(api, userRepo, userService)
-		handler.NewUserGroupHandler(api, userRepo, userService, userGroupService)
+		handler.NewUserGroupHandler(api, userRepo, userService, userGroupService, bastionService)
 		handler.NewProblemHandler(api, userRepo, problemController, answerController)
 		handler.NewAttachmentHandler(api, attachmentController, userRepo)
 		handler.NewRankingHandler(api, userRepo, rankingService)

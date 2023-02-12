@@ -22,7 +22,7 @@ func (r *BastionRepository) Create(bastion *entity.Bastion) (*entity.Bastion, er
 		return nil, err
 	}
 
-	return r.FindByID(bastion.ID)
+	return nil, nil
 }
 
 func (r *BastionRepository) FindByID(id uuid.UUID) (*entity.Bastion, error) {

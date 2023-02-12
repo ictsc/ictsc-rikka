@@ -8,12 +8,14 @@ import (
 type UserGroupController struct {
 	userService      *service.UserService
 	userGroupService *service.UserGroupService
+	bastionService   *service.BastionService
 }
 
-func NewUserGroupController(userService *service.UserService, userGroupService *service.UserGroupService) *UserGroupController {
+func NewUserGroupController(userService *service.UserService, userGroupService *service.UserGroupService, bastionService *service.BastionService) *UserGroupController {
 	return &UserGroupController{
 		userService:      userService,
 		userGroupService: userGroupService,
+		bastionService:   bastionService,
 	}
 }
 
@@ -76,6 +78,15 @@ type CreateUserGroupResponse struct {
 
 func (c *UserGroupController) Create(req *CreateUserGroupRequest) (*CreateUserGroupResponse, error) {
 	userGroup, err := c.userGroupService.Create(req.Name, req.Organization, req.InvitationCode, req.IsFullAccess)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = c.bastionService.Create(userGroup.ID, req.BastionUser, req.BastionPassword, req.BastionHost, req.BastionPort)
+	if err != nil {
+		return nil, err
+	}
+
 	return &CreateUserGroupResponse{
 		UserGroup: userGroup,
 	}, err
