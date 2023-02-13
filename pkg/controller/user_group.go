@@ -8,12 +8,14 @@ import (
 type UserGroupController struct {
 	userService      *service.UserService
 	userGroupService *service.UserGroupService
+	bastionService   *service.BastionService
 }
 
-func NewUserGroupController(userService *service.UserService, userGroupService *service.UserGroupService) *UserGroupController {
+func NewUserGroupController(userService *service.UserService, userGroupService *service.UserGroupService, bastionService *service.BastionService) *UserGroupController {
 	return &UserGroupController{
 		userService:      userService,
 		userGroupService: userGroupService,
+		bastionService:   bastionService,
 	}
 }
 
@@ -60,10 +62,14 @@ func (c *UserGroupController) ListParticipates() ([]*ListParticipates, error) {
 }
 
 type CreateUserGroupRequest struct {
-	Name           string `json:"name"`
-	Organization   string `json:"organization"`
-	InvitationCode string `json:"invitation_code"`
-	IsFullAccess   bool   `json:"is_full_access"`
+	Name            string `json:"name"`
+	Organization    string `json:"organization"`
+	InvitationCode  string `json:"invitation_code"`
+	IsFullAccess    bool   `json:"is_full_access"`
+	BastionUser     string `json:"bastion_user"`
+	BastionPassword string `json:"bastion_password"`
+	BastionHost     string `json:"bastion_host"`
+	BastionPort     int    `json:"bastion_port"`
 }
 
 type CreateUserGroupResponse struct {
@@ -72,6 +78,15 @@ type CreateUserGroupResponse struct {
 
 func (c *UserGroupController) Create(req *CreateUserGroupRequest) (*CreateUserGroupResponse, error) {
 	userGroup, err := c.userGroupService.Create(req.Name, req.Organization, req.InvitationCode, req.IsFullAccess)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = c.bastionService.Create(userGroup.ID, req.BastionUser, req.BastionPassword, req.BastionHost, req.BastionPort)
+	if err != nil {
+		return nil, err
+	}
+
 	return &CreateUserGroupResponse{
 		UserGroup: userGroup,
 	}, err

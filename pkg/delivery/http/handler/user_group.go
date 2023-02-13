@@ -16,9 +16,9 @@ type UserGroupHandler struct {
 	userGroupController *controller.UserGroupController
 }
 
-func NewUserGroupHandler(r *gin.RouterGroup, userRepo repository.UserRepository, userService *service.UserService, userGroupService *service.UserGroupService) {
+func NewUserGroupHandler(r *gin.RouterGroup, userRepo repository.UserRepository, userService *service.UserService, userGroupService *service.UserGroupService, bastionService *service.BastionService) {
 	handler := UserGroupHandler{
-		userGroupController: controller.NewUserGroupController(userService, userGroupService),
+		userGroupController: controller.NewUserGroupController(userService, userGroupService, bastionService),
 	}
 
 	userGroup := r.Group("/usergroups")
