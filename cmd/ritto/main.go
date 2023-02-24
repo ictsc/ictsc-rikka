@@ -87,7 +87,7 @@ func main() {
 	growiSessionCookieRepo := rc.NewGrowiSessionCookieRepository(redisClient)
 	problemWithSyncTimeRepo := rc.NewProblemWithSyncTimeRepository(redisClient)
 	pageRepo := growi.NewPageRepository(&client, u, config.Growi.Token)
-	subordinatedRepo := growi.NewSubordinatedPageRepository(&client, u, config.Growi.Token)
+	subordinatedRepo := growi.NewSubordinatedPageRepository(&client, u, config.Growi.Path, config.Growi.Token)
 	problemRepo := mariadb.NewProblemRepository(db)
 
 	growiProblemSyncService := service.NewGrowiProblemSyncService(

@@ -11,11 +11,12 @@ import (
 type SubordinatedPageRepository struct {
 	client *http.Client
 	u      *url.URL
+	path   string
 	token  string
 }
 
-func NewSubordinatedPageRepository(client *http.Client, u *url.URL, token string) *SubordinatedPageRepository {
-	return &SubordinatedPageRepository{client: client, u: u, token: token}
+func NewSubordinatedPageRepository(client *http.Client, u *url.URL, path string, token string) *SubordinatedPageRepository {
+	return &SubordinatedPageRepository{client: client, u: u, path: path, token: token}
 }
 
 type SubordinatedPagesResponse struct {
@@ -27,7 +28,7 @@ func (r *SubordinatedPageRepository) GetAll() ([]entity.SubordinatedPage, error)
 
 	q := r.u.Query()
 	q.Set("access_token", r.token)
-	q.Set("path", "/a")
+	q.Set("path", r.path)
 
 	r.u.RawQuery = q.Encode()
 
