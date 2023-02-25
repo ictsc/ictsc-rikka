@@ -37,7 +37,7 @@ func (s *AuthService) SignIn(name, password string) (*entity.User, error) {
 }
 
 func (s *AuthService) IsFullAccess(id uuid.UUID) bool {
-	user, err := s.userRepo.FindByID(id, true)
+	user, err := s.userRepo.FindByID(id, true, false)
 	if err != nil || user == nil {
 		return false
 	}

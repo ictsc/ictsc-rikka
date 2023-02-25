@@ -41,6 +41,10 @@ seed:
     invitationCode: test-invitation-code
     userName: admin
     userPassword: password
+    bastionHost: bastion
+    bastionPort: 22
+    bastionUser: bastion
+    bastionPassword: password
 minio:
   endPoint:
   accessKeyID:

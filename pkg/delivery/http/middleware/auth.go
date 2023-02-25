@@ -28,7 +28,7 @@ func Auth(userRepo repository.UserRepository) gin.HandlerFunc {
 			return
 		}
 
-		user, err := userRepo.FindByID(id, true)
+		user, err := userRepo.FindByID(id, true, false)
 		if err != nil {
 			ctx.Error(error.NewInternalServerError(err))
 			ctx.Abort()
@@ -73,7 +73,7 @@ func AuthIsFullAccess(userRepo repository.UserRepository) gin.HandlerFunc {
 			return
 		}
 
-		user, err := userRepo.FindByID(id, true)
+		user, err := userRepo.FindByID(id, true, false)
 		if err != nil {
 			ctx.Error(error.NewInternalServerError(err))
 			ctx.Abort()

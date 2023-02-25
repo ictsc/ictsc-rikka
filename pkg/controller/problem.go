@@ -113,6 +113,25 @@ func (c *ProblemController) GetAll(metadataOnly bool) (*GetAllProblemsResponse, 
 	}, nil
 }
 
+type GetAllProblemsWithCurrentPointResponse struct {
+	Problems []*entity.ProblemWithCurrentPoint `json:"problems"`
+}
+
+func (c *ProblemController) GetAllProblemsWithCurrentPoint(group *entity.UserGroup, metadataOnly bool) (*GetAllProblemsWithCurrentPointResponse, error) {
+	probs, err := c.problemService.GetAllWithCurrentPoint(group)
+	if err != nil {
+		return nil, err
+	}
+	if metadataOnly {
+		for _, prob := range probs {
+			prob.Body = ""
+		}
+	}
+	return &GetAllProblemsWithCurrentPointResponse{
+		Problems: probs,
+	}, nil
+}
+
 type GetAllProblemsWithAnswerInformationResponse struct {
 	Problems []*entity.ProblemWithAnswerInformation `json:"problems"`
 }
