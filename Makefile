@@ -3,15 +3,19 @@ MARIADB_DATABASE=rikka
 MARIADB_PASSWORD=rikka-password
 MARIADB_ROOT_PASSWORD=password
 
-GO_CMD_PATH=cmd/rikka
-GO_RUN=go run $(GO_CMD_PATH)/main.go $(GO_CMD_PATH)/config.go
+GO_RIKKA_CMD_PATH=cmd/rikka
+GO_RIKKA_CMD_PATH=cmd/ritto
+GO_RUN=go run $(GO_RIKKA_CMD_PATH)/main.go $(GO_RIKKA_CMD_PATH)/config.go
 
-.PHONY: run run-docker ps up down mariadb mariadb-drop-db mariadb-create-db mariadb-reset-db redis-cli self-signed-cert-and-key
+.PHONY: run run-ritto run-docker ps up down mariadb mariadb-drop-db mariadb-create-db mariadb-reset-db redis-cli self-signed-cert-and-key
 run:
-	$(GO_RUN) --config $(GO_CMD_PATH)/config.yaml
+	$(GO_RUN) --config $(GO_RIKKA_CMD_PATH)/config.yaml
+
+run-ritto:
+	$(GO_RUN) --config $(GO_RIKKA_CMD_PATH)/config.yaml
 
 run-docker:
-	docker compose run --rm --service-ports go $(GO_RUN) --config $(GO_CMD_PATH)/config.docker.yaml
+	docker compose run --rm --service-ports go $(GO_RUN) --config $(GO_RIKKA_CMD_PATH)/config.docker.yaml
 
 ps:
 	docker compose ps
@@ -23,7 +27,7 @@ down:
 	docker compose down
 
 build:
-	go build -o rikka ${GO_CMD_PATH}/*.go
+	go build -o rikka ${GO_RIKKA_CMD_PATH}/*.go
 
 mariadb:
 	docker compose exec mariadb mysql -u $(MARIADB_USER) --password=$(MARIADB_PASSWORD) $(MARIADB_DATABASE)
@@ -42,4 +46,4 @@ redis-cli:
 	docker compose exec redis redis-cli
 
 self-signed-cert-and-key:
-	openssl req -x509 -nodes -new -keyout $(GO_CMD_PATH)/privkey.pem -out $(GO_CMD_PATH)/cert.pem -days 365
+	openssl req -x509 -nodes -new -keyout $(GO_RIKKA_CMD_PATH)/privkey.pem -out $(GO_RIKKA_CMD_PATH)/cert.pem -days 365

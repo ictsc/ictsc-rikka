@@ -2,6 +2,7 @@ package entity
 
 import (
 	"regexp"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
@@ -48,4 +49,9 @@ type ProblemWithCurrentPoint struct {
 
 	CurrentPoint uint `json:"current_point"`
 	IsSolved     bool `json:"is_solved"`
+}
+
+type ProblemWithSyncTime struct {
+	Problem
+	UpdatedAt time.Time
 }
