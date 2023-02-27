@@ -5,6 +5,7 @@ import "fmt"
 type Config struct {
 	MariaDB MariaDBConfig `yaml:"mariadb"`
 	Redis   RedisConfig   `yaml:"redis"`
+	Rikka   Rikka         `yaml:"rikka"`
 	Growi   GrowiConfig   `yaml:"growi"`
 }
 
@@ -22,6 +23,10 @@ type RedisConfig struct {
 	Address            string `yaml:"address"`
 	Port               int    `yaml:"port"`
 	KeyPair            string `yaml:"keyPair"`
+}
+
+type Rikka struct {
+	AuthorId string `yaml:"authorId"`
 }
 
 type GrowiConfig struct {

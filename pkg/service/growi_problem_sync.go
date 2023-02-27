@@ -25,6 +25,7 @@ type GrowiProblemSync struct {
 	username                     string
 	password                     string
 	token                        string
+	authorId                     string
 	growiSessionCookieRepository repository.GrowiSessionCookieRepository
 	problemWithInfoRepository    repository.ProblemWithSyncTimeRepository
 	pageRepository               repository.PageRepository
@@ -39,6 +40,7 @@ func NewGrowiProblemSyncService(
 	username string,
 	password string,
 	token string,
+	authorId string,
 	growiSessionCookieRepository repository.GrowiSessionCookieRepository,
 	problemWithInfoRepository repository.ProblemWithSyncTimeRepository,
 	pageRepository repository.PageRepository,
@@ -52,6 +54,7 @@ func NewGrowiProblemSyncService(
 		username:                     username,
 		password:                     password,
 		token:                        token,
+		authorId:                     authorId,
 		growiSessionCookieRepository: growiSessionCookieRepository,
 		problemWithInfoRepository:    problemWithInfoRepository,
 		pageRepository:               pageRepository,
@@ -161,7 +164,7 @@ func (s *GrowiProblemSync) Sync(ctx context.Context) error {
 			newProblemWithInfo := &entity.ProblemWithSyncTime{
 				Problem: entity.Problem{
 					Code:              matter.Code,
-					AuthorID:          uuid.MustParse(matter.AuthorId),
+					AuthorID:          uuid.MustParse(s.authorId),
 					Title:             matter.Title,
 					Body:              problemPage.Revision.Body,
 					Point:             matter.Point,

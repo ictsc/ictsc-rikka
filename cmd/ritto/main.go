@@ -97,6 +97,7 @@ func main() {
 		config.Growi.Username,
 		config.Growi.Password,
 		config.Growi.Token,
+		config.Rikka.AuthorId,
 		growiSessionCookieRepo,
 		problemWithSyncTimeRepo,
 		pageRepo,
