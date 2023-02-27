@@ -100,7 +100,7 @@ func (h *ProblemHandler) GetAll(ctx *gin.Context) {
 		}
 		response.JSON(ctx, http.StatusOK, "", res, nil)
 	} else {
-		res, err := h.problemController.GetAllProblemsWithCurrentPoint(group, metadataOnly)
+		res, err := h.problemController.GetAllWithAnswerInformation(metadataOnly)
 		if err != nil {
 			ctx.Error(error.NewInternalServerError(err))
 			return
