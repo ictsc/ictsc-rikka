@@ -4,7 +4,7 @@ MARIADB_PASSWORD=rikka-password
 MARIADB_ROOT_PASSWORD=password
 
 GO_RIKKA_CMD_PATH=cmd/rikka
-GO_RIKKA_CMD_PATH=cmd/ritto
+GO_RITTO_CMD_PATH=cmd/ritto
 GO_RUN=go run $(GO_RIKKA_CMD_PATH)/main.go $(GO_RIKKA_CMD_PATH)/config.go
 
 .PHONY: run run-ritto run-docker ps up down mariadb mariadb-drop-db mariadb-create-db mariadb-reset-db redis-cli self-signed-cert-and-key
