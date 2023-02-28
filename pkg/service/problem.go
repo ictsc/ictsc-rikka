@@ -78,23 +78,44 @@ func (s *ProblemService) Create(req *CreateProblemRequest) (*entity.Problem, err
 	return s.problemRepo.Create(prob)
 }
 
-func (s *ProblemService) GetCurrentPointAnswer(problem *entity.Problem, group *entity.UserGroup) (*entity.Answer, error) {
+// FullAccessの場合 groupIDはnullである
+func (s *ProblemService) GetCurrentPointAnswer(problem *entity.Problem, groupId *uuid.UUID, IsfullAccess bool) (*entity.Answer, uint, uint, uint, error) {
 	var currentAnswer *entity.Answer
-	answers, err := s.answerRepo.FindByProblemAndUserGroup(problem.ID, group.ID)
+	var answers []*entity.Answer
+	var err error
+
+	if IsfullAccess && groupId == nil {
+		answers, err = s.answerRepo.FindByProblem(problem.ID, nil)
+	} else {
+		answers, err = s.answerRepo.FindByProblemAndUserGroup(problem.ID, *groupId)
+	}
 	if err != nil {
-		return nil, err
+		return nil, 0, 0, 0, err
 	}
 	// まだユーザに点数が公開されていない回答を除外する
 	now := time.Now()
 	var CurrentPoint uint = 0
+	unchecked := 0
+	uncheckedNearOverdue := 0
+	uncheckedOverdue := 0
 	for _, answer := range answers {
+
 		// 20分制約によって回答が見れていない場合
-		if !group.IsFullAccess && !now.After(answer.CreatedAt.Add(s.uncheckedOverdueThreshold)) {
+		if !IsfullAccess && !now.After(answer.CreatedAt.Add(s.uncheckedOverdueThreshold)) {
 			continue
 		}
 
-		// 採点がされていない
 		if answer.Point == nil {
+			unchecked += 1
+
+			if now.After(answer.CreatedAt.Add(s.uncheckedNearOverdueThreshold)) {
+				uncheckedNearOverdue += 1
+			}
+
+			if now.After(answer.CreatedAt.Add(s.uncheckedOverdueThreshold)) {
+				uncheckedOverdue += 1
+			}
+
 			continue
 		}
 
@@ -109,16 +130,42 @@ func (s *ProblemService) GetCurrentPointAnswer(problem *entity.Problem, group *e
 		}
 	}
 	if currentAnswer == nil {
-		return nil, errors.New("No answer yet")
+		return nil, uint(unchecked), uint(uncheckedNearOverdue), uint(uncheckedOverdue), errors.New("No answer yet")
 	}
-	return currentAnswer, nil
+	return currentAnswer, uint(unchecked), uint(uncheckedNearOverdue), uint(uncheckedOverdue), nil
 }
 
 func (s *ProblemService) GetCurrentPoint(problem *entity.Problem, group *entity.UserGroup) uint {
-	if answer, err := s.GetCurrentPointAnswer(problem, group); err == nil {
+	if answer, _, _, _, err := s.GetCurrentPointAnswer(problem, &group.ID, false); err == nil {
 		return *answer.Point
 	}
 	return 0
+}
+
+func (s *ProblemService) GetCurrentPointWithUncheckedInformation(problem *entity.Problem) (*entity.ProblemWithAnswerInformation, error) {
+	answer, unchecked, uncheckedNearOverdue, uncheckedOverdue, err := s.GetCurrentPointAnswer(problem, nil, true)
+	if err != nil {
+		// 全ての回答でNo answer yetの場合か、その他エラーの場合
+		return &entity.ProblemWithAnswerInformation{
+			Problem: *problem,
+
+			Unchecked:            unchecked,
+			UncheckedNearOverdue: uncheckedNearOverdue,
+			UncheckedOverdue:     uncheckedOverdue,
+			CurrentPoint:         0,
+			IsSolved:             false,
+		}, nil
+	}
+	return &entity.ProblemWithAnswerInformation{
+		Problem: *problem,
+
+		Unchecked:            unchecked,
+		UncheckedNearOverdue: uncheckedNearOverdue,
+		UncheckedOverdue:     uncheckedOverdue,
+		CurrentPoint:         *answer.Point,
+		IsSolved:             *answer.Point >= problem.SolvedCriterion,
+	}, nil
+
 }
 
 func (s *ProblemService) GetAll() ([]*entity.Problem, error) {
@@ -134,7 +181,8 @@ func (s *ProblemService) GetAllWithCurrentPoint(group *entity.UserGroup) ([]*ent
 	for _, problem := range problems {
 		CurrentPoint := s.GetCurrentPoint(problem, group)
 		detailProblems = append(detailProblems, &entity.ProblemWithCurrentPoint{
-			Problem:      *problem,
+			Problem: *problem,
+
 			CurrentPoint: CurrentPoint,
 			IsSolved:     CurrentPoint >= problem.SolvedCriterion,
 		})
@@ -148,40 +196,10 @@ func (s *ProblemService) GetAllWithAnswerInformation() ([]*entity.ProblemWithAns
 		return nil, err
 	}
 
-	now := time.Now()
 	detailProblems := make([]*entity.ProblemWithAnswerInformation, 0, len(problems))
 	for _, problem := range problems {
-		answers, err := s.answerRepo.FindByProblem(problem.ID, nil)
-		if err != nil {
-			return nil, err
-		}
-
-		unchecked := 0
-		uncheckedNearOverdue := 0
-		uncheckedOverdue := 0
-		for _, answer := range answers {
-			if answer.Point != nil {
-				continue
-			}
-
-			unchecked += 1
-
-			if now.After(answer.CreatedAt.Add(s.uncheckedNearOverdueThreshold)) {
-				uncheckedNearOverdue += 1
-			}
-
-			if now.After(answer.CreatedAt.Add(s.uncheckedOverdueThreshold)) {
-				uncheckedOverdue += 1
-			}
-		}
-
-		detailProblems = append(detailProblems, &entity.ProblemWithAnswerInformation{
-			Problem: *problem,
-
-			Unchecked:            uint(unchecked),
-			UncheckedNearOverdue: uint(uncheckedNearOverdue),
-			UncheckedOverdue:     uint(uncheckedOverdue),
-		})
+		problemWithAnswerInfo, _ := s.GetCurrentPointWithUncheckedInformation(problem)
+		detailProblems = append(detailProblems, problemWithAnswerInfo)
 	}
 
 	return detailProblems, nil
