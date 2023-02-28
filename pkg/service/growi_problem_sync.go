@@ -5,111 +5,38 @@ import (
 	"fmt"
 	"github.com/adrg/frontmatter"
 	"github.com/google/uuid"
+	"github.com/ictsc/growi_client"
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
 	"github.com/ictsc/ictsc-rikka/pkg/repository"
 	"github.com/pkg/errors"
-	"golang.org/x/net/html"
-	"io/ioutil"
 	"log"
-	"net/http"
-	"net/http/cookiejar"
-	"net/url"
 	"regexp"
 	"strings"
 	"time"
 )
 
 type GrowiProblemSync struct {
-	client                       *http.Client
-	u                            *url.URL
-	path                         string
-	username                     string
-	password                     string
-	token                        string
-	authorId                     string
-	growiSessionCookieRepository repository.GrowiSessionCookieRepository
-	problemWithInfoRepository    repository.ProblemWithSyncTimeRepository
-	pageRepository               repository.PageRepository
-	subordinatedPageRepository   repository.SubordinatedPageRepository
-	problemRepository            repository.ProblemRepository
+	client                    *growi_client.GrowiClient
+	path                      string
+	authorId                  string
+	problemWithInfoRepository repository.ProblemWithSyncTimeRepository
+	problemRepository         repository.ProblemRepository
 }
 
 func NewGrowiProblemSyncService(
-	client *http.Client,
-	u *url.URL,
+	client *growi_client.GrowiClient,
 	path string,
-	username string,
-	password string,
-	token string,
 	authorId string,
-	growiSessionCookieRepository repository.GrowiSessionCookieRepository,
 	problemWithInfoRepository repository.ProblemWithSyncTimeRepository,
-	pageRepository repository.PageRepository,
-	subordinatedPageRepository repository.SubordinatedPageRepository,
 	problemRepository repository.ProblemRepository,
 ) *GrowiProblemSync {
 	return &GrowiProblemSync{
-		client:                       client,
-		u:                            u,
-		path:                         path,
-		username:                     username,
-		password:                     password,
-		token:                        token,
-		authorId:                     authorId,
-		growiSessionCookieRepository: growiSessionCookieRepository,
-		problemWithInfoRepository:    problemWithInfoRepository,
-		pageRepository:               pageRepository,
-		subordinatedPageRepository:   subordinatedPageRepository,
-		problemRepository:            problemRepository,
+		client:                    client,
+		path:                      path,
+		authorId:                  authorId,
+		problemWithInfoRepository: problemWithInfoRepository,
+		problemRepository:         problemRepository,
 	}
-}
-
-var sessionCookieKey = "connect.sid"
-
-func (s *GrowiProblemSync) Init(ctx context.Context) error {
-	jar, err := cookiejar.New(nil)
-	if err != nil {
-		panic(err)
-	}
-
-	s.client.Jar = jar
-
-	// セッションクッキーを取得
-	sessionCookieValue, err := s.growiSessionCookieRepository.Get(ctx)
-	if err != nil {
-		// 取得出来なかったときはログイン処理を行う
-		csrfToken, err := getCsrfToken(*s.u, *s.client)
-		if err != nil {
-			log.Fatal(errors.Wrap(err, "Failed to get csrf token").Error())
-		}
-
-		err = doLogin(*s.u, *s.client, s.username, s.password, csrfToken)
-		if err != nil {
-			log.Fatalf(errors.Wrapf(err, "Failed to login").Error())
-		}
-
-		// connect.sid の Cookie を取得
-		for _, cookie := range jar.Cookies(s.u) {
-			if cookie.Name == "connect.sid" {
-				err = s.growiSessionCookieRepository.Set(ctx, cookie.Value)
-				if err != nil {
-					log.Fatal(errors.Wrap(err, "Failed to set session cookie").Error())
-				}
-			}
-		}
-
-		return err
-	}
-
-	// sessionCookieValue を connect.sid の Cookie にセット
-	jar.SetCookies(s.u, []*http.Cookie{
-		{
-			Name:  sessionCookieKey,
-			Value: sessionCookieValue,
-		},
-	})
-
-	return nil
 }
 
 func (s *GrowiProblemSync) Sync(ctx context.Context) error {
@@ -118,7 +45,7 @@ func (s *GrowiProblemSync) Sync(ctx context.Context) error {
 		log.Fatal(errors.Wrap(err, "Failed to get problems").Error())
 	}
 
-	pages, err := s.subordinatedPageRepository.GetAll()
+	pages, err := s.client.GetSubordinatedPage(s.path)
 	if err != nil {
 		log.Fatalf(errors.Wrapf(err, "Failed to get subordinated list").Error())
 	}
@@ -144,7 +71,7 @@ func (s *GrowiProblemSync) Sync(ctx context.Context) error {
 			fmt.Println(page.Path)
 
 			// 個別ページを取得
-			problemPage, err := s.pageRepository.Get(page.Path)
+			problemPage, err := s.client.GetPage(page.Path)
 			if err != nil {
 				log.Fatalf(errors.Wrapf(err, "Failed to get page").Error())
 			}
@@ -212,71 +139,4 @@ func (s *GrowiProblemSync) Sync(ctx context.Context) error {
 	}
 
 	return nil
-}
-
-func doLogin(u url.URL, client http.Client, username string, password string, csrfToken string) error {
-	u.Path = "/login"
-
-	// body form-urlencoded
-	form := url.Values{}
-	form.Add("loginForm[username]", username)
-	form.Add("loginForm[password]", password)
-	form.Add("_csrf", csrfToken)
-
-	req, err := http.NewRequest("POST", u.String(), strings.NewReader(form.Encode()))
-	if err != nil {
-		return err
-	}
-
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	return nil
-}
-
-func getCsrfToken(u url.URL, client http.Client) (string, error) {
-	u.Path = "/login"
-
-	req, err := http.NewRequest("GET", u.String(), nil)
-	if err != nil {
-		return "", err
-	}
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return "", err
-	}
-
-	node, err := html.Parse(strings.NewReader(string(body)))
-	if err != nil {
-		return "", err
-	}
-
-	// html > body attr の中から csrfToken を取得
-	for c := node.FirstChild; c != nil; c = c.NextSibling {
-		if c.Type == html.ElementNode && c.Data == "html" {
-			for d := c.FirstChild; d != nil; d = d.NextSibling {
-				if d.Data == "body" {
-					for _, attr := range d.Attr {
-						if attr.Key == "data-csrftoken" {
-							return attr.Val, nil
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return "", nil
 }
