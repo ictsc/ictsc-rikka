@@ -16,6 +16,7 @@ import (
 	"net/url"
 	"regexp"
 	"strings"
+	"time"
 )
 
 type GrowiProblemSync struct {
@@ -178,22 +179,27 @@ func (s *GrowiProblemSync) Sync(ctx context.Context) error {
 			for _, p := range problems {
 				if p.Code == newProblemWithInfo.Problem.Code {
 					newProblemWithInfo.Problem.ID = p.ID
+					newProblemWithInfo.Problem.Base.CreatedAt = p.CreatedAt
 
 					exists = true
 					break
 				}
 			}
 
-			// 既に存在すれば更新、無ければ作成
+			// 既に存在すれば更新、無ければ作成し、失敗したならその問題はスキップする
 			if exists {
 				_, err = s.problemRepository.Update(&newProblemWithInfo.Problem)
 				if err != nil {
-					log.Fatal(err)
+					log.Println(err)
+					continue
 				}
 			} else {
+				newProblemWithInfo.Problem.Base.CreatedAt = time.Now()
+
 				_, err = s.problemRepository.Create(&newProblemWithInfo.Problem)
 				if err != nil {
-					log.Fatal(err)
+					log.Println(err)
+					continue
 				}
 			}
 
