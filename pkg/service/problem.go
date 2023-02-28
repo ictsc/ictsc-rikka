@@ -100,23 +100,22 @@ func (s *ProblemService) GetCurrentPointAnswer(problem *entity.Problem, groupId 
 	uncheckedOverdue := 0
 	for _, answer := range answers {
 
-		unchecked += 1
-
-		if now.After(answer.CreatedAt.Add(s.uncheckedNearOverdueThreshold)) {
-			uncheckedNearOverdue += 1
-		}
-
-		if now.After(answer.CreatedAt.Add(s.uncheckedOverdueThreshold)) {
-			uncheckedOverdue += 1
-		}
-
 		// 20分制約によって回答が見れていない場合
 		if !IsfullAccess && !now.After(answer.CreatedAt.Add(s.uncheckedOverdueThreshold)) {
 			continue
 		}
 
-		// 採点がされていない
 		if answer.Point == nil {
+			unchecked += 1
+
+			if now.After(answer.CreatedAt.Add(s.uncheckedNearOverdueThreshold)) {
+				uncheckedNearOverdue += 1
+			}
+
+			if now.After(answer.CreatedAt.Add(s.uncheckedOverdueThreshold)) {
+				uncheckedOverdue += 1
+			}
+
 			continue
 		}
 
