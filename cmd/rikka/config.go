@@ -7,16 +7,17 @@ import (
 )
 
 type Config struct {
-	Contest ContestConfig   `yaml:"contest"`
-	Listen  ListenConfig    `yaml:"listen"`
-	CORS    CORSConfig      `yaml:"cors"`
-	Store   StoreConfig     `yaml:"store"`
-	Notify  NotifyConfig    `yaml:notify`
-	MariaDB MariaDBConfig   `yaml:"mariadb"`
-	Redis   RedisConfig     `yaml:"redis"`
-	Minio   MinioConfig     `yaml:"minio"`
-	Seed    seed.SeedConfig `yaml:"seed"`
-	Sentry  SentryConfig    `yaml:"sentry"`
+	Contest  ContestConfig   `yaml:"contest"`
+	Listen   ListenConfig    `yaml:"listen"`
+	CORS     CORSConfig      `yaml:"cors"`
+	Store    StoreConfig     `yaml:"store"`
+	Notify   NotifyConfig    `yaml:"notify"`
+	MariaDB  MariaDBConfig   `yaml:"mariadb"`
+	Redis    RedisConfig     `yaml:"redis"`
+	Minio    MinioConfig     `yaml:"minio"`
+	Seed     seed.SeedConfig `yaml:"seed"`
+	Sentry   SentryConfig    `yaml:"sentry"`
+	Recreate RecreateConfig  `yaml:"recreate"`
 }
 
 type ContestConfig struct {
@@ -54,6 +55,10 @@ type RedisConfig struct {
 	Port               int    `yaml:"port"`
 	Password           string `yaml:"password"`
 	KeyPair            string `yaml:"keyPair"`
+}
+
+type RecreateConfig struct {
+	URL string `yaml:"url"`
 }
 
 type MinioConfig struct {
