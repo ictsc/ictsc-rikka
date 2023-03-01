@@ -50,3 +50,5 @@ minio:
   accessKeyID:
   secretAccessKey:
   useSSL:
+recreate:
+  url: http://www.example.com
