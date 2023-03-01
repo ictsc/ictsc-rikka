@@ -8,4 +8,5 @@ type UserGroup struct {
 	InvitationCodeDigest string   `json:"-" gorm:"not null"`
 	IsFullAccess         bool     `json:"is_full_access" gorm:"not null"`
 	Bastion              *Bastion `json:"bastion,omitempty"`
+	TeamID               string   `json:"-"`
 }

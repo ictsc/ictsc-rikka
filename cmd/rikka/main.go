@@ -160,6 +160,7 @@ func main() {
 	problemController := controller.NewProblemController(problemService)
 	answerController := controller.NewAnswerController(answerService)
 	attachmentController := controller.NewAttachmentController(attachmentService)
+	recreateController := controller.NewRecreateController(problemService, config.Recreate.URL)
 
 	errorMiddleware := middleware.NewErrorMiddleware()
 	prometheus := ginprometheus.NewPrometheus("gin")
@@ -211,6 +212,7 @@ func main() {
 		handler.NewProblemHandler(api, userRepo, problemController, answerController)
 		handler.NewAttachmentHandler(api, attachmentController, userRepo)
 		handler.NewRankingHandler(api, userRepo, rankingService)
+		handler.NewRecreateHandler(api, userRepo, problemService, recreateController)
 
 		api.GET("/ping", func(ctx *gin.Context) {
 			ctx.JSON(200, "")
