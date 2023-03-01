@@ -5,7 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/go-redis/redis/v8"
-	"github.com/ictsc/ictsc-rikka/pkg/repository/growi"
+	"github.com/ictsc/growi_client"
 	"github.com/ictsc/ictsc-rikka/pkg/repository/mariadb"
 	"github.com/ictsc/ictsc-rikka/pkg/repository/rc"
 	"github.com/ictsc/ictsc-rikka/pkg/service"
@@ -14,7 +14,7 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"log"
-	"net/http"
+	"net/http/cookiejar"
 	"net/url"
 	"os"
 )
@@ -78,7 +78,6 @@ func initDatabase(c *MariaDBConfig) (*gorm.DB, error) {
 func main() {
 	ctx := context.Background()
 
-	client := http.Client{}
 	u, err := url.Parse(config.Growi.Url)
 	if err != nil {
 		panic(err)
@@ -86,31 +85,47 @@ func main() {
 
 	growiSessionCookieRepo := rc.NewGrowiSessionCookieRepository(redisClient)
 	problemWithSyncTimeRepo := rc.NewProblemWithSyncTimeRepository(redisClient)
-	pageRepo := growi.NewPageRepository(&client, u, config.Growi.Token)
-	subordinatedRepo := growi.NewSubordinatedPageRepository(&client, u, config.Growi.Path, config.Growi.Token)
 	problemRepo := mariadb.NewProblemRepository(db)
 
-	growiProblemSyncService := service.NewGrowiProblemSyncService(
-		&client,
+	option := &growi_client.GrowiClientOption{
+		Username:    config.Growi.Username,
+		Password:    config.Growi.Password,
+		URL:         u,
+		AccessToken: config.Growi.Token,
+	}
+
+	jar, err := cookiejar.New(nil)
+	if err != nil {
+		panic(err)
+	}
+	client := &growi_client.GrowiClient{
+		Option: option,
+		Jar:    jar,
+	}
+
+	err = client.Init()
+	if err != nil {
+		panic(err)
+	}
+
+	growiClientInitService := service.NewGrowiClientInitService(
+		client,
 		u,
-		config.Growi.Path,
-		config.Growi.Username,
-		config.Growi.Password,
-		config.Growi.Token,
-		config.Rikka.AuthorId,
 		growiSessionCookieRepo,
+	)
+	growiProblemSyncService := service.NewGrowiProblemSyncService(
+		client,
+		config.Growi.Path,
+		config.Rikka.AuthorId,
 		problemWithSyncTimeRepo,
-		pageRepo,
-		subordinatedRepo,
 		problemRepo,
 	)
 
-	err = growiProblemSyncService.Init(ctx)
+	err = growiClientInitService.Init(ctx)
 	// TODO(k-shir0): エラー処理追加
 	err = growiProblemSyncService.Sync(ctx)
 	// TODO(k-shir0): エラー処理追加
 	if err != nil {
 		log.Fatal(err)
 	}
-
 }
