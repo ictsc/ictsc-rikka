@@ -1,6 +1,6 @@
 package entity
 
-type FrontMatter struct {
+type ProblemFrontMatter struct {
 	Code              string  `yaml:"code"`
 	Title             string  `yaml:"title"`
 	Point             uint    `yaml:"point"`

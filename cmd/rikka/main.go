@@ -74,6 +74,7 @@ func init() {
 		&entity.Problem{},
 		&entity.Answer{},
 		&entity.Attachment{},
+		&entity.Notice{},
 	)
 
 	store, err = redis.NewStore(
