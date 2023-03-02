@@ -49,6 +49,12 @@ func (h *ProblemHandler) Create(ctx *gin.Context) {
 		return
 	}
 
+	user := ctx.MustGet("user").(*entity.User)
+	if user.IsReadOnly {
+		response.JSON(ctx, http.StatusForbidden, "This user is read only.", nil, nil)
+		return
+	}
+
 	res, err := h.problemController.Create(req)
 	if err != nil {
 		ctx.Error(error.NewInternalServerError(err))
@@ -60,6 +66,13 @@ func (h *ProblemHandler) Create(ctx *gin.Context) {
 
 func (h *ProblemHandler) Update(ctx *gin.Context) {
 	id := ctx.Param("id")
+
+	user := ctx.MustGet("user").(*entity.User)
+	if user.IsReadOnly {
+		response.JSON(ctx, http.StatusForbidden, "This user is read only.", nil, nil)
+		return
+	}
+
 	req := &controller.UpdateProblemRequest{}
 	if err := ctx.Bind(req); err != nil {
 		ctx.Error(error.NewBadRequestError(err.Error()))
@@ -111,6 +124,12 @@ func (h *ProblemHandler) GetAll(ctx *gin.Context) {
 
 func (h *ProblemHandler) Delete(ctx *gin.Context) {
 	id := ctx.Param("id")
+
+	user := ctx.MustGet("user").(*entity.User)
+	if user.IsReadOnly {
+		response.JSON(ctx, http.StatusForbidden, "This user is read only.", nil, nil)
+		return
+	}
 
 	err := h.problemController.Delete(id)
 	if err != nil {
