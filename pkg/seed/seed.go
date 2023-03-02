@@ -75,6 +75,7 @@ type AdminUserGroupAndUserSeederConfig struct {
 	BastionPassword string `yaml:"bastionPassword"`
 	BastionHost     string `yaml:"bastionHost"`
 	BastionPort     int    `yaml:"bastionPort"`
+	TeamID          string `yaml:"teamId"`
 }
 
 func (s *seeder) adminUserGroupAndUserSeeder(config AdminUserGroupAndUserSeederConfig) error {
@@ -92,6 +93,7 @@ func (s *seeder) adminUserGroupAndUserSeeder(config AdminUserGroupAndUserSeederC
 		config.Organization,
 		config.InvitationCode,
 		true,
+		config.TeamID,
 	)
 	if err != nil {
 		return err
