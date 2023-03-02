@@ -1,13 +1,15 @@
 package service
 
 import (
-	"fmt"
-	"time"
-	"net/http"
 	"bytes"
-	"io"
 	"encoding/json"
+	"fmt"
+	"io"
+	"io/ioutil"
+	"log"
+	"net/http"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
@@ -76,28 +78,38 @@ func (s *AnswerService) Create(req *CreateAnswerRequest) (*entity.Answer, error)
 		return nil, errors.New("problem id is invalid")
 	}
 
+	answer, err := s.answerRepo.Create(ans)
+	if err != nil {
+		return nil, err
+	}
+
 	//TODO: クリーンアーキテクチャ的にここでするべきではないので後でプレゼンターにする
 	{
+		text := fmt.Sprintf("<https://contest.mgmt.ictsc.net/scoring/%s?answer_id=%s |新着解答> 問題名:%s チーム名:%s",
+			strings.ToLower(problem.Code), answer.ID, problem.Title, req.UserGroup.Name)
 
 		param := struct {
-			Text string `json:"text"`
+			Text    string `json:"text"`
 			Channel string `json:"channel"`
 		}{
-			Text: "<https://contest.mgmt.ictsc.net/#/problems/"+ req.ProblemID.String() + "|新着解答> 問題名:" + problem.Title + " チーム名:" + req.UserGroup.Name + "",
+			Text:    text,
 			Channel: "#problem-" + strings.ToLower(problem.Code),
 		}
 		json_str, err := json.Marshal(param)
-		if err != nil { fmt.Println(err.Error()) }
-		fmt.Println(string(json_str))
-		resp, err := http.Post(s.webhook,"application/json",bytes.NewBuffer(json_str))
-		if err != nil { fmt.Println(err.Error()) }
-		body, err := io.ReadAll(resp.Body)
-		if err != nil { fmt.Println(err.Error()) }
-		fmt.Println(string(body))
+		if err != nil {
+			log.Println(err.Error())
+			return answer, nil
+		}
+		resp, err := http.Post(s.webhook, "application/json", bytes.NewBuffer(json_str))
+		if err != nil {
+			log.Println(err.Error())
+			return answer, nil
+		}
+		io.Copy(ioutil.Discard, resp.Body)
 		resp.Body.Close()
 	}
 
-	return s.answerRepo.Create(ans)
+	return answer, nil
 }
 
 func (s *AnswerService) FindByID(group *entity.UserGroup, id uuid.UUID) (*entity.Answer, error) {
