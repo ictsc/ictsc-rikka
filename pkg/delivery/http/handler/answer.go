@@ -44,6 +44,13 @@ func (h *AnswerHandler) Create(ctx *gin.Context) {
 	}
 
 	group := ctx.MustGet("group").(*entity.UserGroup)
+
+	user := ctx.MustGet("user").(*entity.User)
+	if user.IsReadOnly {
+		response.JSON(ctx, http.StatusForbidden, "This user is read only.", nil, nil)
+		return
+	}
+
 	problem_id := ctx.Param("id")
 	res, err := h.answerController.Create(group, problem_id, req)
 	if err != nil {
@@ -55,6 +62,11 @@ func (h *AnswerHandler) Create(ctx *gin.Context) {
 }
 
 func (h *AnswerHandler) Update(ctx *gin.Context) {
+	user := ctx.MustGet("user").(*entity.User)
+	if user.IsReadOnly {
+		response.JSON(ctx, http.StatusForbidden, "This user is read only.", nil, nil)
+		return
+	}
 	id := ctx.Param("answer_id")
 	req := &controller.UpdateAnswerRequest{}
 	if err := ctx.Bind(req); err != nil {
@@ -103,5 +115,4 @@ func (h *AnswerHandler) FindByProblemAndUserGroup(ctx *gin.Context) {
 		}
 		response.JSON(ctx, http.StatusOK, "", res, nil)
 	}
-
 }

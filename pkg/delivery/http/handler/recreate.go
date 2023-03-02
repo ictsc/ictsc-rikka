@@ -48,6 +48,13 @@ func (rh *RecreateHandler) GetStatus(ctx *gin.Context) {
 
 func (rh *RecreateHandler) CreateRecreateRequest(ctx *gin.Context) {
 	group := ctx.MustGet("group").(*entity.UserGroup)
+
+	user := ctx.MustGet("user").(*entity.User)
+	if user.IsReadOnly {
+		response.JSON(ctx, http.StatusForbidden, "This user is read only.", nil, nil)
+		return
+	}
+
 	probcode := ctx.Param("probcode")
 	b, err := rh.RecreateController.CreateRequest(group, probcode)
 	if err != nil {
