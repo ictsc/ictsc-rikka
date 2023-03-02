@@ -23,10 +23,14 @@ func NewRecreateController(problemService *service.ProblemService, host string) 
 }
 
 func (c *RecreateController) GetStatus(group *entity.UserGroup, probcode string) ([]byte, error) {
-	_, err := c.problemSerice.FindByCode(probcode)
+	problem, err := c.problemSerice.FindByCode(probcode)
 	if err != nil {
 		return nil, err
 	}
+	if problem == nil {
+		return nil, errors.New("Not Found")
+	}
+
 	url := fmt.Sprintf("%s/%s/%s", c.host, group.TeamID, probcode)
 	resp, err := http.Get(url)
 
@@ -43,6 +47,14 @@ func (c *RecreateController) GetStatus(group *entity.UserGroup, probcode string)
 }
 
 func (c *RecreateController) CreateRequest(group *entity.UserGroup, probcode string) ([]byte, error) {
+	problem, err := c.problemSerice.FindByCode(probcode)
+	if err != nil {
+		return nil, err
+	}
+	if problem == nil {
+		return nil, errors.New("Not Found")
+	}
+
 	url := fmt.Sprintf("%s/%s/%s", c.host, group.TeamID, probcode)
 	resp, err := http.Post(url, "", nil)
 
