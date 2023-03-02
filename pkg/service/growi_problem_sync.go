@@ -50,7 +50,7 @@ func (s *GrowiProblemSync) Sync(ctx context.Context) error {
 		log.Fatalf(errors.Wrapf(err, "Failed to get subordinated list").Error())
 	}
 
-	// Path 以下のやつだけ同期
+	// ProblemPath 以下のやつだけ同期
 	r := regexp.MustCompile(fmt.Sprintf(`^%s/`, s.path))
 
 	for _, page := range pages {
@@ -76,7 +76,7 @@ func (s *GrowiProblemSync) Sync(ctx context.Context) error {
 				log.Fatalf(errors.Wrapf(err, "Failed to get page").Error())
 			}
 
-			var matter = &entity.FrontMatter{}
+			var matter = &entity.ProblemFrontMatter{}
 
 			// frontmatter
 			// TODO(k-shir0): フォーマットもチェックする

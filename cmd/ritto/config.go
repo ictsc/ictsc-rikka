@@ -30,11 +30,12 @@ type Rikka struct {
 }
 
 type GrowiConfig struct {
-	Url      string `yaml:"url"`
-	Token    string `yaml:"token"`
-	Path     string `yaml:"path"`
-	Username string `yaml:"username"`
-	Password string `yaml:"password"`
+	Url         string `yaml:"url"`
+	Token       string `yaml:"token"`
+	ProblemPath string `yaml:"problemPath"`
+	NoticePath  string `yaml:"noticePath"`
+	Username    string `yaml:"username"`
+	Password    string `yaml:"password"`
 }
 
 func (c *MariaDBConfig) getDSN() string {
