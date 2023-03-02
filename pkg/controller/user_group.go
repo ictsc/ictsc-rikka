@@ -70,6 +70,7 @@ type CreateUserGroupRequest struct {
 	BastionPassword string `json:"bastion_password"`
 	BastionHost     string `json:"bastion_host"`
 	BastionPort     int    `json:"bastion_port"`
+	TeamID          string `json:"team_id"`
 }
 
 type CreateUserGroupResponse struct {
@@ -77,7 +78,7 @@ type CreateUserGroupResponse struct {
 }
 
 func (c *UserGroupController) Create(req *CreateUserGroupRequest) (*CreateUserGroupResponse, error) {
-	userGroup, err := c.userGroupService.Create(req.Name, req.Organization, req.InvitationCode, req.IsFullAccess)
+	userGroup, err := c.userGroupService.Create(req.Name, req.Organization, req.InvitationCode, req.IsFullAccess, req.TeamID)
 	if err != nil {
 		return nil, err
 	}

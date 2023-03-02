@@ -17,7 +17,7 @@ func NewUserGroupService(userGroupRepo repository.UserGroupRepository) *UserGrou
 	}
 }
 
-func (s *UserGroupService) Create(name, organization, invitationCode string, isFullAccess bool) (*entity.UserGroup, error) {
+func (s *UserGroupService) Create(name, organization, invitationCode string, isFullAccess bool, teamId string) (*entity.UserGroup, error) {
 	digest, err := bcrypt.GenerateFromPassword([]byte(invitationCode), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, err
@@ -27,6 +27,7 @@ func (s *UserGroupService) Create(name, organization, invitationCode string, isF
 		Organization:         organization,
 		InvitationCodeDigest: string(digest),
 		IsFullAccess:         isFullAccess,
+		TeamID:               teamId,
 	})
 }
 
