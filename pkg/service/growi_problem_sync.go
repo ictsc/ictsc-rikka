@@ -54,6 +54,18 @@ func (s *GrowiProblemSync) Sync(ctx context.Context) error {
 	r := regexp.MustCompile(fmt.Sprintf(`^%s/`, s.path))
 
 	for _, page := range pages {
+		// _ で始まるパスを同期しないようしている
+		split := strings.Split(page.Path, "/")
+		end := split[len(split)-1]
+
+		// どこのパスかどうかのログ
+		fmt.Println(page.Path)
+
+		// _ で始まるページは同期しない
+		if strings.HasPrefix(end, "_") {
+			fmt.Println("Sync Skip")
+			continue
+		}
 		if r.MatchString(page.Path) {
 			// redis キャッシュから取得し
 			cachedProblemWithInfo, err := s.problemWithInfoRepository.Get(ctx, page.Path)
@@ -80,13 +92,13 @@ func (s *GrowiProblemSync) Sync(ctx context.Context) error {
 
 			// frontmatter
 			// TODO(k-shir0): フォーマットもチェックする
-			body, err := frontmatter.Parse(strings.NewReader(problemPage.Revision.Body), matter)
+			_, err = frontmatter.Parse(strings.NewReader(problemPage.Revision.Body), matter)
 			if err != nil {
 				log.Fatal(err)
 			}
 
 			fmt.Println(matter)
-			fmt.Println(string(body))
+			//fmt.Println(string(body))
 
 			// ここから先最終更新日と問題内容をキャッシュしておく
 			newProblemWithInfo := &entity.ProblemWithSyncTime{

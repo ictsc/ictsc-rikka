@@ -50,6 +50,18 @@ func (s *GrowiNoticeSync) Sync(ctx context.Context) error {
 	r := regexp.MustCompile(fmt.Sprintf(`^%s/`, s.path))
 
 	for _, page := range pages {
+		// _ で始まるパスを同期しないようしている
+		split := strings.Split(page.Path, "/")
+		end := split[len(split)-1]
+
+		// どこのパスかどうかのログ
+		fmt.Println(page.Path)
+
+		// _ で始まるページは同期しない
+		if strings.HasPrefix(end, "_") {
+			fmt.Println("Sync Skip")
+			continue
+		}
 		if r.MatchString(page.Path) {
 			// redis キャッシュから取得し
 			cachedNoticeWithInfo, err := s.noticeWithInfoRepository.Get(ctx, page.Path)
@@ -83,8 +95,7 @@ func (s *GrowiNoticeSync) Sync(ctx context.Context) error {
 			fmt.Println(matter)
 			fmt.Println(string(body))
 
-			split := strings.Split(page.Path, "/")
-			sourceId := split[len(split)-1]
+			sourceId := split[len(end)-1]
 
 			// ここから更新処理
 			// 1. 最終日付を更新
