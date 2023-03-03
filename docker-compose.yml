@@ -12,6 +12,14 @@ services:
     volumes:
       - .:/go/src/ictsc-rikka:cached
       - .local/pkg:/go/pkg:cached
+  ritto:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./cmd/ritto/config.yaml:/root/config.yaml
+    command: ./ritto --config ./config.yaml
+    restart: unless-stopped
   mariadb:
     image: mariadb:10.5.10
     ports:
