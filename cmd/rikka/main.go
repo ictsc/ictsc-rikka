@@ -148,6 +148,7 @@ func main() {
 	answerRepo := mariadb.NewAnswerRepository(db)
 	attachmentRepo := mariadb.NewAttachmentRepository(db)
 	s3Repo := s3repo.NewS3Repository(minioClient, config.Minio.BucketName)
+	noticeRepo := mariadb.NewNoticeRepository(db)
 
 	authService := service.NewAuthService(userRepo)
 	userService := service.NewUserService(userRepo, userProfileRepo, userGroupRepo)
@@ -157,11 +158,13 @@ func main() {
 	answerService := service.NewAnswerService(config.Contest.AnswerLimit, config.Notify.Answer, userRepo, answerRepo, problemRepo)
 	attachmentService := service.NewAttachmentService(attachmentRepo, s3Repo)
 	rankingService := service.NewRankingService(config.Contest.AnswerLimit, userGroupRepo, answerRepo)
+	noticeService := service.NewNoticeService(noticeRepo)
 
 	problemController := controller.NewProblemController(problemService)
 	answerController := controller.NewAnswerController(answerService)
 	attachmentController := controller.NewAttachmentController(attachmentService)
 	recreateController := controller.NewRecreateController(problemService, config.Recreate.URL)
+	noticeController := controller.NewNoticeController(noticeService)
 
 	errorMiddleware := middleware.NewErrorMiddleware()
 	prometheus := ginprometheus.NewPrometheus("gin")
@@ -214,6 +217,7 @@ func main() {
 		handler.NewAttachmentHandler(api, attachmentController, userRepo)
 		handler.NewRankingHandler(api, userRepo, rankingService)
 		handler.NewRecreateHandler(api, userRepo, problemService, recreateController)
+		handler.NewNoticeHandler(api, userRepo, noticeController)
 
 		api.GET("/ping", func(ctx *gin.Context) {
 			ctx.JSON(200, "")
