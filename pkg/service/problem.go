@@ -95,6 +95,7 @@ func (s *ProblemService) GetCurrentPointAnswer(problem *entity.Problem, groupId 
 	// まだユーザに点数が公開されていない回答を除外する
 	now := time.Now()
 	var CurrentPoint uint = 0
+	var gotAt time.Time
 	unchecked := 0
 	uncheckedNearOverdue := 0
 	uncheckedOverdue := 0
@@ -119,7 +120,6 @@ func (s *ProblemService) GetCurrentPointAnswer(problem *entity.Problem, groupId 
 			continue
 		}
 
-		var gotAt time.Time
 		if currentAnswer != nil {
 			gotAt = currentAnswer.CreatedAt
 		}
@@ -127,6 +127,8 @@ func (s *ProblemService) GetCurrentPointAnswer(problem *entity.Problem, groupId 
 		//一番最新で一番高い得点かつ一番最新のanswerを出す
 		if CurrentPoint < *answer.Point || (CurrentPoint == *answer.Point && answer.CreatedAt.Before(gotAt)) {
 			currentAnswer = answer
+			CurrentPoint = *answer.Point
+			gotAt = answer.CreatedAt
 		}
 	}
 	if currentAnswer == nil {
