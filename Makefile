@@ -30,7 +30,7 @@ down:
 build:
 	go build -o rikka ${GO_RIKKA_CMD_PATH}/*.go
 
-build:
+build-ritto:
 	go build -o ritto ${GO_RITTO_CMD_PATH}/*.go
 
 mariadb:
