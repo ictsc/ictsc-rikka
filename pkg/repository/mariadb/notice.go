@@ -26,7 +26,7 @@ func (r *NoticeRepository) Create(notice *entity.Notice) (*entity.Notice, error)
 
 func (r *NoticeRepository) GetAll() ([]*entity.Notice, error) {
 	notice := make([]*entity.Notice, 0)
-	err := r.db.Order("created_at desc").Find(&notice).Error
+	err := r.db.Where("draft = ?", false).Order("created_at desc").Find(&notice).Error
 	return notice, err
 }
 

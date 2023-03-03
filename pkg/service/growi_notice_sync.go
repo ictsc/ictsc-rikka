@@ -94,6 +94,7 @@ func (s *GrowiNoticeSync) Sync(ctx context.Context) error {
 					Title:    matter.Title,
 					Body:     string(body),
 					SourceId: sourceId,
+					Draft:    matter.Draft,
 				},
 				UpdatedAt: page.UpdatedAt,
 			}
