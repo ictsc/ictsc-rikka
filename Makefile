@@ -30,6 +30,9 @@ down:
 build:
 	go build -o rikka ${GO_RIKKA_CMD_PATH}/*.go
 
+build:
+	go build -o ritto ${GO_RITTO_CMD_PATH}/*.go
+
 mariadb:
 	docker compose exec mariadb mysql -u $(MARIADB_USER) --password=$(MARIADB_PASSWORD) $(MARIADB_DATABASE)
 
