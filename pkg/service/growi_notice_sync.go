@@ -95,8 +95,6 @@ func (s *GrowiNoticeSync) Sync(ctx context.Context) error {
 			fmt.Println(matter)
 			fmt.Println(string(body))
 
-			sourceId := split[len(end)-1]
-
 			// ここから更新処理
 			// 1. 最終日付を更新
 			// 2. notice をキャッシュ
@@ -104,7 +102,7 @@ func (s *GrowiNoticeSync) Sync(ctx context.Context) error {
 				Notice: entity.Notice{
 					Title:    matter.Title,
 					Body:     string(body),
-					SourceId: sourceId,
+					SourceId: end,
 					Draft:    matter.Draft,
 				},
 				UpdatedAt: page.UpdatedAt,
@@ -114,7 +112,7 @@ func (s *GrowiNoticeSync) Sync(ctx context.Context) error {
 			for _, notice := range notices {
 				// path を スラッシュで区切って一番最後の文字列
 				// 例: /notice/2020/01/01/notice1 -> notice1
-				if notice.SourceId == sourceId {
+				if notice.SourceId == end {
 					newNoticeWithInfo.ID = notice.ID
 					newNoticeWithInfo.CreatedAt = notice.CreatedAt
 
