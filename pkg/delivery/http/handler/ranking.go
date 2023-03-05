@@ -22,12 +22,12 @@ func NewRankingHandler(r *gin.RouterGroup, userRepo repository.UserRepository, r
 
 	route := r.Group("/ranking")
 	{
-		authed := route.Group("")
-
+		group := route.Group("")
+		authed := group.Group("")
 		authed.Use(middleware.Auth(userRepo))
 
+		group.GET("", handler.GetRanking)
 		authed.GET("/top", handler.GetTopRanking)
-		authed.GET("", handler.GetRanking)
 	}
 }
 
