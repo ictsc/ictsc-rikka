@@ -33,14 +33,23 @@ make up
 make mariadb-reset-db
 ```
 
+### テスト環境の作成
+
+`scripts/test_seed.sql` が実施されデータが投入された状態で起動します
+
+```
+cp scripts/docker-compose.override.yml .
+make up
+```
+
 ### docker-compose.yml
 
-| service | image           | 用途         | 永続化                 |
-| ------- | --------------- | ------------ | ---------------------- |
-| rikka | golang:1.16 |   API       | なし                     |
-| mariadb | mariadb:10.5.10 | データベース | mariadb:/var/lib/mysql |
-| redis   | redis:6.2.4     | session 用   | なし                   |
-| go      | golang:1.16     | 開発時実行用 | go-pkg:/go/pkg         |
+| service | image           | 用途        | 永続化                    |
+|---------|-----------------|-----------|------------------------|
+| rikka   | golang:1.16     | API       | なし                     |
+| mariadb | mariadb:10.5.10 | データベース    | mariadb:/var/lib/mysql |
+| redis   | redis:6.2.4     | session 用 | なし                     |
+| go      | golang:1.16     | 開発時実行用    | go-pkg:/go/pkg         |
 
 ### Makefile
 
