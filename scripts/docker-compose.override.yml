@@ -1,0 +1,17 @@
+version: "3"
+
+services:
+  mariadb:
+    image: mariadb:10.5.10
+    ports:
+      - 3306:3306
+    volumes:
+      - mariadb:/var/lib/mysql
+      - ./scripts/test_seed.sql:/docker-entrypoint-initdb.d/test_seed.sql
+    environment:
+      LANG: C.UTF-8
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: rikka
+      MYSQL_USER: rikka
+      MYSQL_PASSWORD: rikka-password
+      MYSQL_INITDB_CHARSET: utf8mb4
