@@ -13,6 +13,8 @@ RUN make build-ritto
 ### メインコンテナ ###
 FROM alpine:latest
 
+ENV GIN_MODE=release
+
 RUN apk add --no-cache libc6-compat
 
 WORKDIR /root/
