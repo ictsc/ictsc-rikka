@@ -72,10 +72,59 @@ func (s *AnswerService) Create(req *CreateAnswerRequest) (*entity.Answer, error)
 
 	problem, err := s.problemRepo.FindByID(req.ProblemID)
 	if err != nil {
-		return nil, errors.New("problem id is invalid")
+		return nil, err
 	}
 	if problem == nil {
 		return nil, errors.New("problem id is invalid")
+	}
+
+	if problem.Type == entity.MultipleType {
+		type MultipleAnswer struct {
+			Group int    `json:"group"`
+			Value []uint `json:"value"`
+			Type  string `json:"type"`
+		}
+
+		var myAnswers []MultipleAnswer
+		err := json.Unmarshal([]byte(ans.Body), &myAnswers)
+		if err != nil {
+			return nil, e.NewBadRequestError("invalid ma format")
+		}
+
+		if len(myAnswers) > len(problem.CorrectAnswers) {
+			return nil, e.NewBadRequestError("invalid ma format")
+		}
+
+		var sum uint
+		for _, ma := range myAnswers {
+			group := ma.Group
+			if group < 0 || group > len(problem.CorrectAnswers) {
+				return nil, e.NewBadRequestError("ma group is invalid")
+			}
+
+			ca := problem.CorrectAnswers[group]
+			if ca.Type == entity.RadioButton {
+				if ca.Column[0] == ma.Value[0] {
+					sum += ca.Scoring.Correct
+				}
+			}
+
+			if ca.Type == entity.CheckBox {
+				correctCount := 0
+				for _, val := range ma.Value {
+					if contains(ca.Column, val) {
+						correctCount++
+					}
+				}
+
+				if correctCount == len(ca.Column) {
+					sum += ca.Scoring.Correct
+				} else if ca.Scoring.PartialCorrect != nil && correctCount > 0 {
+					sum += *ca.Scoring.PartialCorrect * uint(correctCount)
+				}
+			}
+		}
+		ans.Point = &sum
 	}
 
 	answer, err := s.answerRepo.Create(ans)
@@ -207,4 +256,13 @@ func (s *AnswerService) Delete(id uuid.UUID) error {
 		return err
 	}
 	return s.answerRepo.Delete(ans)
+}
+
+func contains(s []uint, e uint) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
 }

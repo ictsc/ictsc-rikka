@@ -1,6 +1,8 @@
 package service
 
 import (
+	"github.com/adrg/frontmatter"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -23,6 +25,8 @@ type CreateProblemRequest struct {
 	AuthorID          uuid.UUID
 	Title             string
 	Body              string
+	Type              entity.ProblemType
+	CorrectAnswers    []entity.CorrectAnswer
 	Point             uint
 	PreviousProblemID *uuid.UUID
 	SolvedCriterion   uint
@@ -34,6 +38,8 @@ type UpdateProblemRequest struct {
 	AuthorID          uuid.UUID
 	Title             string
 	Body              string
+	Type              entity.ProblemType
+	Answer            []entity.CorrectAnswer
 	Point             uint
 	PreviousProblemID *uuid.UUID
 	SolvedCriterion   uint
@@ -56,6 +62,8 @@ func (s *ProblemService) Create(req *CreateProblemRequest) (*entity.Problem, err
 		AuthorID:          req.AuthorID,
 		Title:             req.Title,
 		Body:              req.Body,
+		Type:              req.Type,
+		CorrectAnswers:    req.CorrectAnswers,
 		Point:             req.Point,
 		PreviousProblemID: req.PreviousProblemID,
 		SolvedCriterion:   req.SolvedCriterion,
@@ -64,6 +72,24 @@ func (s *ProblemService) Create(req *CreateProblemRequest) (*entity.Problem, err
 	if err := prob.Validate(); err != nil {
 		return nil, err
 	}
+
+	var matter = &entity.ProblemFrontMatter{}
+	body, err := frontmatter.Parse(strings.NewReader(prob.Body), matter)
+	if err != nil {
+		return nil, err
+	}
+	if err := matter.Validate(); err != nil {
+		return nil, err
+	}
+
+	// matter から question を削除
+	prob.CorrectAnswers = matter.CorrectAnswers
+	matter.CorrectAnswers = nil
+	matterStr, err := matter.Encode()
+	if err != nil {
+		return nil, err
+	}
+	prob.Body = "---\n" + matterStr + "---\n" + string(body)
 
 	if prob.PreviousProblemID != nil {
 		prevProb, err := s.problemRepo.FindByID(*req.PreviousProblemID)
