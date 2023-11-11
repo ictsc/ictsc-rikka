@@ -109,7 +109,7 @@ body`,
 								Type:           entity.RadioButton,
 								CorrectAnswers: []uint{1},
 								Scoring: entity.Scoring{
-									Correct: &correct,
+									Correct: correct,
 								},
 							},
 						},
@@ -129,13 +129,12 @@ body`,
 			problemRepo := mock.NewMockProblemRepository(ctrl)
 			answerRepo := mock.NewMockAnswerRepository(ctrl)
 
-			s := &ProblemService{
-				uncheckedNearOverdueThreshold: 0,
-				uncheckedOverdueThreshold:     0,
-				userRepo:                      userRepo,
-				problemRepo:                   problemRepo,
-				answerRepo:                    answerRepo,
-			}
+			s := NewProblemService(
+				0,
+				userRepo,
+				problemRepo,
+				answerRepo,
+			)
 
 			if tt.mockInit != nil {
 				tt.mockInit(*userRepo, *problemRepo, *answerRepo)

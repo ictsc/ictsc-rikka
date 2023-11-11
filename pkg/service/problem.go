@@ -25,6 +25,7 @@ type CreateProblemRequest struct {
 	AuthorID          uuid.UUID
 	Title             string
 	Body              string
+	Type              entity.ProblemType
 	Answer            []entity.Question
 	Point             uint
 	PreviousProblemID *uuid.UUID
@@ -37,6 +38,7 @@ type UpdateProblemRequest struct {
 	AuthorID          uuid.UUID
 	Title             string
 	Body              string
+	Type              entity.ProblemType
 	Answer            []entity.Question
 	Point             uint
 	PreviousProblemID *uuid.UUID
@@ -60,6 +62,7 @@ func (s *ProblemService) Create(req *CreateProblemRequest) (*entity.Problem, err
 		AuthorID:          req.AuthorID,
 		Title:             req.Title,
 		Body:              req.Body,
+		Type:              req.Type,
 		Answer:            req.Answer,
 		Point:             req.Point,
 		PreviousProblemID: req.PreviousProblemID,

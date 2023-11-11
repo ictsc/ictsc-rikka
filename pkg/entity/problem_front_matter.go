@@ -1,7 +1,6 @@
 package entity
 
 import (
-	"fmt"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 	"regexp"
@@ -40,8 +39,7 @@ type Question struct {
 }
 
 type Scoring struct {
-	Correct        *uint `yaml:"correct,omitempty"`
-	AllCorrect     *uint `yaml:"all_correct,omitempty"`
+	Correct        uint  `yaml:"correct,omitempty"`
 	PartialCorrect *uint `yaml:"partial_correct,omitempty"`
 }
 
@@ -95,12 +93,8 @@ func (p *ProblemFrontMatter) Encode() (string, error) {
 }
 
 func validateScoring(s Scoring) error {
-	if s.Correct != nil && (s.AllCorrect != nil || s.PartialCorrect != nil) {
-		return errors.New("scoring for radio_button type should only have 'correct' field")
-	}
-
-	if (s.AllCorrect != nil || s.PartialCorrect != nil) && s.Correct != nil {
-		return fmt.Errorf("scoring for checkbox type should have 'all_correct' and/or 'partial_correct' fields")
+	if s.PartialCorrect != nil && s.Correct < *s.PartialCorrect {
+		return errors.New("partial_correct must be less than or equal to correct")
 	}
 
 	return nil
