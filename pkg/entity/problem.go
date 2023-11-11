@@ -16,6 +16,7 @@ type Problem struct {
 	Author            *User      `json:"-"`
 	Title             string     `json:"title"`
 	Body              string     `json:"body,omitempty"`
+	Answer            []Question `json:"answer,omitempty"`
 	Point             uint       `json:"point"`
 	PreviousProblemID *uuid.UUID `json:"previous_problem_id"`
 	PreviousProblem   *Problem   `json:"-"`
