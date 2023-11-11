@@ -81,7 +81,7 @@ func (s *AnswerService) Create(req *CreateAnswerRequest) (*entity.Answer, error)
 	if problem.Type == entity.MultipleType {
 		type MultipleAnswer struct {
 			Group int    `json:"group"`
-			Value []int  `json:"value"`
+			Value []uint `json:"value"`
 			Type  string `json:"type"`
 		}
 
@@ -104,7 +104,7 @@ func (s *AnswerService) Create(req *CreateAnswerRequest) (*entity.Answer, error)
 
 			ca := problem.CorrectAnswers[group]
 			if ca.Type == entity.RadioButton {
-				if ca.Column[0] == uint(ma.Value[0]) {
+				if ca.Column[0] == ma.Value[0] {
 					sum += ca.Scoring.Correct
 				}
 			}
@@ -112,7 +112,7 @@ func (s *AnswerService) Create(req *CreateAnswerRequest) (*entity.Answer, error)
 			if ca.Type == entity.CheckBox {
 				correctCount := 0
 				for _, val := range ma.Value {
-					if contains(ca.Column, uint(val)) {
+					if contains(ca.Column, val) {
 						correctCount++
 					}
 				}
