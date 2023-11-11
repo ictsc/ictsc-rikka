@@ -91,10 +91,10 @@ func TestAnswerService_Create(t *testing.T) {
 				).Return(
 					&entity.Problem{
 						Code: "ABC",
-						Answer: []entity.Question{
+						CorrectAnswers: []entity.CorrectAnswer{
 							{
-								Type:           entity.CheckBox,
-								CorrectAnswers: []uint{3},
+								Type:   entity.CheckBox,
+								Column: []uint{3},
 								Scoring: entity.Scoring{
 									Correct: 10,
 									PartialCorrect: func() *uint {
@@ -145,10 +145,10 @@ func TestAnswerService_Create(t *testing.T) {
 				).Return(
 					&entity.Problem{
 						Code: "ABC",
-						Answer: []entity.Question{
+						CorrectAnswers: []entity.CorrectAnswer{
 							{
-								Type:           entity.CheckBox,
-								CorrectAnswers: []uint{0, 1, 2},
+								Type:   entity.CheckBox,
+								Column: []uint{0, 1, 2},
 								Scoring: entity.Scoring{
 									Correct: 10,
 									PartialCorrect: func() *uint {
@@ -199,10 +199,10 @@ func TestAnswerService_Create(t *testing.T) {
 				).Return(
 					&entity.Problem{
 						Code: "ABC",
-						Answer: []entity.Question{
+						CorrectAnswers: []entity.CorrectAnswer{
 							{
-								Type:           entity.CheckBox,
-								CorrectAnswers: []uint{0, 1},
+								Type:   entity.CheckBox,
+								Column: []uint{0, 1},
 								Scoring: entity.Scoring{
 									Correct: 10,
 									PartialCorrect: func() *uint {
@@ -253,10 +253,10 @@ func TestAnswerService_Create(t *testing.T) {
 				).Return(
 					&entity.Problem{
 						Code: "ABC",
-						Answer: []entity.Question{
+						CorrectAnswers: []entity.CorrectAnswer{
 							{
-								Type:           entity.CheckBox,
-								CorrectAnswers: []uint{0, 1, 2},
+								Type:   entity.CheckBox,
+								Column: []uint{0, 1, 2},
 								Scoring: entity.Scoring{
 									Correct: 10,
 									PartialCorrect: func() *uint {
@@ -266,8 +266,8 @@ func TestAnswerService_Create(t *testing.T) {
 								},
 							},
 							{
-								Type:           entity.CheckBox,
-								CorrectAnswers: []uint{0, 1, 2},
+								Type:   entity.CheckBox,
+								Column: []uint{0, 1, 2},
 								Scoring: entity.Scoring{
 									Correct: 100,
 									PartialCorrect: func() *uint {
@@ -277,8 +277,8 @@ func TestAnswerService_Create(t *testing.T) {
 								},
 							},
 							{
-								Type:           entity.RadioButton,
-								CorrectAnswers: []uint{3},
+								Type:   entity.RadioButton,
+								Column: []uint{3},
 								Scoring: entity.Scoring{
 									Correct: 10,
 								},

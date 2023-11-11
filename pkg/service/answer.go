@@ -85,42 +85,42 @@ func (s *AnswerService) Create(req *CreateAnswerRequest) (*entity.Answer, error)
 			Type  string `json:"type"`
 		}
 
-		var answers []MultipleAnswer
-		err := json.Unmarshal([]byte(ans.Body), &answers)
+		var myAnswers []MultipleAnswer
+		err := json.Unmarshal([]byte(ans.Body), &myAnswers)
 		if err != nil {
-			return nil, e.NewBadRequestError("invalid answer format")
+			return nil, e.NewBadRequestError("invalid ma format")
 		}
 
-		if len(answers) > len(problem.Answer) {
-			return nil, e.NewBadRequestError("invalid answer format")
+		if len(myAnswers) > len(problem.CorrectAnswers) {
+			return nil, e.NewBadRequestError("invalid ma format")
 		}
 
 		var sum uint
-		for _, answer := range answers {
-			group := answer.Group
-			if group < 0 || group > len(problem.Answer) {
-				return nil, e.NewBadRequestError("answer group is invalid")
+		for _, ma := range myAnswers {
+			group := ma.Group
+			if group < 0 || group > len(problem.CorrectAnswers) {
+				return nil, e.NewBadRequestError("ma group is invalid")
 			}
 
-			question := problem.Answer[group]
-			if question.Type == entity.RadioButton {
-				if question.CorrectAnswers[0] == uint(answer.Value[0]) {
-					sum += question.Scoring.Correct
+			ca := problem.CorrectAnswers[group]
+			if ca.Type == entity.RadioButton {
+				if ca.Column[0] == uint(ma.Value[0]) {
+					sum += ca.Scoring.Correct
 				}
 			}
 
-			if question.Type == entity.CheckBox {
+			if ca.Type == entity.CheckBox {
 				correctCount := 0
-				for _, val := range answer.Value {
-					if contains(question.CorrectAnswers, uint(val)) {
+				for _, val := range ma.Value {
+					if contains(ca.Column, uint(val)) {
 						correctCount++
 					}
 				}
 
-				if correctCount == len(question.CorrectAnswers) {
-					sum += question.Scoring.Correct
-				} else if question.Scoring.PartialCorrect != nil && correctCount > 0 {
-					sum += *question.Scoring.PartialCorrect * uint(correctCount)
+				if correctCount == len(ca.Column) {
+					sum += ca.Scoring.Correct
+				} else if ca.Scoring.PartialCorrect != nil && correctCount > 0 {
+					sum += *ca.Scoring.PartialCorrect * uint(correctCount)
 				}
 			}
 		}

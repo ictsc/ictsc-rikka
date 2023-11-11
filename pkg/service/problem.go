@@ -26,7 +26,7 @@ type CreateProblemRequest struct {
 	Title             string
 	Body              string
 	Type              entity.ProblemType
-	Answer            []entity.Question
+	CorrectAnswers    []entity.CorrectAnswer
 	Point             uint
 	PreviousProblemID *uuid.UUID
 	SolvedCriterion   uint
@@ -39,7 +39,7 @@ type UpdateProblemRequest struct {
 	Title             string
 	Body              string
 	Type              entity.ProblemType
-	Answer            []entity.Question
+	Answer            []entity.CorrectAnswer
 	Point             uint
 	PreviousProblemID *uuid.UUID
 	SolvedCriterion   uint
@@ -63,7 +63,7 @@ func (s *ProblemService) Create(req *CreateProblemRequest) (*entity.Problem, err
 		Title:             req.Title,
 		Body:              req.Body,
 		Type:              req.Type,
-		Answer:            req.Answer,
+		CorrectAnswers:    req.CorrectAnswers,
 		Point:             req.Point,
 		PreviousProblemID: req.PreviousProblemID,
 		SolvedCriterion:   req.SolvedCriterion,
@@ -83,8 +83,8 @@ func (s *ProblemService) Create(req *CreateProblemRequest) (*entity.Problem, err
 	}
 
 	// matter から question を削除
-	prob.Answer = matter.Questions
-	matter.Questions = nil
+	prob.CorrectAnswers = matter.CorrectAnswers
+	matter.CorrectAnswers = nil
 	matterStr, err := matter.Encode()
 	if err != nil {
 		return nil, err

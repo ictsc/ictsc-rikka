@@ -22,20 +22,20 @@ const (
 )
 
 type ProblemFrontMatter struct {
-	Code              string      `yaml:"code"`
-	Title             string      `yaml:"title"`
-	Point             uint        `yaml:"point"`
-	PreviousProblemID *string     `yaml:"previousProblemId,omitempty"`
-	SolvedCriterion   uint        `yaml:"solvedCriterion"`
-	AuthorId          string      `yaml:"authorId,omitempty"`
-	Type              ProblemType `yaml:"type"`
-	Questions         []Question  `yaml:"questions,omitempty"`
+	Code              string          `yaml:"code"`
+	Title             string          `yaml:"title"`
+	Point             uint            `yaml:"point"`
+	PreviousProblemID *string         `yaml:"previousProblemId,omitempty"`
+	SolvedCriterion   uint            `yaml:"solvedCriterion"`
+	AuthorId          string          `yaml:"authorId,omitempty"`
+	Type              ProblemType     `yaml:"type"`
+	CorrectAnswers    []CorrectAnswer `yaml:"correct_answers,omitempty"`
 }
 
-type Question struct {
-	Type           QuestionType `yaml:"type"`
-	CorrectAnswers []uint       `yaml:"correct_answers"`
-	Scoring        Scoring      `yaml:"scoring"`
+type CorrectAnswer struct {
+	Type    QuestionType `yaml:"type"`
+	Column  []uint       `yaml:"column"`
+	Scoring Scoring      `yaml:"scoring"`
 }
 
 type Scoring struct {
@@ -58,20 +58,20 @@ func (p *ProblemFrontMatter) Validate() error {
 		return errors.New("invalid problem type")
 	}
 
-	for _, question := range p.Questions {
-		if question.Type != RadioButton && question.Type != CheckBox {
-			return errors.New("invalid question type")
+	for _, ca := range p.CorrectAnswers {
+		if ca.Type != RadioButton && ca.Type != CheckBox {
+			return errors.New("invalid ca type")
 		}
 
-		if question.Type == RadioButton && len(question.CorrectAnswers) != 1 {
-			return errors.New("radio type question must have exactly one correct answer")
+		if ca.Type == RadioButton && len(ca.Column) != 1 {
+			return errors.New("radio type ca must have exactly one correct answer")
 		}
 
-		if question.Type == CheckBox && len(question.CorrectAnswers) < 1 {
-			return errors.New("checkbox type question must have at least one correct answer")
+		if ca.Type == CheckBox && len(ca.Column) < 1 {
+			return errors.New("checkbox type ca must have at least one correct answer")
 		}
 
-		if err := validateScoring(question.Scoring); err != nil {
+		if err := validateScoring(ca.Scoring); err != nil {
 			return err
 		}
 	}

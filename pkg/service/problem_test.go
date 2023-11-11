@@ -81,9 +81,9 @@ title: title
 point: 100
 solvedCriterion: 50
 type: multiple
-questions:
+correct_answers:
   - type: radio
-    correct_answers:
+    column:
       - 1
     scoring:
       correct: 1
@@ -104,10 +104,10 @@ solvedCriterion: 50
 type: multiple
 ---
 body`,
-						Answer: []entity.Question{
+						CorrectAnswers: []entity.CorrectAnswer{
 							{
-								Type:           entity.RadioButton,
-								CorrectAnswers: []uint{1},
+								Type:   entity.RadioButton,
+								Column: []uint{1},
 								Scoring: entity.Scoring{
 									Correct: correct,
 								},
