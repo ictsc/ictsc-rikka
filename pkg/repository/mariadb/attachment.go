@@ -2,6 +2,7 @@ package mariadb
 
 import (
 	"errors"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
@@ -19,6 +20,10 @@ func NewAttachmentRepository(db *gorm.DB) *AttachmentRepository {
 }
 
 func (r *AttachmentRepository) Create(attachment *entity.Attachment) (*entity.Attachment, error) {
+	now := time.Now()
+	attachment.CreatedAt = now
+	attachment.UpdatedAt = now
+
 	if err := r.db.Create(attachment).Error; err != nil {
 		return nil, err
 	}

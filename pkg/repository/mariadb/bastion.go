@@ -5,6 +5,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
 	"gorm.io/gorm"
+	"time"
 )
 
 type BastionRepository struct {
@@ -18,6 +19,10 @@ func NewBastionRepository(db *gorm.DB) *BastionRepository {
 }
 
 func (r *BastionRepository) Create(bastion *entity.Bastion) (*entity.Bastion, error) {
+	now := time.Now()
+	bastion.CreatedAt = now
+	bastion.UpdatedAt = now
+
 	if err := r.db.Create(bastion).Error; err != nil {
 		return nil, err
 	}

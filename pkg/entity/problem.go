@@ -1,7 +1,9 @@
 package entity
 
 import (
+	"database/sql/driver"
 	"github.com/adrg/frontmatter"
+	"gopkg.in/yaml.v2"
 	"regexp"
 	"strings"
 	"time"
@@ -13,17 +15,17 @@ import (
 type Problem struct {
 	Base
 
-	Code              string          `json:"code" gorm:"unique;index"`
-	AuthorID          uuid.UUID       `json:"author_id"`
-	Author            *User           `json:"-"`
-	Title             string          `json:"title"`
-	Body              string          `json:"body,omitempty"`
-	Type              ProblemType     `yaml:"type"`
-	CorrectAnswers    []CorrectAnswer `json:"correct_answers,omitempty"`
-	Point             uint            `json:"point"`
-	PreviousProblemID *uuid.UUID      `json:"previous_problem_id"`
-	PreviousProblem   *Problem        `json:"-"`
-	SolvedCriterion   uint            `json:"solved_criterion"`
+	Code              string             `json:"code" gorm:"unique;index"`
+	AuthorID          uuid.UUID          `json:"author_id"`
+	Author            *User              `json:"-"`
+	Title             string             `json:"title"`
+	Body              string             `json:"body,omitempty"`
+	Type              ProblemType        `json:"type" yaml:"type" gorm:"type:enum('normal','multiple');default:'normal'"`
+	CorrectAnswers    YAMLCorrectAnswers `json:"-" gorm:"type:text"`
+	Point             uint               `json:"point"`
+	PreviousProblemID *uuid.UUID         `json:"previous_problem_id"`
+	PreviousProblem   *Problem           `json:"-"`
+	SolvedCriterion   uint               `json:"solved_criterion"`
 }
 
 func (p *Problem) Validate() error {
@@ -91,4 +93,22 @@ type ProblemWithCurrentPoint struct {
 type ProblemWithSyncTime struct {
 	Problem
 	UpdatedAt time.Time
+}
+
+type YAMLCorrectAnswers []CorrectAnswer
+
+func (y *YAMLCorrectAnswers) Scan(value interface{}) error {
+	bytes, ok := value.([]byte)
+	if !ok {
+		return errors.New("failed to unmarshal YAML")
+	}
+
+	return yaml.Unmarshal(bytes, y)
+}
+
+func (y YAMLCorrectAnswers) Value() (driver.Value, error) {
+	if len(y) == 0 {
+		return nil, nil
+	}
+	return yaml.Marshal(y)
 }

@@ -102,8 +102,9 @@ PageLoop:
 			exist := false
 			for _, p := range problems {
 				if p.Code == newProblem.Code {
-					if p.UpdatedAt == newProblem.UpdatedAt {
+					if p.UpdatedAt.Equal(newProblem.UpdatedAt) {
 						// 更新がないのでスキップ
+						log.Println("skipped because it is not updated")
 						continue PageLoop
 					}
 
@@ -118,11 +119,13 @@ PageLoop:
 				if _, err := s.problemRepository.Create(newProblem); err != nil {
 					log.Fatal(err)
 				}
+				log.Println("created")
 			} else {
 				// 更新処理
-				if _, err := s.problemRepository.Update(newProblem); err != nil {
+				if _, err := s.problemRepository.Update(newProblem, true); err != nil {
 					log.Fatal(err)
 				}
+				log.Println("updated")
 			}
 		}
 	}

@@ -75,6 +75,8 @@ github.com/ictsc/growi_client v0.0.0-20231111150004-85d8ded1b6f6 h1:Ew1Biy5gM7eO
 github.com/ictsc/growi_client v0.0.0-20231111150004-85d8ded1b6f6/go.mod h1:t0xZrIHAILBTctOBUJjxrkZn4QbBiv3eJ0Z9oWJB6ZM=
 github.com/ictsc/growi_client v0.0.0-20231111153418-71068b6a2ab8 h1:Ai2xMCmEJSV3KfS9UvNIbaEcR2t3jV27v37YBN1Eehk=
 github.com/ictsc/growi_client v0.0.0-20231111153418-71068b6a2ab8/go.mod h1:t0xZrIHAILBTctOBUJjxrkZn4QbBiv3eJ0Z9oWJB6ZM=
+github.com/ictsc/growi_client v0.0.0-20231112130128-56d4b15f15be h1:42/73BXge9NOLOElVHOOZ+DNS9MwnyXvNPCUJF+uDvo=
+github.com/ictsc/growi_client v0.0.0-20231112130128-56d4b15f15be/go.mod h1:t0xZrIHAILBTctOBUJjxrkZn4QbBiv3eJ0Z9oWJB6ZM=
 github.com/jinzhu/inflection v1.0.0 h1:K317FqzuhWc8YvSVlFMCCUb36O/S9MCKRDI7QkRKD/E=
 github.com/jinzhu/inflection v1.0.0/go.mod h1:h+uFLlag+Qp1Va5pdKtLDYj+kHp5pxUVkryuEj+Srlc=
 github.com/jinzhu/now v1.1.4/go.mod h1:d3SSVoowX0Lcu0IBviAWJpolVfI5UJVZZ7cO71lE/z8=

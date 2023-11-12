@@ -2,6 +2,7 @@ package mariadb
 
 import (
 	"errors"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
@@ -19,6 +20,10 @@ func NewUserRepository(db *gorm.DB) *UserRepository {
 }
 
 func (r *UserRepository) Create(user *entity.User) (*entity.User, error) {
+	now := time.Now()
+	user.CreatedAt = now
+	user.UpdatedAt = now
+
 	if err := r.db.Create(user).Error; err != nil {
 		return nil, err
 	}
@@ -63,6 +68,8 @@ func (r *UserRepository) FindByName(name string, isPreload bool) (*entity.User, 
 }
 
 func (r *UserRepository) Update(user *entity.User) (*entity.User, error) {
+	user.UpdatedAt = time.Now()
+
 	if err := r.db.Save(user).Error; err != nil {
 		return nil, err
 	}

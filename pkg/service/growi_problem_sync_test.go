@@ -117,7 +117,7 @@ body`,
 					},
 					nil)
 				problemRepo.EXPECT().Create(gomock.Any()).Times(0)
-				problemRepo.EXPECT().Update(gomock.Any()).Times(0)
+				problemRepo.EXPECT().Update(gomock.Any(), gomock.Any()).Times(0)
 			},
 		},
 		{
@@ -182,6 +182,7 @@ type: normal
 ---
 body`,
 					},
+					true,
 				).Times(1)
 			},
 		},

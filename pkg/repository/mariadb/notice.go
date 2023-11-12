@@ -4,6 +4,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
 	"gorm.io/gorm"
+	"time"
 )
 
 type NoticeRepository struct {
@@ -17,6 +18,10 @@ func NewNoticeRepository(db *gorm.DB) *NoticeRepository {
 }
 
 func (r *NoticeRepository) Create(notice *entity.Notice) (*entity.Notice, error) {
+	now := time.Now()
+	notice.CreatedAt = now
+	notice.UpdatedAt = now
+
 	err := r.db.Create(notice).Error
 	if err != nil {
 		return nil, err
@@ -36,7 +41,11 @@ func (r *NoticeRepository) FindByID(id uuid.UUID) (*entity.Notice, error) {
 	return res, err
 }
 
-func (r *NoticeRepository) Update(notice *entity.Notice) (*entity.Notice, error) {
+func (r *NoticeRepository) Update(notice *entity.Notice, skipUpdatedAt bool) (*entity.Notice, error) {
+	if !skipUpdatedAt {
+		notice.UpdatedAt = time.Now()
+	}
+
 	err := r.db.Save(notice).Error
 	if err != nil {
 		return nil, err

@@ -4,7 +4,6 @@ import "fmt"
 
 type Config struct {
 	MariaDB MariaDBConfig `yaml:"mariadb"`
-	Redis   RedisConfig   `yaml:"redis"`
 	Rikka   Rikka         `yaml:"rikka"`
 	Growi   GrowiConfig   `yaml:"growi"`
 }
@@ -18,13 +17,6 @@ type MariaDBConfig struct {
 	Database string `yaml:"database"`
 }
 
-type RedisConfig struct {
-	IdleConnectionSize int    `yaml:"idleConnectionSize"`
-	Address            string `yaml:"address"`
-	Port               int    `yaml:"port"`
-	KeyPair            string `yaml:"keyPair"`
-}
-
 type Rikka struct {
 	AuthorId string `yaml:"authorId"`
 }
@@ -34,8 +26,6 @@ type GrowiConfig struct {
 	Token       string `yaml:"token"`
 	ProblemPath string `yaml:"problemPath"`
 	NoticePath  string `yaml:"noticePath"`
-	Username    string `yaml:"username"`
-	Password    string `yaml:"password"`
 }
 
 func (c *MariaDBConfig) getDSN() string {

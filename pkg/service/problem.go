@@ -255,7 +255,7 @@ func (s *ProblemService) Update(id uuid.UUID, req *UpdateProblemRequest) (*entit
 		}
 	}
 
-	return s.problemRepo.Update(prob)
+	return s.problemRepo.Update(prob, false)
 }
 
 func (s *ProblemService) Delete(id uuid.UUID) error {

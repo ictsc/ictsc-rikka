@@ -88,11 +88,13 @@ PageLoop:
 			exist := false
 			for _, p := range notices {
 				if p.SourceId == newNotice.SourceId {
-					if p.UpdatedAt == newNotice.UpdatedAt {
+					if p.UpdatedAt.Equal(newNotice.UpdatedAt) {
 						// 更新がないのでスキップ
+						log.Println("skipped because it is not updated")
 						continue PageLoop
 					}
 
+					newNotice.ID = p.ID
 					exist = true
 					break
 				}
@@ -103,11 +105,13 @@ PageLoop:
 				if _, err := s.noticeRepository.Create(newNotice); err != nil {
 					log.Fatal(err)
 				}
+				log.Println("created")
 			} else {
 				// 更新処理
-				if _, err := s.noticeRepository.Update(newNotice); err != nil {
+				if _, err := s.noticeRepository.Update(newNotice, true); err != nil {
 					log.Fatal(err)
 				}
+				log.Println("updated")
 			}
 		}
 	}

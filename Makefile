@@ -8,7 +8,7 @@ GO_RITTO_CMD_PATH=cmd/ritto
 GO_RUN=go run $(GO_RIKKA_CMD_PATH)/main.go $(GO_RIKKA_CMD_PATH)/config.go
 GO_RUN_RITTO=go run $(GO_RITTO_CMD_PATH)/main.go $(GO_RITTO_CMD_PATH)/config.go
 
-.PHONY: run run-ritto run-docker ps up down mariadb mariadb-drop-db mariadb-create-db mariadb-reset-db redis-cli self-signed-cert-and-key
+.PHONY: run run-ritto run-docker ps up down build test generate mariadb mariadb-drop-db mariadb-create-db mariadb-reset-db redis-cli self-signed-cert-and-key
 run:
 	$(GO_RUN) --config $(GO_RIKKA_CMD_PATH)/config.yaml
 
@@ -29,6 +29,12 @@ down:
 
 build:
 	go build -o rikka ${GO_RIKKA_CMD_PATH}/*.go
+
+test:
+	go test ./...
+
+generate:
+	go generate ./...
 
 build-ritto:
 	go build -o ritto ${GO_RITTO_CMD_PATH}/*.go
