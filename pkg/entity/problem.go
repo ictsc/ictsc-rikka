@@ -1,7 +1,9 @@
 package entity
 
 import (
+	"github.com/adrg/frontmatter"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -34,6 +36,36 @@ func (p *Problem) Validate() error {
 	if !(p.SolvedCriterion <= p.Point) {
 		return errors.New("solved_criterion must be less than or equal to point")
 	}
+
+	if !(p.Type == NormalType || p.Type == MultipleType) {
+		return errors.New("invalid problem type")
+	}
+
+	if p.Type == MultipleType && len(p.CorrectAnswers) == 0 {
+		return errors.New("multiple type problem must have at least one correct answer")
+	}
+
+	return nil
+}
+
+func (p *Problem) DeleteMatterQuestionWithQuestionFieldAttach() error {
+	var matter = &ProblemFrontMatter{}
+	body, err := frontmatter.Parse(strings.NewReader(p.Body), matter)
+	if err != nil {
+		return errors.Wrap(err, "failed to parse frontmatter")
+	}
+	if err := matter.Validate(); err != nil {
+		return errors.Wrap(err, "failed to validate frontmatter")
+	}
+
+	// matter から question を削除
+	p.CorrectAnswers = matter.CorrectAnswers
+	matter.CorrectAnswers = nil
+	matterStr, err := matter.Encode()
+	if err != nil {
+		return errors.Wrap(err, "failed to encode frontmatter")
+	}
+	p.Body = "---\n" + matterStr + "---\n" + string(body)
 
 	return nil
 }

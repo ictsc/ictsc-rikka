@@ -51,6 +51,7 @@ solvedCriterion: 50
 type: normal
 ---
 body`,
+					Type: entity.NormalType,
 				},
 			},
 			mockInit: func(userRepo mock.MockUserRepository, problemRepo mock.MockProblemRepository, answerRepo mock.MockAnswerRepository) {
@@ -65,6 +66,7 @@ solvedCriterion: 50
 type: normal
 ---
 body`,
+						Type: entity.NormalType,
 					},
 				).Return(&entity.Problem{}, nil).Times(1)
 			},
@@ -89,6 +91,7 @@ correct_answers:
       correct: 1
 ---
 body`,
+					Type: entity.MultipleType,
 				},
 			},
 			mockInit: func(userRepo mock.MockUserRepository, problemRepo mock.MockProblemRepository, answerRepo mock.MockAnswerRepository) {
@@ -104,6 +107,7 @@ solvedCriterion: 50
 type: multiple
 ---
 body`,
+						Type: entity.MultipleType,
 						CorrectAnswers: []entity.CorrectAnswer{
 							{
 								Type:   entity.RadioButton,

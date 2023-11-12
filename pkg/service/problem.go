@@ -1,8 +1,6 @@
 package service
 
 import (
-	"github.com/adrg/frontmatter"
-	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -69,27 +67,13 @@ func (s *ProblemService) Create(req *CreateProblemRequest) (*entity.Problem, err
 		SolvedCriterion:   req.SolvedCriterion,
 	}
 
+	if err := prob.DeleteMatterQuestionWithQuestionFieldAttach(); err != nil {
+		return nil, err
+	}
+
 	if err := prob.Validate(); err != nil {
 		return nil, err
 	}
-
-	var matter = &entity.ProblemFrontMatter{}
-	body, err := frontmatter.Parse(strings.NewReader(prob.Body), matter)
-	if err != nil {
-		return nil, err
-	}
-	if err := matter.Validate(); err != nil {
-		return nil, err
-	}
-
-	// matter から question を削除
-	prob.CorrectAnswers = matter.CorrectAnswers
-	matter.CorrectAnswers = nil
-	matterStr, err := matter.Encode()
-	if err != nil {
-		return nil, err
-	}
-	prob.Body = "---\n" + matterStr + "---\n" + string(body)
 
 	if prob.PreviousProblemID != nil {
 		prevProb, err := s.problemRepo.FindByID(*req.PreviousProblemID)
