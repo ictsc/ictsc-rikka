@@ -59,12 +59,10 @@ PageLoop:
 
 		// _ で始まるページはスキップされる
 		if strings.HasPrefix(end, "_") {
-			// english
 			log.Println("skipped because it starts with _")
 			continue
 		}
 		if paths.MatchString(page.Path) {
-			// 個別ページを取得
 			problemPage, err := s.client.GetPage(page.Path)
 			if err != nil {
 				log.Fatalf(errors.Wrapf(err, "Failed to get page").Error())

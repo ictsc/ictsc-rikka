@@ -86,7 +86,6 @@ func main() {
 	growiSessionCookieRepo := rc.NewGrowiSessionCookieRepository(redisClient)
 	problemRepo := mariadb.NewProblemRepository(db)
 	noticeRepo := mariadb.NewNoticeRepository(db)
-	noticeWithSyncTimeRepo := rc.NewNoticeWithSyncTimeRepository(redisClient)
 
 	option := &growi_client.GrowiClientOption{
 		Username:    config.Growi.Username,
@@ -123,7 +122,6 @@ func main() {
 	growiNoticeSyncService := service.NewGrowiNoticeSyncService(
 		client,
 		config.Growi.NoticePath,
-		noticeWithSyncTimeRepo,
 		noticeRepo,
 	)
 
@@ -131,7 +129,7 @@ func main() {
 	// TODO(k-shir0): エラー処理追加
 	err = growiProblemSyncService.Sync()
 	// TODO(k-shir0): エラー処理追加
-	err = growiNoticeSyncService.Sync(ctx)
+	err = growiNoticeSyncService.Sync()
 	// TODO(k-shir0): エラー処理追加
 	if err != nil {
 		log.Fatal(err)
