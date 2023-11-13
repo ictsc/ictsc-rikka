@@ -75,11 +75,10 @@ func main() {
 		noticeRepo,
 	)
 
-	err = growiProblemSyncService.Sync()
-	// TODO(k-shir0): エラー処理追加
-	err = growiNoticeSyncService.Sync()
-	// TODO(k-shir0): エラー処理追加
-	if err != nil {
+	if err := growiProblemSyncService.Sync(); err != nil {
+		log.Fatal(err)
+	}
+	if err := growiNoticeSyncService.Sync(); err != nil {
 		log.Fatal(err)
 	}
 }
