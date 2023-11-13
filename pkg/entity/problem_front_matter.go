@@ -58,17 +58,13 @@ func (p *ProblemFrontMatter) Validate() error {
 		return errors.New("invalid problem type")
 	}
 
+	if p.Type == MultipleType && len(p.CorrectAnswers) < 1 {
+		return errors.New("multiple type problem must have at least one correct answer")
+	}
+
 	for _, ca := range p.CorrectAnswers {
 		if ca.Type != RadioButton && ca.Type != CheckBox {
 			return errors.New("invalid ca type")
-		}
-
-		if ca.Type == RadioButton && len(ca.Column) != 1 {
-			return errors.New("radio type ca must have exactly one correct answer")
-		}
-
-		if ca.Type == CheckBox && len(ca.Column) < 1 {
-			return errors.New("checkbox type ca must have at least one correct answer")
 		}
 
 		if err := validateScoring(ca.Scoring); err != nil {

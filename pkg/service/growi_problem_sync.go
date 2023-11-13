@@ -1,7 +1,6 @@
 package service
 
 import (
-	"context"
 	"fmt"
 	"github.com/adrg/frontmatter"
 	"github.com/google/uuid"
@@ -12,140 +11,121 @@ import (
 	"log"
 	"regexp"
 	"strings"
-	"time"
 )
 
 type GrowiProblemSync struct {
-	client                    *growi_client.GrowiClient
-	path                      string
-	authorId                  string
-	problemWithInfoRepository repository.ProblemWithSyncTimeRepository
-	problemRepository         repository.ProblemRepository
+	client            growi_client.Client
+	path              string
+	authorId          string
+	problemRepository repository.ProblemRepository
 }
 
 func NewGrowiProblemSyncService(
-	client *growi_client.GrowiClient,
+	client growi_client.Client,
 	path string,
 	authorId string,
-	problemWithInfoRepository repository.ProblemWithSyncTimeRepository,
 	problemRepository repository.ProblemRepository,
 ) *GrowiProblemSync {
 	return &GrowiProblemSync{
-		client:                    client,
-		path:                      path,
-		authorId:                  authorId,
-		problemWithInfoRepository: problemWithInfoRepository,
-		problemRepository:         problemRepository,
+		client:            client,
+		path:              path,
+		authorId:          authorId,
+		problemRepository: problemRepository,
 	}
 }
 
-func (s *GrowiProblemSync) Sync(ctx context.Context) error {
-	problems, err := s.problemRepository.GetAll()
-	if err != nil {
-		log.Fatal(errors.Wrap(err, "Failed to get problems").Error())
-	}
-
+func (s *GrowiProblemSync) Sync() error {
 	pages, err := s.client.GetSubordinatedPage(s.path)
 	if err != nil {
 		log.Fatalf(errors.Wrapf(err, "Failed to get subordinated list").Error())
 	}
 
-	// ProblemPath 以下のやつだけ同期
-	r := regexp.MustCompile(fmt.Sprintf(`^%s/`, s.path))
+	problems, err := s.problemRepository.GetAll()
+	if err != nil {
+		log.Fatal(errors.Wrap(err, "Failed to get problems").Error())
+	}
 
+	paths, err := regexp.Compile(fmt.Sprintf(`^%s/`, s.path))
+	if err != nil {
+		log.Fatal(errors.Wrap(err, "Failed to compile regexp").Error())
+	}
+
+PageLoop:
 	for _, page := range pages {
-		// _ で始まるパスを同期しないようしている
 		split := strings.Split(page.Path, "/")
 		end := split[len(split)-1]
 
-		// どこのパスかどうかのログ
-		fmt.Println(page.Path)
+		log.Println("syncing: ", page.Path)
 
-		// _ で始まるページは同期しない
+		// _ で始まるページはスキップされる
 		if strings.HasPrefix(end, "_") {
-			fmt.Println("Sync Skip")
+			log.Println("skipped because it starts with _")
 			continue
 		}
-		if r.MatchString(page.Path) {
-			// redis キャッシュから取得し
-			cachedProblemWithInfo, err := s.problemWithInfoRepository.Get(ctx, page.Path)
-			if err != nil {
-				fmt.Println("Not found in redis")
-			} else {
-				// 更新日付が一緒なら同期しない
-				if cachedProblemWithInfo.UpdatedAt == page.UpdatedAt {
-					fmt.Println("Not updated")
-					continue
-				}
-			}
-
-			fmt.Println("Updating...")
-			fmt.Println(page.Path)
-
-			// 個別ページを取得
+		if paths.MatchString(page.Path) {
 			problemPage, err := s.client.GetPage(page.Path)
 			if err != nil {
 				log.Fatalf(errors.Wrapf(err, "Failed to get page").Error())
 			}
 
-			var matter = &entity.ProblemFrontMatter{}
-
-			// frontmatter
-			// TODO(k-shir0): フォーマットもチェックする
+			matter := &entity.ProblemFrontMatter{}
 			_, err = frontmatter.Parse(strings.NewReader(problemPage.Revision.Body), matter)
 			if err != nil {
 				log.Fatal(err)
 			}
-
-			fmt.Println(matter)
-			//fmt.Println(string(body))
-
-			// ここから先最終更新日と問題内容をキャッシュしておく
-			newProblemWithInfo := &entity.ProblemWithSyncTime{
-				Problem: entity.Problem{
-					Code:              matter.Code,
-					AuthorID:          uuid.MustParse(s.authorId),
-					Title:             matter.Title,
-					Body:              problemPage.Revision.Body,
-					Point:             matter.Point,
-					PreviousProblemID: nil,
-					SolvedCriterion:   matter.SolvedCriterion,
-				},
-				UpdatedAt: page.UpdatedAt,
+			if err = matter.Validate(); err != nil {
+				log.Fatal(err)
 			}
 
-			var exists = false
-			for _, p := range problems {
-				if p.Code == newProblemWithInfo.Problem.Code {
-					newProblemWithInfo.Problem.ID = p.ID
-					newProblemWithInfo.Problem.Base.CreatedAt = p.CreatedAt
+			newProblem := &entity.Problem{
+				Base: entity.Base{
+					UpdatedAt: problemPage.UpdatedAt,
+					CreatedAt: problemPage.CreatedAt,
+				},
+				Code:            matter.Code,
+				AuthorID:        uuid.MustParse(s.authorId),
+				Title:           matter.Title,
+				Body:            problemPage.Revision.Body,
+				Type:            matter.Type,
+				Point:           matter.Point,
+				SolvedCriterion: matter.SolvedCriterion,
+			}
 
-					exists = true
+			if err := newProblem.DeleteMatterQuestionWithQuestionFieldAttach(); err != nil {
+				log.Fatal(err)
+			}
+
+			if err := newProblem.Validate(); err != nil {
+				log.Fatal(err)
+			}
+
+			exist := false
+			for _, p := range problems {
+				if p.Code == newProblem.Code {
+					if p.UpdatedAt.Equal(newProblem.UpdatedAt) {
+						// 更新がないのでスキップ
+						log.Println("skipped because it is not updated")
+						continue PageLoop
+					}
+
+					exist = true
+					newProblem.ID = p.ID
 					break
 				}
 			}
 
-			// 既に存在すれば更新、無ければ作成し、失敗したならその問題はスキップする
-			if exists {
-				_, err = s.problemRepository.Update(&newProblemWithInfo.Problem)
-				if err != nil {
-					log.Println(err)
-					continue
+			if !exist {
+				// 新規追加処理
+				if _, err := s.problemRepository.Create(newProblem); err != nil {
+					log.Fatal(err)
 				}
+				log.Println("created")
 			} else {
-				newProblemWithInfo.Problem.Base.CreatedAt = time.Now()
-
-				_, err = s.problemRepository.Create(&newProblemWithInfo.Problem)
-				if err != nil {
-					log.Println(err)
-					continue
+				// 更新処理
+				if _, err := s.problemRepository.Update(newProblem, true); err != nil {
+					log.Fatal(err)
 				}
-			}
-
-			// キャッシュを行う
-			err = s.problemWithInfoRepository.Set(ctx, page.Path, *newProblemWithInfo)
-			if err != nil {
-				log.Fatal(err)
+				log.Println("updated")
 			}
 		}
 	}

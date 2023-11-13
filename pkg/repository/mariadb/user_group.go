@@ -2,6 +2,7 @@ package mariadb
 
 import (
 	"errors"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
@@ -19,6 +20,10 @@ func NewUserGroupRepository(db *gorm.DB) *UserGroupRepository {
 }
 
 func (r *UserGroupRepository) Create(userGroup *entity.UserGroup) (*entity.UserGroup, error) {
+	now := time.Now()
+	userGroup.CreatedAt = now
+	userGroup.UpdatedAt = now
+
 	err := r.db.Create(userGroup).Error
 	if err != nil {
 		return nil, err

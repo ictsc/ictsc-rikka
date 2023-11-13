@@ -67,6 +67,8 @@ create table problems
     author_id           varchar(191)    null,
     title               longtext        null,
     body                longtext        null,
+    type            longtext null,
+    correct_answers longtext null,
     point               bigint unsigned null,
     previous_problem_id varchar(191)    null,
     solved_criterion    bigint unsigned null,

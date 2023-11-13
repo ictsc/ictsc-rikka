@@ -2,10 +2,10 @@ package mariadb
 
 import (
 	"errors"
-
 	"github.com/google/uuid"
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
 	"gorm.io/gorm"
+	"time"
 )
 
 type ProblemRepository struct {
@@ -50,11 +50,15 @@ func (r *ProblemRepository) FindByCode(code string) (*entity.Problem, error) {
 	return res, err
 }
 
-func (r *ProblemRepository) Update(problem *entity.Problem) (*entity.Problem, error) {
-	err := r.db.Save(problem).Error
-	if err != nil {
-		return nil, err
+func (r *ProblemRepository) Update(problem *entity.Problem, skipUpdateAt bool) (*entity.Problem, error) {
+	if !skipUpdateAt {
+		problem.UpdatedAt = time.Now()
 	}
+
+	if err := r.db.Save(problem); err != nil {
+		return nil, err.Error
+	}
+
 	return r.FindByID(problem.ID)
 }
 

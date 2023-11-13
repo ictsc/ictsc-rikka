@@ -11,6 +11,6 @@ type ProblemRepository interface {
 	GetAll() ([]*entity.Problem, error)
 	FindByID(id uuid.UUID) (*entity.Problem, error)
 	FindByCode(code string) (*entity.Problem, error)
-	Update(problem *entity.Problem) (*entity.Problem, error)
+	Update(problem *entity.Problem, skipUpdatedAt bool) (*entity.Problem, error)
 	Delete(problem *entity.Problem) error
 }

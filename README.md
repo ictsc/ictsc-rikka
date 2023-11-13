@@ -71,6 +71,15 @@ make up
 # api, mariadb, redis, goのコンテナとネットワークを削除
 make down
 
+# go build
+make build
+
+# go test
+make test
+
+# go generate
+make generate
+
 # mariadbにmysqlコマンドでログイン
 make mariadb
 

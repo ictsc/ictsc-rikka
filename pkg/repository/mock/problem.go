@@ -110,16 +110,16 @@ func (mr *MockProblemRepositoryMockRecorder) GetAll() *gomock.Call {
 }
 
 // Update mocks base method.
-func (m *MockProblemRepository) Update(problem *entity.Problem) (*entity.Problem, error) {
+func (m *MockProblemRepository) Update(problem *entity.Problem, skipUpdatedAt bool) (*entity.Problem, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", problem)
+	ret := m.ctrl.Call(m, "Update", problem, skipUpdatedAt)
 	ret0, _ := ret[0].(*entity.Problem)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockProblemRepositoryMockRecorder) Update(problem interface{}) *gomock.Call {
+func (mr *MockProblemRepositoryMockRecorder) Update(problem, skipUpdatedAt interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockProblemRepository)(nil).Update), problem)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockProblemRepository)(nil).Update), problem, skipUpdatedAt)
 }

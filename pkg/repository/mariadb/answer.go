@@ -2,6 +2,7 @@ package mariadb
 
 import (
 	"errors"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
@@ -22,6 +23,10 @@ func NewAnswerRepository(db *gorm.DB) *AnswerRepository {
 var _ repository.AnswerRepository = (*AnswerRepository)(nil)
 
 func (r *AnswerRepository) Create(answer *entity.Answer) (*entity.Answer, error) {
+	now := time.Now()
+	answer.CreatedAt = now
+	answer.UpdatedAt = now
+
 	err := r.db.Create(answer).Error
 	if err != nil {
 		return nil, err
@@ -68,7 +73,7 @@ func (r *AnswerRepository) FindByProblemAndUserGroup(problemid uuid.UUID, groupi
 }
 
 func (r *AnswerRepository) Update(answer *entity.Answer) (*entity.Answer, error) {
-	err := r.db.Model(&entity.Answer{}).Where("id", answer.ID).Update("point", answer.Point).Error
+	err := r.db.Model(&entity.Answer{}).Where("id", answer.ID).Update("point", answer.Point).Update("updated_at", time.Now()).Error
 	if err != nil {
 		return nil, err
 	}
