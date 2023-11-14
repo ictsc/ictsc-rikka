@@ -27,7 +27,6 @@ type ProblemFrontMatter struct {
 	Point             uint            `yaml:"point"`
 	PreviousProblemID *string         `yaml:"previousProblemId,omitempty"`
 	SolvedCriterion   uint            `yaml:"solvedCriterion"`
-	AuthorId          string          `yaml:"authorId,omitempty"`
 	Type              ProblemType     `yaml:"type"`
 	CorrectAnswers    []CorrectAnswer `yaml:"correct_answers,omitempty"`
 }

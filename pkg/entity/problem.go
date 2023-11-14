@@ -16,8 +16,6 @@ type Problem struct {
 	Base
 
 	Code              string             `json:"code" gorm:"unique;index"`
-	AuthorID          uuid.UUID          `json:"author_id"`
-	Author            *User              `json:"-"`
 	Title             string             `json:"title"`
 	Body              string             `json:"body,omitempty"`
 	Type              ProblemType        `json:"type" yaml:"type" gorm:"type:enum('normal','multiple');default:'normal'"`

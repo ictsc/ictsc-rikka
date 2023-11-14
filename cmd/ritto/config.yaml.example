@@ -4,8 +4,6 @@ mariadb:
   username: rikka
   password: rikka-password
   database: rikka
-rikka:
-  authorId:
 growi:
   url:
   token:

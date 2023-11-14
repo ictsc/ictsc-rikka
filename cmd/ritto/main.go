@@ -66,7 +66,6 @@ func main() {
 	growiProblemSyncService := service.NewGrowiProblemSyncService(
 		client,
 		config.Growi.ProblemPath,
-		config.Rikka.AuthorId,
 		problemRepo,
 	)
 	growiNoticeSyncService := service.NewGrowiNoticeSyncService(

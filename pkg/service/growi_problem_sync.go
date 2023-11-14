@@ -3,7 +3,6 @@ package service
 import (
 	"fmt"
 	"github.com/adrg/frontmatter"
-	"github.com/google/uuid"
 	"github.com/ictsc/growi_client"
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
 	"github.com/ictsc/ictsc-rikka/pkg/repository"
@@ -16,20 +15,17 @@ import (
 type GrowiProblemSync struct {
 	client            growi_client.Client
 	path              string
-	authorId          string
 	problemRepository repository.ProblemRepository
 }
 
 func NewGrowiProblemSyncService(
 	client growi_client.Client,
 	path string,
-	authorId string,
 	problemRepository repository.ProblemRepository,
 ) *GrowiProblemSync {
 	return &GrowiProblemSync{
 		client:            client,
 		path:              path,
-		authorId:          authorId,
 		problemRepository: problemRepository,
 	}
 }
@@ -83,7 +79,6 @@ PageLoop:
 					CreatedAt: problemPage.CreatedAt,
 				},
 				Code:            matter.Code,
-				AuthorID:        uuid.MustParse(s.authorId),
 				Title:           matter.Title,
 				Body:            problemPage.Revision.Body,
 				Type:            matter.Type,

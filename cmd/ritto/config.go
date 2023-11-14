@@ -4,7 +4,6 @@ import "fmt"
 
 type Config struct {
 	MariaDB MariaDBConfig `yaml:"mariadb"`
-	Rikka   Rikka         `yaml:"rikka"`
 	Growi   GrowiConfig   `yaml:"growi"`
 }
 
@@ -15,10 +14,6 @@ type MariaDBConfig struct {
 	Port     int    `yaml:"port"`
 	MaxConn  int    `yaml:"maxConn"`
 	Database string `yaml:"database"`
-}
-
-type Rikka struct {
-	AuthorId string `yaml:"authorId"`
 }
 
 type GrowiConfig struct {

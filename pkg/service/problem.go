@@ -20,7 +20,6 @@ type ProblemService struct {
 
 type CreateProblemRequest struct {
 	Code              string
-	AuthorID          uuid.UUID
 	Title             string
 	Body              string
 	Type              entity.ProblemType
@@ -33,7 +32,6 @@ type CreateProblemRequest struct {
 type UpdateProblemRequest struct {
 	ID                uuid.UUID
 	Code              string
-	AuthorID          uuid.UUID
 	Title             string
 	Body              string
 	Type              entity.ProblemType
@@ -57,7 +55,6 @@ func NewProblemService(answerLimit int, userRepo repository.UserRepository, prob
 func (s *ProblemService) Create(req *CreateProblemRequest) (*entity.Problem, error) {
 	prob := &entity.Problem{
 		Code:              req.Code,
-		AuthorID:          req.AuthorID,
 		Title:             req.Title,
 		Body:              req.Body,
 		Type:              req.Type,
@@ -234,7 +231,6 @@ func (s *ProblemService) Update(id uuid.UUID, req *UpdateProblemRequest) (*entit
 		return nil, errors.New("problem not found")
 	}
 
-	prob.AuthorID = req.AuthorID
 	prob.Title = req.Title
 	prob.Body = req.Body
 	prob.Point = req.Point

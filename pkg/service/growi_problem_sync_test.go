@@ -59,10 +59,9 @@ body`,
 				problemRepo.EXPECT().GetAll().Return(nil, nil)
 				problemRepo.EXPECT().Create(
 					&entity.Problem{
-						Code:     "ABC",
-						AuthorID: uuid.MustParse("00000000-0000-4000-a000-000000000000"),
-						Title:    "test",
-						Type:     entity.NormalType,
+						Code:  "ABC",
+						Title: "test",
+						Type:  entity.NormalType,
 						Body: `---
 code: ABC
 title: test
@@ -108,11 +107,10 @@ body`,
 								ID:        uuid.MustParse("00000000-0000-4000-a000-000000000000"),
 								UpdatedAt: time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC),
 							},
-							Code:     "ABC",
-							AuthorID: uuid.MustParse("00000000-0000-4000-a000-000000000000"),
-							Title:    "test",
-							Type:     entity.NormalType,
-							Body:     `test`,
+							Code:  "ABC",
+							Title: "test",
+							Type:  entity.NormalType,
+							Body:  `test`,
 						},
 					},
 					nil)
@@ -154,11 +152,10 @@ body`,
 								ID:        uuid.MustParse("00000000-0000-4000-a000-000000000000"),
 								UpdatedAt: time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC),
 							},
-							Code:     "ABC",
-							AuthorID: uuid.MustParse("00000000-0000-4000-a000-000000000000"),
-							Title:    "test",
-							Type:     entity.NormalType,
-							Body:     `test`,
+							Code:  "ABC",
+							Title: "test",
+							Type:  entity.NormalType,
+							Body:  `test`,
 						},
 					},
 					nil)
@@ -169,10 +166,9 @@ body`,
 							UpdatedAt: time.Date(2001, 1, 1, 0, 0, 0, 0, time.UTC),
 							CreatedAt: time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC),
 						},
-						Code:     "ABC",
-						AuthorID: uuid.MustParse("00000000-0000-4000-a000-000000000000"),
-						Title:    "test",
-						Type:     entity.NormalType,
+						Code:  "ABC",
+						Title: "test",
+						Type:  entity.NormalType,
 						Body: `---
 code: ABC
 title: test
@@ -203,7 +199,6 @@ body`,
 			s := NewGrowiProblemSyncService(
 				client,
 				"path",
-				"00000000-0000-4000-a000-000000000000",
 				problemRepo,
 			)
 
