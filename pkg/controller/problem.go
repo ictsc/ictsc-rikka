@@ -18,7 +18,6 @@ func NewProblemController(problemService *service.ProblemService) *ProblemContro
 
 type CreateProblemRequest struct {
 	Code              string     `json:"code"`
-	AuthorID          uuid.UUID  `json:"author_id"`
 	Title             string     `json:"title"`
 	Body              string     `json:"body"`
 	Point             uint       `json:"point"`
@@ -33,7 +32,6 @@ type CreateProblemResponse struct {
 func (c *ProblemController) Create(req *CreateProblemRequest) (*CreateProblemResponse, error) {
 	prob, err := c.problemService.Create(&service.CreateProblemRequest{
 		Code:              req.Code,
-		AuthorID:          req.AuthorID,
 		Title:             req.Title,
 		Body:              req.Body,
 		Point:             req.Point,
@@ -154,7 +152,6 @@ func (c *ProblemController) GetAllWithAnswerInformation(metadataOnly bool) (*Get
 }
 
 type UpdateProblemRequest struct {
-	AuthorID          uuid.UUID  `json:"author_id"`
 	Title             string     `json:"title"`
 	Body              string     `json:"body"`
 	Point             uint       `json:"point"`
@@ -173,7 +170,6 @@ func (c *ProblemController) Update(id string, req *UpdateProblemRequest) (*Updat
 	}
 
 	prob, err := c.problemService.Update(uuid, &service.UpdateProblemRequest{
-		AuthorID:          req.AuthorID,
 		Title:             req.Title,
 		Body:              req.Body,
 		Point:             req.Point,
