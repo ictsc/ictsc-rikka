@@ -64,7 +64,6 @@ create table problems
     created_at          datetime(3)     null,
     updated_at          datetime(3)     null,
     code                varchar(191)    null,
-    author_id           varchar(191)    null,
     title               longtext        null,
     body                longtext        null,
     type            longtext null,
@@ -74,8 +73,6 @@ create table problems
     solved_criterion    bigint unsigned null,
     constraint code
         unique (code),
-    constraint fk_problems_author
-        foreign key (author_id) references users (id),
     constraint fk_problems_previous_problem
         foreign key (previous_problem_id) references problems (id)
 );
@@ -234,10 +231,10 @@ VALUES ('00000000-0000-4000-a000-000000000002', '1990-01-01 12:34:56.200', '1990
 
 
 # problems
-INSERT INTO rikka.problems (id, created_at, updated_at, code, author_id, title, body, point, previous_problem_id,
+INSERT INTO rikka.problems (id, created_at, updated_at, code, title, body, point, previous_problem_id,
                             solved_criterion)
 VALUES ('00000000-0000-4000-a000-000000000000', '1990-01-01 12:34:56.000', '1990-01-01 12:34:56.000', 'abc',
-        '00000000-0000-4000-a000-000000000000', '問題タイトル1', '---
+        '問題タイトル1', '---
 code: abc
 title: テスト問題
 point: 100
@@ -251,14 +248,14 @@ connectInfo:
     type: ssh
 ---
 問題内容1', 100, null, 100);
-INSERT INTO rikka.problems (id, created_at, updated_at, code, author_id, title, body, point, previous_problem_id,
+INSERT INTO rikka.problems (id, created_at, updated_at, code, title, body, point, previous_problem_id,
                             solved_criterion)
 VALUES ('00000000-0000-4000-a000-000000000001', '1990-01-01 12:34:56.100', '1990-01-01 12:34:56.100', 'def',
-        '00000000-0000-4000-a000-000000000000', '問題タイトル2', '問題内容2', 200, null, 200);
-INSERT INTO rikka.problems (id, created_at, updated_at, code, author_id, title, body, point, previous_problem_id,
+        '問題タイトル2', '問題内容2', 200, null, 200);
+INSERT INTO rikka.problems (id, created_at, updated_at, code, title, body, point, previous_problem_id,
                             solved_criterion)
 VALUES ('00000000-0000-4000-a000-000000000002', '1990-01-01 12:34:56.200', '1990-01-01 12:34:56.200', 'ghi',
-        '00000000-0000-4000-a000-000000000000', '問題タイトル3', '問題内容3', 300, null, 300);
+        '問題タイトル3', '問題内容3', 300, null, 300);
 
 
 # answers
