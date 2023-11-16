@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
 	"net/http"
 
@@ -34,9 +33,7 @@ func NewRankingHandler(r *gin.RouterGroup, userRepo repository.UserRepository, r
 }
 
 func (h *RankingHandler) GetRanking(ctx *gin.Context) {
-	fmt.Println("テスト1")
 	group := ctx.MustGet("group").(*entity.UserGroup)
-	fmt.Println(group)
 	ranking, err := h.rankingController.GetRanking(group)
 	if err != nil {
 		ctx.Error(err)
