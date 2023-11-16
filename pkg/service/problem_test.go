@@ -134,6 +134,7 @@ body`,
 			answerRepo := mock.NewMockAnswerRepository(ctrl)
 
 			s := NewProblemService(
+				false,
 				0,
 				userRepo,
 				problemRepo,
