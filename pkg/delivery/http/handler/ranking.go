@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"fmt"
+	"github.com/ictsc/ictsc-rikka/pkg/entity"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -26,13 +28,16 @@ func NewRankingHandler(r *gin.RouterGroup, userRepo repository.UserRepository, r
 		authed := group.Group("")
 		authed.Use(middleware.Auth(userRepo))
 
-		group.GET("", handler.GetRanking)
+		authed.GET("", handler.GetRanking)
 		authed.GET("/top", handler.GetTopRanking)
 	}
 }
 
 func (h *RankingHandler) GetRanking(ctx *gin.Context) {
-	ranking, err := h.rankingController.GetRanking()
+	fmt.Println("テスト1")
+	group := ctx.MustGet("group").(*entity.UserGroup)
+	fmt.Println(group)
+	ranking, err := h.rankingController.GetRanking(group)
 	if err != nil {
 		ctx.Error(err)
 		return
@@ -42,7 +47,8 @@ func (h *RankingHandler) GetRanking(ctx *gin.Context) {
 }
 
 func (h *RankingHandler) GetTopRanking(ctx *gin.Context) {
-	ranking, err := h.rankingController.GetTopRanking()
+	group := ctx.MustGet("group").(*entity.UserGroup)
+	ranking, err := h.rankingController.GetTopRanking(group)
 	if err != nil {
 		ctx.Error(err)
 		return

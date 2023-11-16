@@ -19,11 +19,12 @@ import (
 )
 
 type AnswerService struct {
-	answerLimit time.Duration
-	webhook     string
-	userRepo    repository.UserRepository
-	answerRepo  repository.AnswerRepository
-	problemRepo repository.ProblemRepository
+	preRoundMode bool
+	answerLimit  time.Duration
+	webhook      string
+	userRepo     repository.UserRepository
+	answerRepo   repository.AnswerRepository
+	problemRepo  repository.ProblemRepository
 }
 
 type CreateAnswerRequest struct {
@@ -36,13 +37,14 @@ type UpdateAnswerRequest struct {
 	Point uint
 }
 
-func NewAnswerService(answerLimit int, webhook string, userRepo repository.UserRepository, answerRepo repository.AnswerRepository, problemRepo repository.ProblemRepository) *AnswerService {
+func NewAnswerService(preRoundMode bool, answerLimit int, webhook string, userRepo repository.UserRepository, answerRepo repository.AnswerRepository, problemRepo repository.ProblemRepository) *AnswerService {
 	return &AnswerService{
-		answerLimit: time.Duration(answerLimit) * time.Minute,
-		webhook:     webhook,
-		userRepo:    userRepo,
-		answerRepo:  answerRepo,
-		problemRepo: problemRepo,
+		preRoundMode: preRoundMode,
+		answerLimit:  time.Duration(answerLimit) * time.Minute,
+		webhook:      webhook,
+		userRepo:     userRepo,
+		answerRepo:   answerRepo,
+		problemRepo:  problemRepo,
 	}
 }
 
@@ -167,6 +169,10 @@ func (s *AnswerService) FindByID(group *entity.UserGroup, id uuid.UUID) (*entity
 		return nil, err
 	}
 
+	if !group.IsFullAccess && s.preRoundMode {
+		ans.Point = nil
+	}
+
 	if !group.IsFullAccess && !time.Now().After(ans.CreatedAt.Add(s.answerLimit)) {
 		ans.Point = nil
 	}
@@ -188,6 +194,10 @@ func (s *AnswerService) FindByProblem(group *entity.UserGroup, probid uuid.UUID,
 	if !group.IsFullAccess {
 		now := time.Now()
 		for _, ans := range answers {
+			if s.preRoundMode {
+				ans.Point = nil
+			}
+
 			if !now.After(ans.CreatedAt.Add(s.answerLimit)) {
 				ans.Point = nil
 			}
@@ -215,6 +225,10 @@ func (s *AnswerService) FindByProblemAndUserGroup(group *entity.UserGroup, probi
 	if !group.IsFullAccess {
 		now := time.Now()
 		for _, ans := range answers {
+			if s.preRoundMode {
+				ans.Point = nil
+			}
+
 			if !now.After(ans.CreatedAt.Add(s.answerLimit)) {
 				ans.Point = nil
 			}

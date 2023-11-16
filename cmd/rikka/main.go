@@ -154,10 +154,10 @@ func main() {
 	userService := service.NewUserService(userRepo, userProfileRepo, userGroupRepo)
 	userGroupService := service.NewUserGroupService(userGroupRepo)
 	bastionService := service.NewBastionService(bastionRepo)
-	problemService := service.NewProblemService(config.Contest.AnswerLimit, userRepo, problemRepo, answerRepo)
-	answerService := service.NewAnswerService(config.Contest.AnswerLimit, config.Notify.Answer, userRepo, answerRepo, problemRepo)
+	problemService := service.NewProblemService(config.Rikka.PreRoundMode, config.Contest.AnswerLimit, userRepo, problemRepo, answerRepo)
+	answerService := service.NewAnswerService(config.Rikka.PreRoundMode, config.Contest.AnswerLimit, config.Notify.Answer, userRepo, answerRepo, problemRepo)
 	attachmentService := service.NewAttachmentService(attachmentRepo, s3Repo)
-	rankingService := service.NewRankingService(config.Contest.AnswerLimit, userGroupRepo, answerRepo)
+	rankingService := service.NewRankingService(config.Rikka.PreRoundMode, config.Contest.AnswerLimit, userGroupRepo, answerRepo)
 	noticeService := service.NewNoticeService(noticeRepo)
 
 	problemController := controller.NewProblemController(problemService)

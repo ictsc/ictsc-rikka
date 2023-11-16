@@ -1,15 +1,16 @@
 package service
 
 import (
-	"sort"
-	"time"
-
 	"github.com/google/uuid"
 	"github.com/ictsc/ictsc-rikka/pkg/entity"
+	e "github.com/ictsc/ictsc-rikka/pkg/error"
 	"github.com/ictsc/ictsc-rikka/pkg/repository"
+	"sort"
+	"time"
 )
 
 type RankingService struct {
+	preRoundMode        bool
 	answerLimit         time.Duration
 	userGroupRepository repository.UserGroupRepository
 	answerRepository    repository.AnswerRepository
@@ -27,8 +28,9 @@ type problemPoint struct {
 	gotAt time.Time
 }
 
-func NewRankingService(answerLimit int, userGroupRepository repository.UserGroupRepository, answerRepository repository.AnswerRepository) *RankingService {
+func NewRankingService(preRoundMode bool, answerLimit int, userGroupRepository repository.UserGroupRepository, answerRepository repository.AnswerRepository) *RankingService {
 	return &RankingService{
+		preRoundMode:        preRoundMode,
 		answerLimit:         time.Duration(answerLimit) * time.Minute,
 		userGroupRepository: userGroupRepository,
 		answerRepository:    answerRepository,
@@ -69,6 +71,10 @@ func (s *RankingService) getLatestRanking(isFullAccess bool) (map[uuid.UUID]*Ran
 
 	// ユーザの順位を計算するために使うデータ構造を初期化する
 	rankTable := make(map[uuid.UUID]*Rank)
+	if !isFullAccess && s.preRoundMode {
+		return nil, e.NewForbiddenError("preRoundMode is enabled")
+	}
+
 	for _, userGroup := range userGroups {
 		// ICTSCユーザグループを除外する
 		if userGroup.IsFullAccess {
@@ -174,7 +180,12 @@ func (s *RankingService) table2slice(table map[uuid.UUID]*Rank) []*Rank {
 	return ranks
 }
 
-func (s *RankingService) GetRanking() ([]*Rank, error) {
+func (s *RankingService) GetRanking(group *entity.UserGroup) ([]*Rank, error) {
+	var rankTable map[uuid.UUID]*Rank
+	if !group.IsFullAccess && s.preRoundMode {
+		return nil, e.NewForbiddenError("preRoundMode is enabled")
+	}
+
 	rankTable, err := s.getRanking(true)
 	if err != nil {
 		return nil, err
@@ -183,7 +194,12 @@ func (s *RankingService) GetRanking() ([]*Rank, error) {
 	return s.table2slice(rankTable), nil
 }
 
-func (s *RankingService) GetTopRanking() ([]*Rank, error) {
+func (s *RankingService) GetTopRanking(group *entity.UserGroup) ([]*Rank, error) {
+	var rankTable map[uuid.UUID]*Rank
+	if !group.IsFullAccess && s.preRoundMode {
+		return nil, e.NewForbiddenError("preRoundMode is enabled")
+	}
+
 	rankTable, err := s.getRanking(false)
 	if err != nil {
 		return nil, err

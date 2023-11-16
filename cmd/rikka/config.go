@@ -7,6 +7,7 @@ import (
 )
 
 type Config struct {
+	Rikka    RikkaConfig     `yaml:"rikka"`
 	Contest  ContestConfig   `yaml:"contest"`
 	Listen   ListenConfig    `yaml:"listen"`
 	CORS     CORSConfig      `yaml:"cors"`
@@ -18,6 +19,11 @@ type Config struct {
 	Seed     seed.SeedConfig `yaml:"seed"`
 	Sentry   SentryConfig    `yaml:"sentry"`
 	Recreate RecreateConfig  `yaml:"recreate"`
+}
+
+type RikkaConfig struct {
+	// 点数やランキングがユーザーには表示されなくなる予選用モード
+	PreRoundMode bool `yaml:"preRoundMode"`
 }
 
 type ContestConfig struct {

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -10,6 +11,7 @@ import (
 )
 
 type ProblemService struct {
+	preRoundMode                  bool
 	uncheckedNearOverdueThreshold time.Duration
 	uncheckedOverdueThreshold     time.Duration
 
@@ -41,8 +43,9 @@ type UpdateProblemRequest struct {
 	SolvedCriterion   uint
 }
 
-func NewProblemService(answerLimit int, userRepo repository.UserRepository, problemRepo repository.ProblemRepository, answerRepo repository.AnswerRepository) *ProblemService {
+func NewProblemService(preRoundMode bool, answerLimit int, userRepo repository.UserRepository, problemRepo repository.ProblemRepository, answerRepo repository.AnswerRepository) *ProblemService {
 	return &ProblemService{
+		preRoundMode:                  preRoundMode,
 		uncheckedNearOverdueThreshold: time.Duration(answerLimit*3/4) * time.Minute,
 		uncheckedOverdueThreshold:     time.Duration(answerLimit) * time.Minute,
 
@@ -188,7 +191,11 @@ func (s *ProblemService) GetAllWithCurrentPoint(group *entity.UserGroup) ([]*ent
 	}
 	detailProblems := make([]*entity.ProblemWithCurrentPoint, 0, len(problems))
 	for _, problem := range problems {
-		CurrentPoint := s.GetCurrentPoint(problem, group)
+		var CurrentPoint uint
+		if !s.preRoundMode {
+			CurrentPoint = s.GetCurrentPoint(problem, group)
+		}
+		fmt.Println(CurrentPoint)
 		detailProblems = append(detailProblems, &entity.ProblemWithCurrentPoint{
 			Problem: *problem,
 
