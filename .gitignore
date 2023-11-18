@@ -1,2 +1,4 @@
 .local
 .tmp
+.env.dev
+.env.prod

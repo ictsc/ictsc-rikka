@@ -7,23 +7,27 @@ services:
       dockerfile: Dockerfile
     command: /root/rikka --config /root/config.yaml
     ports:
-      - "8080:8080"
+      - ${RIKKA_PORT}:8080
     volumes:
       - ./cmd/rikka/config.docker.yaml:/root/config.yaml
       - .:/go/src/ictsc-rikka:cached
       - .local/pkg:/go/pkg:cached
-    restart: unless-stopped
+    restart: always
+    depends_on:
+      - mariadb
+      - redis
+      - minio
   mariadb:
     image: mariadb:10.5.10
     ports:
-      - "3306:3306"
+      - ${MARIADB_PORT}:3306
     volumes:
       - mariadb:/var/lib/mysql
       - ./scripts/test_seed.sql:/docker-entrypoint-initdb.d/test_seed.sql
     environment:
       LANG: C.UTF-8
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: rikka
-      MYSQL_USER: rikka
-      MYSQL_PASSWORD: rikka-password
+      MYSQL_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MARIADB_DATABASE}
+      MYSQL_USER: ${MARIADB_USERNAME}
+      MYSQL_PASSWORD: ${MARIADB_PASSWORD}
       MYSQL_INITDB_CHARSET: utf8mb4
