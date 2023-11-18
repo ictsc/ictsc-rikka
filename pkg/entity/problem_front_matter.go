@@ -18,7 +18,7 @@ type QuestionType string
 
 const (
 	RadioButton QuestionType = "radio"
-	CheckBox    QuestionType = "check"
+	CheckBox    QuestionType = "checkbox"
 )
 
 type ProblemFrontMatter struct {
