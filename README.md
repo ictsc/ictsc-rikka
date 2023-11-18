@@ -26,6 +26,12 @@ cmd/rikka/config.docker.yaml
 
 #### 初回
 
+`.env` をコピーし `.env.dev` を作成します
+
+```
+cp .env .env.dev
+```
+
 docker を起動しデータベースを初期化します
 
 ```
@@ -42,7 +48,7 @@ cp scripts/docker-compose.override.yml .
 make up
 ```
 
-### docker-compose.yml
+### compose.yml
 
 | service | image           | 用途        | 永続化                    |
 |---------|-----------------|-----------|------------------------|
@@ -91,5 +97,20 @@ make redis-cli
 
 # 自己署名証明書の作成
 make self-signed-cert-and-key
+```
 
+## deploy
+
+### Docker でのデプロイ
+
+`.env` をコピーし `.env.prod` を作成します
+
+```
+cp .env .env.prod
+```
+
+docker を起動しデータベースを初期化します
+
+```
+docker compose -f compose.yml -f compose.prod.yml --env-file .env.prod up -d
 ```

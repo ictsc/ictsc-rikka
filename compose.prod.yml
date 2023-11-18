@@ -1,0 +1,26 @@
+services:
+  rikka:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: /root/rikka --config /root/config.yaml
+    ports:
+      - ${RIKKA_PORT}:8080
+    volumes:
+      - ./cmd/rikka/config.docker.yaml:/root/config.yaml
+      - .:/go/src/ictsc-rikka:cached
+      - .local/pkg:/go/pkg:cached
+    restart: always
+    depends_on:
+      - mariadb
+      - redis
+      - minio
+  ritto:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./cmd/ritto/config.yaml:/root/config.yaml
+      - ./cmd/ritto/run.sh:/root/run.sh
+    command: ./run.sh
+    restart: unless-stopped
