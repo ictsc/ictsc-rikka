@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -195,7 +194,6 @@ func (s *ProblemService) GetAllWithCurrentPoint(group *entity.UserGroup) ([]*ent
 		if !s.preRoundMode {
 			CurrentPoint = s.GetCurrentPoint(problem, group)
 		}
-		fmt.Println(CurrentPoint)
 		detailProblems = append(detailProblems, &entity.ProblemWithCurrentPoint{
 			Problem: *problem,
 
