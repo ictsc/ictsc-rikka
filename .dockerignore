@@ -3,10 +3,7 @@
 scripts
 compose.yml
 compose.prod.yml
-.env
-.env.dev
 .gitignore
-Makefile
 Dockerfile
 Dockerfile.dev
 README.md

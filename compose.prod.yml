@@ -24,3 +24,7 @@ services:
       - ./cmd/ritto/run.sh:/root/run.sh
     command: ./run.sh
     restart: unless-stopped
+    depends_on:
+      - mariadb
+      - redis
+      - minio
