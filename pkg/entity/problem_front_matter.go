@@ -29,6 +29,7 @@ type ProblemFrontMatter struct {
 	SolvedCriterion   uint            `yaml:"solvedCriterion"`
 	Type              ProblemType     `yaml:"type"`
 	CorrectAnswers    []CorrectAnswer `yaml:"correct_answers,omitempty"`
+	ConnectInfo       []ConnectInfo   `yaml:"connectInfo,omitempty"`
 }
 
 type CorrectAnswer struct {
@@ -40,6 +41,15 @@ type CorrectAnswer struct {
 type Scoring struct {
 	Correct        uint  `yaml:"correct,omitempty"`
 	PartialCorrect *uint `yaml:"partial_correct,omitempty"`
+}
+
+type ConnectInfo struct {
+	Hostname string `yaml:"hostname"`
+	Command  string `yaml:"command"`
+	User     string `yaml:"user"`
+	Password string `yaml:"password"`
+	Port     int    `yaml:"port"`
+	Type     string `yaml:"type"`
 }
 
 func (p *ProblemFrontMatter) Validate() error {
