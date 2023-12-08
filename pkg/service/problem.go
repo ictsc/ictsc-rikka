@@ -184,7 +184,7 @@ func (s *ProblemService) GetAll() ([]*entity.Problem, error) {
 }
 
 func (s *ProblemService) GetAllWithCurrentPoint(group *entity.UserGroup) ([]*entity.ProblemWithCurrentPoint, error) {
-	problems, err := s.problemRepo.GetAll()
+	problems, err := s.problemRepo.GetProblemsWithIsAnsweredByUserGroup(group.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -192,11 +192,12 @@ func (s *ProblemService) GetAllWithCurrentPoint(group *entity.UserGroup) ([]*ent
 	for _, problem := range problems {
 		var CurrentPoint uint
 		if !s.preRoundMode {
-			CurrentPoint = s.GetCurrentPoint(problem, group)
+			CurrentPoint = s.GetCurrentPoint(&problem.Problem, group)
 		}
 		detailProblems = append(detailProblems, &entity.ProblemWithCurrentPoint{
-			Problem: *problem,
+			Problem: problem.Problem,
 
+			IsAnswered:   problem.IsAnswered,
 			CurrentPoint: CurrentPoint,
 			IsSolved:     CurrentPoint >= problem.SolvedCriterion,
 		})
