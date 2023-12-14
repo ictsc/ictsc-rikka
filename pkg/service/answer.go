@@ -119,7 +119,7 @@ func (s *AnswerService) Create(req *CreateAnswerRequest) (*entity.Answer, error)
 					}
 				}
 
-				if correctCount == len(ca.Column) {
+				if correctCount == len(ca.Column) && len(ca.Column) == len(ma.Value) {
 					sum += ca.Scoring.Correct
 				} else if ca.Scoring.PartialCorrect != nil && correctCount > 0 {
 					sum += *ca.Scoring.PartialCorrect * uint(correctCount)
