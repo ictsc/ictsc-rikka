@@ -231,7 +231,7 @@ VALUES ('00000000-0000-4000-a000-000000000002', '1990-01-01 12:34:56.200', '1990
 
 
 # problems
-INSERT INTO rikka.problems (id, created_at, updated_at, code, title, body, point, previous_problem_id,
+INSERT INTO rikka.problems (id, created_at, updated_at, code, title, body, type, point, previous_problem_id,
                             solved_criterion)
 VALUES ('00000000-0000-4000-a000-000000000000', '1990-01-01 12:34:56.000', '1990-01-01 12:34:56.000', 'abc',
         '問題タイトル1', '---
@@ -239,6 +239,7 @@ code: abc
 title: テスト問題
 point: 100
 solvedCriterion: 100
+type: normal
 connectInfo:
   - hostname: post
     command: 192.168.100.1
@@ -247,15 +248,15 @@ connectInfo:
     port: 22
     type: ssh
 ---
-問題内容1', 100, null, 100);
-INSERT INTO rikka.problems (id, created_at, updated_at, code, title, body, point, previous_problem_id,
+問題内容1', 'normal', 100, null, 100);
+INSERT INTO rikka.problems (id, created_at, updated_at, code, title, body, type, point, previous_problem_id,
                             solved_criterion)
 VALUES ('00000000-0000-4000-a000-000000000001', '1990-01-01 12:34:56.100', '1990-01-01 12:34:56.100', 'def',
-        '問題タイトル2', '問題内容2', 200, null, 200);
-INSERT INTO rikka.problems (id, created_at, updated_at, code, title, body, point, previous_problem_id,
+        '問題タイトル2', '問題内容2', 'normal', 200, null, 200);
+INSERT INTO rikka.problems (id, created_at, updated_at, code, title, body, type, point, previous_problem_id,
                             solved_criterion)
 VALUES ('00000000-0000-4000-a000-000000000002', '1990-01-01 12:34:56.200', '1990-01-01 12:34:56.200', 'ghi',
-        '問題タイトル3', '問題内容3', 300, null, 300);
+        '問題タイトル3', '問題内容3', 'normal', 300, null, 300);
 
 
 # answers
