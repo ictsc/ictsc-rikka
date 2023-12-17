@@ -315,6 +315,7 @@ func TestAnswerService_Create(t *testing.T) {
 			problemRepo := mock.NewMockProblemRepository(ctrl)
 
 			s := NewAnswerService(
+				false,
 				0,
 				"",
 				userRepo,

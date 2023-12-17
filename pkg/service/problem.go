@@ -10,6 +10,7 @@ import (
 )
 
 type ProblemService struct {
+	preRoundMode                  bool
 	uncheckedNearOverdueThreshold time.Duration
 	uncheckedOverdueThreshold     time.Duration
 
@@ -41,8 +42,9 @@ type UpdateProblemRequest struct {
 	SolvedCriterion   uint
 }
 
-func NewProblemService(answerLimit int, userRepo repository.UserRepository, problemRepo repository.ProblemRepository, answerRepo repository.AnswerRepository) *ProblemService {
+func NewProblemService(preRoundMode bool, answerLimit int, userRepo repository.UserRepository, problemRepo repository.ProblemRepository, answerRepo repository.AnswerRepository) *ProblemService {
 	return &ProblemService{
+		preRoundMode:                  preRoundMode,
 		uncheckedNearOverdueThreshold: time.Duration(answerLimit*3/4) * time.Minute,
 		uncheckedOverdueThreshold:     time.Duration(answerLimit) * time.Minute,
 
@@ -182,16 +184,20 @@ func (s *ProblemService) GetAll() ([]*entity.Problem, error) {
 }
 
 func (s *ProblemService) GetAllWithCurrentPoint(group *entity.UserGroup) ([]*entity.ProblemWithCurrentPoint, error) {
-	problems, err := s.problemRepo.GetAll()
+	problems, err := s.problemRepo.GetProblemsWithIsAnsweredByUserGroup(group.ID)
 	if err != nil {
 		return nil, err
 	}
 	detailProblems := make([]*entity.ProblemWithCurrentPoint, 0, len(problems))
 	for _, problem := range problems {
-		CurrentPoint := s.GetCurrentPoint(problem, group)
+		var CurrentPoint uint
+		if !s.preRoundMode {
+			CurrentPoint = s.GetCurrentPoint(&problem.Problem, group)
+		}
 		detailProblems = append(detailProblems, &entity.ProblemWithCurrentPoint{
-			Problem: *problem,
+			Problem: problem.Problem,
 
+			IsAnswered:   problem.IsAnswered,
 			CurrentPoint: CurrentPoint,
 			IsSolved:     CurrentPoint >= problem.SolvedCriterion,
 		})

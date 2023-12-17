@@ -40,8 +40,8 @@ func (c *RankingController) entity2response(ranks []*service.Rank) *Ranking {
 	return &Ranking{Ranking: ranks_resp}
 }
 
-func (c *RankingController) GetRanking() (*Ranking, error) {
-	ranking, err := c.rankingService.GetRanking()
+func (c *RankingController) GetRanking(group *entity.UserGroup) (*Ranking, error) {
+	ranking, err := c.rankingService.GetRanking(group)
 	if err != nil {
 		return nil, err
 	}
@@ -49,8 +49,8 @@ func (c *RankingController) GetRanking() (*Ranking, error) {
 	return c.entity2response(ranking), nil
 }
 
-func (c *RankingController) GetTopRanking() (*Ranking, error) {
-	ranking, err := c.rankingService.GetTopRanking()
+func (c *RankingController) GetTopRanking(group *entity.UserGroup) (*Ranking, error) {
+	ranking, err := c.rankingService.GetTopRanking(group)
 	if err != nil {
 		return nil, err
 	}

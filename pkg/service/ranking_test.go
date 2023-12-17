@@ -243,7 +243,7 @@ func (r *MockAnswerRepository) GetAll() ([]*entity.Answer, error) {
 }
 
 func TestRanking(t *testing.T) {
-	s := NewRankingService(20, &MockUserGroupRepository{}, &MockAnswerRepository{})
+	s := NewRankingService(false, 20, &MockUserGroupRepository{}, &MockAnswerRepository{})
 
 	rankTable, err := s.getLatestRanking(false)
 	if err != nil {

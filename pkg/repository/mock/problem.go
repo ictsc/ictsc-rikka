@@ -109,6 +109,21 @@ func (mr *MockProblemRepositoryMockRecorder) GetAll() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockProblemRepository)(nil).GetAll))
 }
 
+// GetProblemsWithIsAnsweredByUserGroup mocks base method.
+func (m *MockProblemRepository) GetProblemsWithIsAnsweredByUserGroup(arg0 uuid.UUID) ([]*entity.ProblemWithIsAnswered, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetProblemsWithIsAnsweredByUserGroup", arg0)
+	ret0, _ := ret[0].([]*entity.ProblemWithIsAnswered)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetProblemsWithIsAnsweredByUserGroup indicates an expected call of GetProblemsWithIsAnsweredByUserGroup.
+func (mr *MockProblemRepositoryMockRecorder) GetProblemsWithIsAnsweredByUserGroup(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProblemsWithIsAnsweredByUserGroup", reflect.TypeOf((*MockProblemRepository)(nil).GetProblemsWithIsAnsweredByUserGroup), arg0)
+}
+
 // Update mocks base method.
 func (m *MockProblemRepository) Update(problem *entity.Problem, skipUpdatedAt bool) (*entity.Problem, error) {
 	m.ctrl.T.Helper()

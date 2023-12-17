@@ -3,13 +3,11 @@ package entity
 import (
 	"database/sql/driver"
 	"github.com/adrg/frontmatter"
+	"github.com/google/uuid"
+	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 	"regexp"
 	"strings"
-	"time"
-
-	"github.com/google/uuid"
-	"github.com/pkg/errors"
 )
 
 type Problem struct {
@@ -70,6 +68,12 @@ func (p *Problem) DeleteMatterQuestionWithQuestionFieldAttach() error {
 	return nil
 }
 
+type ProblemWithIsAnswered struct {
+	Problem
+
+	IsAnswered bool `json:"is_answered" gorm:"column:is_answered"`
+}
+
 type ProblemWithAnswerInformation struct {
 	Problem
 
@@ -84,13 +88,9 @@ type ProblemWithAnswerInformation struct {
 type ProblemWithCurrentPoint struct {
 	Problem
 
+	IsAnswered   bool `json:"is_answered"`
 	CurrentPoint uint `json:"current_point"`
 	IsSolved     bool `json:"is_solved"`
-}
-
-type ProblemWithSyncTime struct {
-	Problem
-	UpdatedAt time.Time
 }
 
 type YAMLCorrectAnswers []CorrectAnswer

@@ -32,6 +32,18 @@ func (r *ProblemRepository) GetAll() ([]*entity.Problem, error) {
 	return problems, err
 }
 
+func (r *ProblemRepository) GetProblemsWithIsAnsweredByUserGroup(id uuid.UUID) ([]*entity.ProblemWithIsAnswered, error) {
+	problems := make([]*entity.ProblemWithIsAnswered, 0)
+
+	subQuery := r.db.Table("answers").Select("1").Where("answers.problem_id = problems.id AND answers.user_group_id = ?", id).Limit(1)
+
+	err := r.db.Table("problems").
+		Select("problems.*, EXISTS(?) AS is_answered", subQuery).
+		Scan(&problems).Error
+
+	return problems, err
+}
+
 func (r *ProblemRepository) FindByID(id uuid.UUID) (*entity.Problem, error) {
 	res := &entity.Problem{}
 	err := r.db.First(res, id).Error
