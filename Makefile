@@ -16,16 +16,19 @@ run:
 run-ritto:
 	$(GO_RUN_RITTO) --config $(GO_RITTO_CMD_PATH)/config.yaml
 
+.env.dev:
+	if [ ! -f .env.dev ]; then cp .env .env.dev; fi
+
 .PHONY: ps
-ps:
+ps: .env.dev
 	$(DOCKER_COMPOSE) ps
 
 .PHONY: up
-up:
+up: .env.dev
 	$(DOCKER_COMPOSE) up -d
 
 .PHONY: down
-down:
+down: .env.dev
 	$(DOCKER_COMPOSE) down
 
 .PHONY: build
