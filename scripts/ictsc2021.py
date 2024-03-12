@@ -24,10 +24,13 @@ class Rikka:
         return requests.patch(url, cookies=self._jar, **kwargs)
 
     def signin(self, username, password):
-        resp = self._post("/auth/signin", json={
-            "name": username,
-            "password": password,
-        })
+        resp = self._post(
+            "/auth/signin",
+            json={
+                "name": username,
+                "password": password,
+            },
+        )
         self._jar = resp.cookies
         return resp
 
@@ -35,32 +38,50 @@ class Rikka:
         return self._get("/auth/self")
 
     def create_user(self, name, password, usergroupid, invitation_code):
-        return self._post("/users", json={
-            "name": name,
-            "password": password,
-            "user_group_id": usergroupid,
-            "invitation_code": invitation_code,
-        })
+        return self._post(
+            "/users",
+            json={
+                "name": name,
+                "password": password,
+                "user_group_id": usergroupid,
+                "invitation_code": invitation_code,
+            },
+        )
 
-    def create_usergroup(self, id, name, organization, invitation_code, is_full_access, bastion_user, bastion_password, bastion_host, bastion_port):
-        return self._post("/usergroups", json={
-            "team_id": id,
-            "name": name,
-            "organization": organization,
-            "invitation_code": invitation_code,
-            "is_full_access": is_full_access,
-            "bastion_user": bastion_user,
-            "bastion_password": bastion_password,
-            "bastion_host": bastion_host,
-            "bastion_port": bastion_port,
-        })
+    def create_usergroup(
+        self,
+        name,
+        organization,
+        invitation_code,
+        is_full_access,
+        bastion_user,
+        bastion_password,
+        bastion_host,
+        bastion_port,
+        team_id,
+    ):
+        return self._post(
+            "/usergroups",
+            json={
+                "name": name,
+                "organization": organization,
+                "invitation_code": invitation_code,
+                "is_full_access": is_full_access,
+                "bastion_user": bastion_user,
+                "bastion_password": bastion_password,
+                "bastion_host": bastion_host,
+                "bastion_port": bastion_port,
+                "team_id": team_id,
+            },
+        )
 
     def send_answer(self, problem_id, content):
-        return self._post("/problems/%s/answers" % problem_id, json={
-            "body": content
-        })
+        return self._post("/problems/%s/answers" % problem_id, json={"body": content})
 
     def point(self, problem_id, answer_id, point):
-        return self._patch("/problems/%s/answers/%s" % (problem_id, answer_id), json={
-            "point": point,
-        })
+        return self._patch(
+            "/problems/%s/answers/%s" % (problem_id, answer_id),
+            json={
+                "point": point,
+            },
+        )
