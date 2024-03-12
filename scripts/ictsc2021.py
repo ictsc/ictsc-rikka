@@ -42,8 +42,9 @@ class Rikka:
             "invitation_code": invitation_code,
         })
 
-    def create_usergroup(self, name, organization, invitation_code, is_full_access, bastion_user, bastion_password, bastion_host, bastion_port):
+    def create_usergroup(self, id, name, organization, invitation_code, is_full_access, bastion_user, bastion_password, bastion_host, bastion_port):
         return self._post("/usergroups", json={
+            "team_id": id,
             "name": name,
             "organization": organization,
             "invitation_code": invitation_code,

@@ -27,13 +27,14 @@ def main():
         name = team["name"]
         organization = team["organization"]
         invitation_code = team["invitation_code"]
-        bastion_user = team["bastion_user"]
-        bastion_password = team["bastion_password"]
-        bastion_host = team["bastion_host"]
-        bastion_port = team["bastion_port"]
+        bastion_user = ""
+        bastion_password = ""
+        bastion_host = ""
+        bastion_port = 0
+        team_id = team["user_group_id"]
 
         print(f"\x1b[33m\n*** Create user group {name}\x1b[0m")
-        rikka.create_usergroup(name, organization, invitation_code, False, bastion_user, bastion_password, bastion_host, bastion_port)
+        rikka.create_usergroup(team_id, name, organization, invitation_code, False, bastion_user, bastion_password, bastion_host, bastion_port)
 
 
 main()
