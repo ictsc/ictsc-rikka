@@ -57,7 +57,7 @@ require (
 	github.com/prometheus/common v0.39.0 // indirect
 	github.com/prometheus/procfs v0.9.0 // indirect
 	github.com/rs/xid v1.4.0 // indirect
-	github.com/sirupsen/logrus v1.9.0 // indirect
+	github.com/sirupsen/logrus v1.9.1 // indirect
 	github.com/ugorji/go/codec v1.2.8 // indirect
 	golang.org/x/net v0.18.0 // indirect
 	golang.org/x/sys v0.15.0 // indirect
