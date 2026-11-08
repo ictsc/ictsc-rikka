@@ -30,7 +30,7 @@ services:
       MYSQL_INITDB_CHARSET: utf8mb4
     restart: always
   redis:
-    image: redis:6.2.4
+    image: redis:6.2.24
     ports:
       - 127.0.0.1:${REDIS_PORT}:6379
     restart: always
