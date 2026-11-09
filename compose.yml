@@ -16,7 +16,7 @@ services:
       - redis
       - minio
   mariadb:
-    image: mariadb:10.5.10
+    image: mariadb:10.11.19
     ports:
       - ${MARIADB_PORT}:3306
     volumes:
