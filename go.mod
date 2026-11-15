@@ -1,6 +1,6 @@
 module github.com/ictsc/ictsc-rikka
 
-go 1.19
+go 1.21
 
 require (
 	github.com/adrg/frontmatter v0.2.0
@@ -9,7 +9,7 @@ require (
 	github.com/gin-contrib/sessions v0.0.5
 	github.com/gin-gonic/gin v1.8.2
 	github.com/golang/mock v1.6.0
-	github.com/google/go-cmp v0.6.0
+	github.com/google/go-cmp v0.7.0
 	github.com/google/uuid v1.3.0
 	github.com/ictsc/growi_client v0.0.0-20231112130128-56d4b15f15be
 	github.com/minio/minio-go/v7 v7.0.45
