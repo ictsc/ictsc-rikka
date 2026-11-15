@@ -10,7 +10,7 @@ require (
 	github.com/gin-gonic/gin v1.8.2
 	github.com/golang/mock v1.6.0
 	github.com/google/go-cmp v0.6.0
-	github.com/google/uuid v1.3.0
+	github.com/google/uuid v1.6.0
 	github.com/ictsc/growi_client v0.0.0-20231112130128-56d4b15f15be
 	github.com/minio/minio-go/v7 v7.0.45
 	github.com/pkg/errors v0.9.1
